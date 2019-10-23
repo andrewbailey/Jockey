@@ -1,15 +1,19 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: "androidx.navigation.safeargs.kotlin"
+
+def config = rootProject.extensions.getByName("ext")
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion config.compileSdkVersion
     defaultConfig {
         applicationId "dev.andrewbailey.music"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion config.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -18,14 +22,41 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+androidExtensions {
+    // Disable Kotlin synthetic views
+    features = ["parcelize"]
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core-ktx:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    // Kotlin
+    implementation config.deps.kotlin.stdlib
+    implementation config.deps.kotlin.coroutines
+
+    // Androidx
+    implementation config.deps.androidx.core
+    implementation config.deps.androidx.annotation
+    implementation config.deps.androidx.appcompat
+    implementation config.deps.androidx.material
+    implementation config.deps.androidx.fragment
+    implementation config.deps.androidx.navigation
+    implementation config.deps.androidx.navigationui
+    implementation config.deps.androidx.recyclerview
+    implementation config.deps.androidx.constraintlayout
+
+    // Testing
+    testImplementation config.deps.test.junit
+    androidTestImplementation config.deps.test.espresso
 }
