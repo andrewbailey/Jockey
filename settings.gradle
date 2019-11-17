@@ -1,2 +1,2 @@
-include ':app', ':encore-core'
+include ':app', ':encore-core', ':encore-mediastore'
 rootProject.name='Jockey'
