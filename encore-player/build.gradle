@@ -1,21 +1,21 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: "androidx.navigation.safeargs.kotlin"
 
 def config = rootProject.extensions.getByName("ext")
 
 android {
     compileSdkVersion config.compileSdkVersion
+
     defaultConfig {
-        applicationId "dev.andrewbailey.music"
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion config.targetSdkVersion
-        versionCode 1
         versionName "1.0"
-        multiDexEnabled true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,25 +23,15 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     kotlinOptions {
         jvmTarget = "1.8"
     }
-}
 
-androidExtensions {
-    // Disable Kotlin synthetic views
-    features = ["parcelize"]
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':encore-mediastore')
-    implementation project(':encore-player')
+    api project(':encore-core')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib
@@ -50,13 +40,11 @@ dependencies {
     // Androidx
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
-    implementation config.deps.androidx.appcompat
-    implementation config.deps.androidx.material
-    implementation config.deps.androidx.fragment
-    implementation config.deps.androidx.navigation
-    implementation config.deps.androidx.navigationui
-    implementation config.deps.androidx.recyclerview
-    implementation config.deps.androidx.constraintlayout
+    implementation config.deps.androidx.media
+
+    // ExoPlayer
+    implementation config.deps.exoplayer.core
+    implementation config.deps.exoplayer.mediasession
 
     // Testing
     testImplementation config.deps.test.junit
