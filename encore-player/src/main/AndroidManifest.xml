@@ -1,2 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.andrewbailey.encore.player" />
+    package="dev.andrewbailey.encore.player">
+
+    <application>
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+          <intent-filter>
+            <action android:name="android.intent.action.MEDIA_BUTTON"/>
+          </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
