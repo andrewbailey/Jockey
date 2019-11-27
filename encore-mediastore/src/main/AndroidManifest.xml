@@ -1,2 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.andrewbailey.library.provider.mediastore" />
+    package="dev.andrewbailey.library.provider.mediastore" >
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+</manifest>
