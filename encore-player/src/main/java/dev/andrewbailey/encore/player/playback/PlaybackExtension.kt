@@ -21,6 +21,8 @@ abstract class PlaybackExtension {
                 "Did you call this before onPrepared() or after onRelease()?"
     }
 
+    protected fun getArtwork() = requireMediaPlayer().getArtwork()
+
     protected fun getCurrentPlaybackState() = requireMediaPlayer().getState()
 
     protected fun setPlaybackState(state: PlaybackState) = requireMediaPlayer().setState(state)
