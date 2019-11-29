@@ -27,6 +27,10 @@ abstract class PlaybackExtension {
 
     protected fun setPlaybackState(state: PlaybackState) = requireMediaPlayer().setState(state)
 
+    protected inline fun modifyPlaybackState(modification: PlaybackState.() -> PlaybackState) {
+        setPlaybackState(getCurrentPlaybackState().modification())
+    }
+
     open fun onPrepared() {
 
     }
