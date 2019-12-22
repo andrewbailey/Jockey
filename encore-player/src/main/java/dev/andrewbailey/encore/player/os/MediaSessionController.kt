@@ -1,13 +1,19 @@
 package dev.andrewbailey.encore.player.os
 
 import android.content.Context
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
+import dev.andrewbailey.encore.player.state.Active
+import dev.andrewbailey.encore.player.state.Idle
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.RepeatMode.*
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
+import dev.andrewbailey.encore.player.state.Status
 
 internal class MediaSessionController(
     context: Context,
@@ -24,9 +30,54 @@ internal class MediaSessionController(
     }
 
     override fun onNewPlayerState(newState: PlaybackState): PlaybackState {
-        mediaSession
+        mediaSession.apply {
+            when (val transport = newState.transportState) {
+                is Active -> {
+                    setMetadata(buildMetadata(transport))
+
+                    setPlaybackState(PlaybackStateCompat.Builder()
+                        .setState(
+                            when (transport.status) {
+                                Status.PLAYING -> STATE_PLAYING
+                                Status.PAUSED, Status.REACHED_END -> STATE_PAUSED
+                            },
+                            transport.seekPosition.seekPositionMillis,
+                            1.0f
+                        )
+                        .setActions(
+                            ACTION_PLAY or
+                            ACTION_PLAY_PAUSE or
+                            ACTION_SEEK_TO or
+                            ACTION_PAUSE or
+                            ACTION_SKIP_TO_NEXT or
+                            ACTION_SKIP_TO_PREVIOUS or
+                            ACTION_STOP or
+                            ACTION_SET_REPEAT_MODE or
+                            ACTION_SET_SHUFFLE_MODE or
+                            ACTION_PLAY_FROM_MEDIA_ID)
+                        .build())
+                }
+                is Idle -> {
+                    setPlaybackState(PlaybackStateCompat.Builder()
+                        .setState(STATE_NONE, 0, 0f)
+                        .build())
+                    setMetadata(MediaMetadataCompat.Builder()
+                        .putString(METADATA_KEY_TITLE, "Nothing is playing")
+                        .build())
+                }
+            }
+        }
 
         return super.onNewPlayerState(newState)
+    }
+
+    private fun buildMetadata(transport: Active): MediaMetadataCompat {
+        return MediaMetadataCompat.Builder()
+            .putString(METADATA_KEY_TITLE, transport.nowPlaying.mediaItem.name)
+            .putString(METADATA_KEY_AUTHOR, transport.nowPlaying.mediaItem.author?.name)
+            .putString(METADATA_KEY_ALBUM, transport.nowPlaying.mediaItem.collection?.name)
+            .putBitmap(METADATA_KEY_ALBUM_ART, getArtwork())
+            .build()
     }
 
     override fun onRelease() {
