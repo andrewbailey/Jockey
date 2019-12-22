@@ -33,6 +33,9 @@ internal class MediaPlayer(
 
     init {
         extensions.forEach { it.initialize(this) }
+
+        val exoPlayerListeners = ExoPlayerListeners(this::dispatchStateChange)
+        exoPlayer.addListener(exoPlayerListeners)
     }
 
     fun getState(): PlaybackState {
