@@ -3,8 +3,10 @@ package dev.andrewbailey.encore.player.playback
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
 import com.google.android.exoplayer2.metadata.id3.ApicFrame
 import dev.andrewbailey.encore.player.BuildConfig
@@ -34,8 +36,16 @@ internal class MediaPlayer(
     init {
         extensions.forEach { it.initialize(this) }
 
-        val exoPlayerListeners = ExoPlayerListeners(this::dispatchStateChange)
-        exoPlayer.addListener(exoPlayerListeners)
+        exoPlayer.apply {
+            addListener(ExoPlayerListeners(this@MediaPlayer::dispatchStateChange))
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.CONTENT_TYPE_MUSIC)
+                    .build(),
+                true
+            )
+        }
     }
 
     fun getState(): PlaybackState {
