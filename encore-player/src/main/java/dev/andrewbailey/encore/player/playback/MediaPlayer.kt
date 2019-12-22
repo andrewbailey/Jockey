@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
 import com.google.android.exoplayer2.metadata.id3.ApicFrame
+import dev.andrewbailey.encore.player.BuildConfig
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.util.getEntries
 import dev.andrewbailey.encore.player.util.getFormats
@@ -13,12 +14,13 @@ import dev.andrewbailey.encore.player.util.toList
 
 internal class MediaPlayer(
     context: Context,
+    userAgent: String = "Encore/${BuildConfig.VERSION_NAME}",
     private val extensions: List<PlaybackExtension>,
     private val observers: List<PlaybackObserver>
 ) {
 
     private val exoPlayer = ExoPlayerFactory.newSimpleInstance(context)
-    private val queue = MediaQueue()
+    private val queue = MediaQueue(context, userAgent)
 
     init {
         extensions.forEach { it.initialize(this) }
