@@ -14,6 +14,8 @@ import dev.andrewbailey.encore.player.os.MediaSessionController
 import dev.andrewbailey.encore.player.playback.MediaPlayer
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
+import dev.andrewbailey.encore.player.state.Active
+import dev.andrewbailey.encore.player.state.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -27,6 +29,7 @@ abstract class MediaPlayerService(
     observers: List<PlaybackObserver> = emptyList()
 ) : Service() {
 
+    private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
     private val customActions by lazy {
@@ -64,7 +67,13 @@ abstract class MediaPlayerService(
     }
 
     override fun onBind(intent: Intent?): IBinder? {
+        isBound = true
         return null
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        isBound = false
+        return false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -104,7 +113,23 @@ abstract class MediaPlayerService(
     }
 
     fun quit() {
-        stopSelf()
+        /*
+            If a client is still using the playback service, pause playback and hide the
+            notification. There's a chance that the user will resume playback later on, so we
+            don't want to kill the service just yet. The OS will eventually kill the service
+            if the remaining components unbind from it and the service is left idle.
+
+            If nothing is binding to this service, we can kill it immediately.
+         */
+        if (isBound) {
+            mediaPlayer.getState()
+                .takeIf { (it.transportState as? Active)?.status == Status.PLAYING }
+                ?.pause()
+                ?.let { mediaPlayer.setState(it) }
+            stopForeground(true)
+        } else {
+            stopSelf()
+        }
     }
 
     open fun onCreateCustomActions(): List<CustomActionProvider> {
