@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.content.getSystemService
+import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.Active
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -15,7 +16,8 @@ internal class PlaybackNotifier(
     private val service: Service,
     private val mediaSession: MediaSessionCompat,
     private val notificationId: Int,
-    private val notificationProvider: NotificationProvider
+    private val notificationProvider: NotificationProvider,
+    private val customActionProviders: List<CustomActionProvider>
 ) : PlaybackObserver() {
 
     private val notificationManager = service.getSystemService<NotificationManager>()
@@ -39,8 +41,9 @@ internal class PlaybackNotifier(
         playbackState: PlaybackState
     ) {
         val notification = notificationProvider.createNotification(
-            context = service,
+            service = service,
             playbackState = playbackState,
+            customActionProviders = customActionProviders,
             mediaSession = mediaSession,
             stopIntent = PendingIntent.getService(service, 0, createStopIntent(), 0)
         )
@@ -54,7 +57,8 @@ internal class PlaybackNotifier(
     }
 
     private fun createStopIntent(): Intent {
-        TODO()
+        // TODO
+        return Intent()
     }
 
 }

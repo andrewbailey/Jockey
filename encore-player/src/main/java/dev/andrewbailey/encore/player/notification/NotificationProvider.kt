@@ -2,6 +2,7 @@ package dev.andrewbailey.encore.player.notification
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.annotation.ColorInt
@@ -9,6 +10,8 @@ import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
+import dev.andrewbailey.encore.player.action.CustomActionIntents
+import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.PlaybackState
 
 abstract class NotificationProvider(
@@ -16,14 +19,21 @@ abstract class NotificationProvider(
 ) {
 
     internal fun createNotification(
-        context: Context,
+        service: Service,
         playbackState: PlaybackState,
+        customActionProviders: List<CustomActionProvider>,
         mediaSession: MediaSessionCompat,
         stopIntent: PendingIntent
     ): Notification {
         val actions = getActions(playbackState)
+            .mapNotNull { action ->
+                action.getNotificationActionIcon(
+                    state = playbackState,
+                    customActionProviders = customActionProviders
+                )
+            }
 
-        return NotificationCompat.Builder(context, notificationChannelId)
+        return NotificationCompat.Builder(service, notificationChannelId)
             .setStyle(
                 MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
@@ -39,17 +49,17 @@ abstract class NotificationProvider(
             .setContentText(mediaSession.controller.metadata?.description?.subtitle)
             .setLargeIcon(mediaSession.controller.metadata?.description?.iconBitmap)
             .setSmallIcon(getNotificationIcon(playbackState))
-            .setColor(getNotificationColor(context, playbackState))
+            .setColor(getNotificationColor(service, playbackState))
             .apply {
                 actions.forEach { action ->
                     addAction(
                         action.icon,
-                        context.getString(action.title),
-                        getPendingIntent(context, action)
+                        service.getString(action.title),
+                        getPendingIntent(service, action)
                     )
                 }
             }
-            .setContentIntent(getContentIntent(context, playbackState))
+            .setContentIntent(getContentIntent(service, playbackState))
             .setDeleteIntent(stopIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setWhen(0)
@@ -70,12 +80,15 @@ abstract class NotificationProvider(
     abstract fun getActions(playbackState: PlaybackState): List<NotificationAction>
 
     private fun getPendingIntent(
-        context: Context,
-        action: NotificationAction
+        service: Service,
+        action: NotificationActionIcon
     ): PendingIntent {
         return when (action) {
-            is DefaultNotificationAction -> {
-                MediaButtonReceiver.buildMediaButtonPendingIntent(context, action.mediaKeyAction)
+            is DefaultNotificationActionIcon -> {
+                MediaButtonReceiver.buildMediaButtonPendingIntent(service, action.mediaKeyAction)
+            }
+            is CustomNotificationActionIcon -> {
+                CustomActionIntents.createIntent(service, action.actionId)
             }
         }
     }

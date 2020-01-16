@@ -5,12 +5,18 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.media.session.MediaButtonReceiver
+import dev.andrewbailey.encore.player.action.CustomActionIntents
+import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.notification.PlaybackNotifier
 import dev.andrewbailey.encore.player.os.MediaSessionController
 import dev.andrewbailey.encore.player.playback.MediaPlayer
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 abstract class MediaPlayerService(
     tag: String,
@@ -19,6 +25,12 @@ abstract class MediaPlayerService(
     extensions: List<PlaybackExtension> = emptyList(),
     observers: List<PlaybackObserver> = emptyList()
 ) : Service() {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
+
+    private val customActions by lazy {
+        onCreateCustomActions()
+    }
 
     private val mediaSessionController by lazy {
         MediaSessionController(this, tag)
@@ -29,7 +41,8 @@ abstract class MediaPlayerService(
             service = this,
             mediaSession = mediaSessionController.mediaSession,
             notificationId = notificationId,
-            notificationProvider = notificationProvider
+            notificationProvider = notificationProvider,
+            customActionProviders = customActions
         )
     }
 
@@ -52,7 +65,12 @@ abstract class MediaPlayerService(
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.hasExtra(Intent.EXTRA_KEY_EVENT) == true) {
+        intent?.let { handleCommand(it) }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun handleCommand(intent: Intent) {
+        if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
             if (Build.VERSION.SDK_INT >= 26) {
                 /*
                  * We need to make sure we call startForeground since MediaButtonReceiver always
@@ -63,9 +81,13 @@ abstract class MediaPlayerService(
                 notifier.showNotification(foreground = true, playbackState = mediaPlayer.getState())
             }
             MediaButtonReceiver.handleIntent(mediaSessionController.mediaSession, intent)
+        } else if (CustomActionIntents.isCustomActionIntent(intent)) {
+            val actionId = CustomActionIntents.parseActionIdFromIntent(intent)
+            val actionProvider = customActions.firstOrNull { it.id == actionId } ?: return
+            coroutineScope.launch {
+                actionProvider.performAction(mediaPlayer.getState())
+            }
         }
-
-        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -74,6 +96,11 @@ abstract class MediaPlayerService(
 
     override fun onDestroy() {
         super.onDestroy()
+        coroutineScope.cancel("MediaPlayerService has been destroyed")
         mediaPlayer.release()
+    }
+
+    open fun onCreateCustomActions(): List<CustomActionProvider> {
+        return emptyList()
     }
 }
