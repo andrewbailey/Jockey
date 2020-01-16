@@ -1,12 +1,12 @@
 package dev.andrewbailey.encore.player.notification
 
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.content.Intent
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.content.getSystemService
+import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
+import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.Active
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -42,10 +42,11 @@ internal class PlaybackNotifier(
     ) {
         val notification = notificationProvider.createNotification(
             service = service,
+            foreground = foreground,
             playbackState = playbackState,
             customActionProviders = customActionProviders,
             mediaSession = mediaSession,
-            stopIntent = PendingIntent.getService(service, 0, createStopIntent(), 0)
+            stopIntent = CustomActionIntents.createIntent(service, QuitActionProvider.ACTION_ID)
         )
 
         if (foreground) {
@@ -54,11 +55,6 @@ internal class PlaybackNotifier(
             service.stopForeground(false)
             notificationManager.notify(notificationId, notification)
         }
-    }
-
-    private fun createStopIntent(): Intent {
-        // TODO
-        return Intent()
     }
 
 }

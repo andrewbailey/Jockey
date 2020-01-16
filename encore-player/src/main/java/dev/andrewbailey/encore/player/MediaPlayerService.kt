@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.media.session.MediaButtonReceiver
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
+import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.notification.PlaybackNotifier
 import dev.andrewbailey.encore.player.os.MediaSessionController
@@ -29,7 +30,9 @@ abstract class MediaPlayerService(
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
     private val customActions by lazy {
-        onCreateCustomActions()
+        onCreateCustomActions() + listOf(
+            QuitActionProvider(this)
+        )
     }
 
     private val mediaSessionController by lazy {
@@ -98,6 +101,10 @@ abstract class MediaPlayerService(
         super.onDestroy()
         coroutineScope.cancel("MediaPlayerService has been destroyed")
         mediaPlayer.release()
+    }
+
+    fun quit() {
+        stopSelf()
     }
 
     open fun onCreateCustomActions(): List<CustomActionProvider> {

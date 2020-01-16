@@ -20,6 +20,7 @@ abstract class NotificationProvider(
 
     internal fun createNotification(
         service: Service,
+        foreground: Boolean,
         playbackState: PlaybackState,
         customActionProviders: List<CustomActionProvider>,
         mediaSession: MediaSessionCompat,
@@ -64,6 +65,7 @@ abstract class NotificationProvider(
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setWhen(0)
             .setShowWhen(false)
+            .setOngoing(foreground)
             .build()
     }
 
