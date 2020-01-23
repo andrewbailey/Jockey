@@ -16,6 +16,8 @@ import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.Active
 import dev.andrewbailey.encore.player.state.Status
+import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
+import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -25,6 +27,7 @@ abstract class MediaPlayerService(
     tag: String,
     notificationId: Int,
     notificationProvider: NotificationProvider,
+    private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory,
     extensions: List<PlaybackExtension> = emptyList(),
     observers: List<PlaybackObserver> = emptyList()
 ) : Service() {
@@ -55,6 +58,7 @@ abstract class MediaPlayerService(
     private val mediaPlayer by lazy {
         MediaPlayer(
             context = applicationContext,
+            playbackStateFactory = playbackStateFactory,
             extensions = listOf(
                 mediaSessionController,
                 *extensions.toTypedArray()
@@ -124,7 +128,7 @@ abstract class MediaPlayerService(
         if (isBound) {
             mediaPlayer.getState()
                 .takeIf { (it.transportState as? Active)?.status == Status.PLAYING }
-                ?.pause()
+                ?.let { playbackStateFactory.pause(it) }
                 ?.let { mediaPlayer.setState(it) }
             stopForeground(true)
         } else {

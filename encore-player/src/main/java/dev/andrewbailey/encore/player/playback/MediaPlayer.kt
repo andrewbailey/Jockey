@@ -14,6 +14,7 @@ import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
 import dev.andrewbailey.encore.player.state.diff.*
+import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import dev.andrewbailey.encore.player.util.getEntries
 import dev.andrewbailey.encore.player.util.getFormats
 import dev.andrewbailey.encore.player.util.toList
@@ -21,6 +22,7 @@ import dev.andrewbailey.encore.player.util.toList
 internal class MediaPlayer(
     context: Context,
     userAgent: String = "Encore/${BuildConfig.VERSION_NAME}",
+    playbackStateFactory: PlaybackStateFactory,
     private val extensions: List<PlaybackExtension>,
     private val observers: List<PlaybackObserver>
 ) {
@@ -34,7 +36,7 @@ internal class MediaPlayer(
     private var shouldDispatchStateChanges: Boolean = true
 
     init {
-        extensions.forEach { it.initialize(this) }
+        extensions.forEach { it.initialize(this, playbackStateFactory) }
 
         exoPlayer.apply {
             addListener(ExoPlayerListeners(this@MediaPlayer::dispatchStateChange))
