@@ -8,9 +8,9 @@ import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
-import dev.andrewbailey.encore.player.state.Active
+import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
-import dev.andrewbailey.encore.player.state.Status
+import dev.andrewbailey.encore.player.state.TransportState.Active
 
 internal class PlaybackNotifier(
     private val service: Service,
@@ -29,16 +29,16 @@ internal class PlaybackNotifier(
         }
     }
 
-    override fun onPlaybackStateChanged(newState: PlaybackState) {
+    override fun onPlaybackStateChanged(newState: MediaPlayerState) {
         showNotification(
-            foreground = (newState.transportState as? Active)?.status == Status.PLAYING,
+            foreground = (newState.transportState as? Active)?.status == PlaybackState.PLAYING,
             playbackState = newState
         )
     }
 
     fun showNotification(
         foreground: Boolean,
-        playbackState: PlaybackState
+        playbackState: MediaPlayerState
     ) {
         val notification = notificationProvider.createNotification(
             service = service,

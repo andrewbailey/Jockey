@@ -1,23 +1,14 @@
 package dev.andrewbailey.encore.player.playback
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.metadata.flac.PictureFrame
-import com.google.android.exoplayer2.metadata.id3.ApicFrame
 import dev.andrewbailey.encore.player.BuildConfig
-import dev.andrewbailey.encore.player.state.*
-import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
-import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
+import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.*
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
-import dev.andrewbailey.encore.player.util.getEntries
-import dev.andrewbailey.encore.player.util.getFormats
-import dev.andrewbailey.encore.player.util.toList
 
 internal class MediaPlayer(
     context: Context,
@@ -32,7 +23,8 @@ internal class MediaPlayer(
 
     private val stateLock = Any()
     private val differ = PlaybackStateDiffer()
-    private var lastDispatchedState: PlaybackState? = null
+    private val stateCreator = PlaybackStateCreator(exoPlayer, queue)
+    private var lastDispatchedState: MediaPlayerState? = null
     private var shouldDispatchStateChanges: Boolean = true
 
     init {
@@ -50,51 +42,23 @@ internal class MediaPlayer(
         }
     }
 
-    fun getState(): PlaybackState {
+    fun getState(): MediaPlayerState {
         return synchronized(stateLock) {
-            val queue = queue.queueItems
-
-            PlaybackState(
-                transportState = if (queue.isEmpty()) {
-                    Idle
-                } else {
-                    Active(
-                        status = when {
-                            exoPlayer.isPlaying -> Status.PLAYING
-                            exoPlayer.playbackState == Player.STATE_ENDED -> Status.REACHED_END
-                            else -> Status.PAUSED
-                        },
-                        seekPosition = if (exoPlayer.isPlaying) {
-                            ComputedSeekPosition(exoPlayer.currentPosition)
-                        } else {
-                            AbsoluteSeekPosition(exoPlayer.currentPosition)
-                        },
-                        queue = queue,
-                        queueIndex = exoPlayer.currentWindowIndex
-                    )
-                },
-                repeatMode = when (val repeatMode = exoPlayer.repeatMode) {
-                    Player.REPEAT_MODE_OFF -> RepeatMode.REPEAT_NONE
-                    Player.REPEAT_MODE_ONE -> RepeatMode.REPEAT_ONE
-                    Player.REPEAT_MODE_ALL -> RepeatMode.REPEAT_ALL
-                    else -> {
-                        throw IllegalStateException("Unknown ExoPlayer repeat mode: $repeatMode")
-                    }
-                },
-                shuffleMode = if (exoPlayer.shuffleModeEnabled) {
-                    ShuffleMode.LINEAR
-                } else {
-                    ShuffleMode.SHUFFLED
-                }
-            )
+            stateCreator.createPlaybackState()
         }
     }
 
-    fun setState(state: PlaybackState) {
+    private fun getTransportState(): TransportState {
+        return synchronized(stateLock) {
+            stateCreator.createTransportState()
+        }
+    }
+
+    fun setState(state: TransportState) {
         synchronized(stateLock) {
             shouldDispatchStateChanges = false
 
-            val diff = differ.generateDiff(getState(), state)
+            val diff = differ.generateDiff(getTransportState(), state)
 
             for (operation in diff.operations) {
                 when (operation) {
@@ -128,27 +92,6 @@ internal class MediaPlayer(
                 observers.forEach { it.onPlaybackStateChanged(state) }
             }
         }
-    }
-
-    fun getArtwork(): Bitmap? {
-        return exoPlayer.currentTrackSelections.toList()
-            .flatMap { it.getFormats() }
-            .mapNotNull { it.metadata }
-            .flatMap { it.getEntries() }
-            .asSequence()
-            .mapNotNull { metadataEntry ->
-                when (metadataEntry) {
-                    is ApicFrame -> {
-                        metadataEntry.pictureData
-                    }
-                    is PictureFrame -> {
-                        metadataEntry.pictureData
-                    }
-                    else -> null
-                }
-            }
-            .firstOrNull()
-            ?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
     }
 
     fun release() {

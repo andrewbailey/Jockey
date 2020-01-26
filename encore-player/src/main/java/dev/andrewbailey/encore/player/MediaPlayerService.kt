@@ -14,8 +14,8 @@ import dev.andrewbailey.encore.player.os.MediaSessionController
 import dev.andrewbailey.encore.player.playback.MediaPlayer
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
-import dev.andrewbailey.encore.player.state.Active
-import dev.andrewbailey.encore.player.state.Status
+import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import kotlinx.coroutines.CoroutineScope
@@ -126,8 +126,9 @@ abstract class MediaPlayerService(
             If nothing is binding to this service, we can kill it immediately.
          */
         if (isBound) {
-            mediaPlayer.getState()
-                .takeIf { (it.transportState as? Active)?.status == Status.PLAYING }
+            (mediaPlayer.getState() as? MediaPlayerState.Prepared)
+                ?.transportState
+                ?.takeIf { it.status == PlaybackState.PLAYING }
                 ?.let { playbackStateFactory.pause(it) }
                 ?.let { mediaPlayer.setState(it) }
             stopForeground(true)

@@ -12,7 +12,7 @@ import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.MediaPlayerState
 
 abstract class NotificationProvider(
     private val notificationChannelId: String
@@ -21,7 +21,7 @@ abstract class NotificationProvider(
     internal fun createNotification(
         service: Service,
         foreground: Boolean,
-        playbackState: PlaybackState,
+        playbackState: MediaPlayerState,
         customActionProviders: List<CustomActionProvider>,
         mediaSession: MediaSessionCompat,
         stopIntent: PendingIntent
@@ -70,16 +70,16 @@ abstract class NotificationProvider(
     }
 
     @DrawableRes
-    abstract fun getNotificationIcon(playbackState: PlaybackState): Int
+    abstract fun getNotificationIcon(playbackState: MediaPlayerState): Int
 
     @ColorInt
-    open fun getNotificationColor(context: Context, playbackState: PlaybackState): Int {
+    open fun getNotificationColor(context: Context, playbackState: MediaPlayerState): Int {
         return NotificationCompat.COLOR_DEFAULT
     }
 
-    abstract fun getContentIntent(context: Context, playbackState: PlaybackState): PendingIntent
+    abstract fun getContentIntent(context: Context, playbackState: MediaPlayerState): PendingIntent
 
-    abstract fun getActions(playbackState: PlaybackState): List<NotificationAction>
+    abstract fun getActions(playbackState: MediaPlayerState): List<NotificationAction>
 
     private fun getPendingIntent(
         service: Service,

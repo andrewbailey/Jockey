@@ -6,12 +6,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.marverenic.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.action.CustomActionProvider
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.MediaPlayerState
 
 sealed class NotificationAction {
 
     internal abstract fun getNotificationActionIcon(
-        state: PlaybackState,
+        state: MediaPlayerState,
         customActionProviders: List<CustomActionProvider>
     ): NotificationActionIcon?
 
@@ -57,7 +57,7 @@ internal class DefaultNotificationAction(
 ) : NotificationAction() {
 
     override fun getNotificationActionIcon(
-        state: PlaybackState,
+        state: MediaPlayerState,
         customActionProviders: List<CustomActionProvider>
     ) = DefaultNotificationActionIcon(
         icon = icon,
@@ -74,7 +74,7 @@ internal class CustomNotificationAction<T : CustomActionProvider>(
 ) : NotificationAction() {
 
     override fun getNotificationActionIcon(
-        state: PlaybackState,
+        state: MediaPlayerState,
         customActionProviders: List<CustomActionProvider>
     ): CustomNotificationActionIcon? {
         val provider = customActionProviders

@@ -1,7 +1,7 @@
 package dev.andrewbailey.encore.player.state
 
-data class PlaybackState(
-    val transportState: TransportState,
-    val repeatMode: RepeatMode,
-    val shuffleMode: ShuffleMode
-)
+enum class PlaybackState {
+    PLAYING,
+    PAUSED,
+    REACHED_END
+}

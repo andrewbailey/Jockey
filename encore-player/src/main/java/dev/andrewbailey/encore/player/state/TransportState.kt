@@ -1,35 +1,29 @@
 package dev.andrewbailey.encore.player.state
 
-import dev.andrewbailey.encore.model.QueueItem
+sealed class TransportState {
 
-sealed class TransportState
+    abstract val repeatMode: RepeatMode
+    abstract val shuffleMode: ShuffleMode
 
-object Idle : TransportState()
+    data class Active(
+        val status: PlaybackState,
+        val seekPosition: SeekPosition,
+        val queue: QueueState,
+        override val repeatMode: RepeatMode
+    ) : TransportState() {
 
-data class Active(
-    val status: Status,
-    val seekPosition: SeekPosition,
-    val queue: List<QueueItem>,
-    val queueIndex: Int
-) : TransportState() {
+        override val shuffleMode: ShuffleMode
+            get() = if (queue is QueueState.Linear) {
+                ShuffleMode.LINEAR
+            } else {
+                ShuffleMode.SHUFFLED
+            }
 
-    val nowPlaying: QueueItem
-        get() = queue[queueIndex]
-
-    init {
-        require(queue.isNotEmpty()) {
-            "Queue cannot be empty."
-        }
-
-        require(queueIndex in queue.indices) {
-            "Current index must be within ${queue.indices}"
-        }
     }
 
-}
+    data class Idle(
+        override val repeatMode: RepeatMode,
+        override val shuffleMode: ShuffleMode
+    ) : TransportState()
 
-enum class Status {
-    PLAYING,
-    PAUSED,
-    REACHED_END
 }

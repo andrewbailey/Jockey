@@ -1,14 +1,14 @@
 package dev.andrewbailey.encore.player.state.diff
 
 import dev.andrewbailey.encore.model.QueueItem
-import dev.andrewbailey.encore.player.state.Active
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.SeekPosition
-import dev.andrewbailey.encore.player.state.Status
+import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.player.state.TransportState.Active
 
 internal class PlaybackStateDiffer {
 
-    fun generateDiff(oldState: PlaybackState, newState: PlaybackState): PlaybackStateDiff {
+    fun generateDiff(oldState: TransportState, newState: TransportState): PlaybackStateDiff {
         return PlaybackStateDiff(
             operations = listOfNotNull(
                 generatePauseDiff(oldState, newState),
@@ -20,8 +20,8 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generatePauseDiff(
-        oldState: PlaybackState,
-        newState: PlaybackState
+        oldState: TransportState,
+        newState: TransportState
     ): PlaybackStateModification? {
         val wasPlaying = oldState.isPlaying()
         val shouldPlay = newState.isPlaying()
@@ -33,7 +33,7 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generatePlayDiff(
-        newState: PlaybackState
+        newState: TransportState
     ): PlaybackStateModification? {
         return if (newState.isPlaying()) {
             SetPlaying(true)
@@ -43,8 +43,8 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generateQueueDiff(
-        oldState: PlaybackState,
-        newState: PlaybackState
+        oldState: TransportState,
+        newState: TransportState
     ): List<PlaybackStateModification> {
         val oldQueue = oldState.queue()
         val newQueue = newState.queue()
@@ -60,8 +60,8 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generateSeekDiff(
-        oldState: PlaybackState,
-        newState: PlaybackState
+        oldState: TransportState,
+        newState: TransportState
     ): PlaybackStateModification? {
         val oldStateNowPlaying = oldState.nowPlaying()
         val oldStateSeekPosition = oldState.seekPosition()
@@ -79,24 +79,24 @@ internal class PlaybackStateDiffer {
         }
     }
 
-    private fun PlaybackState.isPlaying(): Boolean {
-        return transportState is Active && transportState.status == Status.PLAYING
+    private fun TransportState.isPlaying(): Boolean {
+        return this is Active && status == PlaybackState.PLAYING
     }
 
-    private fun PlaybackState.queue(): List<QueueItem> {
-        return (transportState as? Active)?.queue.orEmpty()
+    private fun TransportState.queue(): List<QueueItem> {
+        return (this as? Active)?.queue?.queue.orEmpty()
     }
 
-    private fun PlaybackState.nowPlayingIndex(): Int {
-        return (transportState as? Active)?.queueIndex ?: 0
+    private fun TransportState.nowPlayingIndex(): Int {
+        return (this as? Active)?.queue?.queueIndex ?: 0
     }
 
-    private fun PlaybackState.nowPlaying(): QueueItem? {
-        return (transportState as? Active)?.nowPlaying
+    private fun TransportState.nowPlaying(): QueueItem? {
+        return (this as? Active)?.queue?.nowPlaying
     }
 
-    private fun PlaybackState.seekPosition(): SeekPosition? {
-        return (transportState as? Active)?.seekPosition
+    private fun TransportState.seekPosition(): SeekPosition? {
+        return (this as? Active)?.seekPosition
     }
 
 }

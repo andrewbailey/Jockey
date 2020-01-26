@@ -1,6 +1,9 @@
 package dev.andrewbailey.encore.player.playback
 
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.RepeatMode
+import dev.andrewbailey.encore.player.state.ShuffleMode
+import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
 abstract class PlaybackExtension {
@@ -33,44 +36,48 @@ abstract class PlaybackExtension {
                 "Did you call this before onPrepared() or after onRelease()?"
     }
 
-    protected fun getArtwork() = requireMediaPlayer().getArtwork()
-
     protected fun getCurrentPlaybackState() = requireMediaPlayer().getState()
 
-    protected fun setPlaybackState(state: PlaybackState) = requireMediaPlayer().setState(state)
+    protected fun setPlaybackState(state: TransportState) {
+        requireMediaPlayer().setState(state)
+    }
 
-    protected inline fun modifyPlaybackState(modification: PlaybackState.() -> PlaybackState) {
-        setPlaybackState(getCurrentPlaybackState().modification())
+    protected inline fun modifyTransportState(modification: TransportState.() -> TransportState) {
+        setPlaybackState(getCurrentPlaybackState().transportState.modification())
     }
 
     open fun onPrepared() {
 
     }
 
-    open fun onNewPlayerState(newState: PlaybackState): PlaybackState {
-        return newState
-    }
+    abstract fun onNewPlayerState(newState: MediaPlayerState)
 
     open fun onRelease() {
 
     }
 
-    protected fun PlaybackState.play() =
+    protected fun TransportState.play() =
         requirePlaybackStateFactory().play(this)
 
-    protected fun PlaybackState.pause() =
+    protected fun TransportState.pause() =
         requirePlaybackStateFactory().pause(this)
 
-    protected fun PlaybackState.seekTo(seekPositionMillis: Long) =
+    protected fun TransportState.seekTo(seekPositionMillis: Long) =
         requirePlaybackStateFactory().seekTo(this, seekPositionMillis)
 
-    protected fun PlaybackState.skipToPrevious() =
+    protected fun TransportState.skipToPrevious() =
         requirePlaybackStateFactory().skipToPrevious(this)
 
-    protected fun PlaybackState.skipToNext() =
+    protected fun TransportState.skipToNext() =
         requirePlaybackStateFactory().skipToNext(this)
 
-    protected fun PlaybackState.skipToIndex(index: Int) =
+    protected fun TransportState.skipToIndex(index: Int) =
         requirePlaybackStateFactory().skipToIndex(this, index)
+
+    protected fun TransportState.setShuffleMode(shuffleMode: ShuffleMode) =
+        requirePlaybackStateFactory().setShuffleMode(this, shuffleMode)
+
+    protected fun TransportState.setRepeatMode(repeatMode: RepeatMode) =
+        requirePlaybackStateFactory().setRepeatMode(this, repeatMode)
 
 }

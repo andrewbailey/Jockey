@@ -1,7 +1,7 @@
 package dev.andrewbailey.encore.player.action
 
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.MediaPlayerState
 
 internal class CustomActionExtension(
     private val providers: List<CustomActionProvider>,
@@ -16,9 +16,8 @@ internal class CustomActionExtension(
             }
         }
 
-    override fun onNewPlayerState(newState: PlaybackState): PlaybackState {
+    override fun onNewPlayerState(newState: MediaPlayerState) {
         updateActions(newState)
-        return super.onNewPlayerState(newState)
     }
 
     internal suspend fun executeCustomAction(actionId: String) {
@@ -29,7 +28,7 @@ internal class CustomActionExtension(
         updateActions(getCurrentPlaybackState())
     }
 
-    private fun updateActions(newState: PlaybackState) {
+    private fun updateActions(newState: MediaPlayerState) {
         actions = providers.mapNotNull { it.getAction(newState) }
     }
 

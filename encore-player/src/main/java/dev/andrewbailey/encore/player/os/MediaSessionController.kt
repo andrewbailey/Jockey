@@ -7,13 +7,13 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
-import dev.andrewbailey.encore.player.state.Active
-import dev.andrewbailey.encore.player.state.Idle
+import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Ready
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.RepeatMode.*
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
-import dev.andrewbailey.encore.player.state.Status
 
 internal class MediaSessionController(
     context: Context,
@@ -29,19 +29,19 @@ internal class MediaSessionController(
         }
     }
 
-    override fun onNewPlayerState(newState: PlaybackState): PlaybackState {
+    override fun onNewPlayerState(newState: MediaPlayerState) {
         mediaSession.apply {
-            when (val transport = newState.transportState) {
-                is Active -> {
-                    setMetadata(buildMetadata(transport))
+            when (newState) {
+                is Prepared -> {
+                    setMetadata(buildMetadata(newState))
 
                     setPlaybackState(PlaybackStateCompat.Builder()
                         .setState(
-                            when (transport.status) {
-                                Status.PLAYING -> STATE_PLAYING
-                                Status.PAUSED, Status.REACHED_END -> STATE_PAUSED
+                            when (newState.transportState.status) {
+                                PlaybackState.PLAYING -> STATE_PLAYING
+                                PlaybackState.PAUSED, PlaybackState.REACHED_END -> STATE_PAUSED
                             },
-                            transport.seekPosition.seekPositionMillis,
+                            newState.transportState.seekPosition.seekPositionMillis,
                             1.0f
                         )
                         .setActions(
@@ -57,7 +57,7 @@ internal class MediaSessionController(
                             ACTION_PLAY_FROM_MEDIA_ID)
                         .build())
                 }
-                is Idle -> {
+                is Ready -> {
                     setPlaybackState(PlaybackStateCompat.Builder()
                         .setState(STATE_NONE, 0, 0f)
                         .build())
@@ -67,16 +67,15 @@ internal class MediaSessionController(
                 }
             }
         }
-
-        return super.onNewPlayerState(newState)
     }
 
-    private fun buildMetadata(transport: Active): MediaMetadataCompat {
+    private fun buildMetadata(state: Prepared): MediaMetadataCompat {
+        val nowPlaying = state.transportState.queue.nowPlaying
         return MediaMetadataCompat.Builder()
-            .putString(METADATA_KEY_TITLE, transport.nowPlaying.mediaItem.name)
-            .putString(METADATA_KEY_AUTHOR, transport.nowPlaying.mediaItem.author?.name)
-            .putString(METADATA_KEY_ALBUM, transport.nowPlaying.mediaItem.collection?.name)
-            .putBitmap(METADATA_KEY_ALBUM_ART, getArtwork())
+            .putString(METADATA_KEY_TITLE, nowPlaying.mediaItem.name)
+            .putString(METADATA_KEY_AUTHOR, nowPlaying.mediaItem.author?.name)
+            .putString(METADATA_KEY_ALBUM, nowPlaying.mediaItem.collection?.name)
+            .putBitmap(METADATA_KEY_ALBUM_ART, state.artwork)
             .build()
     }
 
@@ -86,32 +85,32 @@ internal class MediaSessionController(
 
     private inner class MediaSessionCallback : MediaSessionCompat.Callback() {
         override fun onPlay() {
-            modifyPlaybackState { play() }
+            modifyTransportState { play() }
         }
 
         override fun onPause() {
-            modifyPlaybackState { pause() }
+            modifyTransportState { pause() }
         }
 
         override fun onStop() {
-            modifyPlaybackState { seekTo(0).pause() }
+            modifyTransportState { seekTo(0).pause() }
         }
 
         override fun onSeekTo(pos: Long) {
-            modifyPlaybackState { seekTo(pos) }
+            modifyTransportState { seekTo(pos) }
         }
 
         override fun onSkipToPrevious() {
-            modifyPlaybackState { skipToPrevious() }
+            modifyTransportState { skipToPrevious() }
         }
 
         override fun onSkipToNext() {
-            modifyPlaybackState { skipToNext() }
+            modifyTransportState { skipToNext() }
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
-            modifyPlaybackState {
-                copy(
+            modifyTransportState {
+                setRepeatMode(
                     repeatMode = when (repeatMode) {
                         REPEAT_MODE_NONE -> REPEAT_NONE
                         REPEAT_MODE_ONE -> REPEAT_ONE
@@ -123,8 +122,8 @@ internal class MediaSessionController(
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
-            modifyPlaybackState {
-                copy(
+            modifyTransportState {
+                setShuffleMode(
                     shuffleMode = when (shuffleMode) {
                         SHUFFLE_MODE_NONE -> LINEAR
                         SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> SHUFFLED
