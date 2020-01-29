@@ -57,6 +57,10 @@ dependencies {
     implementation config.deps.androidx.appcompat
     implementation config.deps.androidx.fragment
     implementation config.deps.androidx.navigation
+    implementation config.deps.androidx.lifecycle
+    implementation config.deps.androidx.viewmodel
+    implementation config.deps.androidx.livedata
+    implementation config.deps.androidx.savedstate
     implementation config.deps.androidx.navigationui
 
     // Compose
