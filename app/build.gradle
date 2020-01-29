@@ -23,6 +23,10 @@ android {
         }
     }
 
+    buildFeatures {
+        compose true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -51,12 +55,15 @@ dependencies {
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
     implementation config.deps.androidx.appcompat
-    implementation config.deps.androidx.material
     implementation config.deps.androidx.fragment
     implementation config.deps.androidx.navigation
     implementation config.deps.androidx.navigationui
-    implementation config.deps.androidx.recyclerview
-    implementation config.deps.androidx.constraintlayout
+
+    // Compose
+    implementation config.deps.compose.tooling
+    implementation config.deps.compose.layout
+    implementation config.deps.compose.foundation
+    implementation config.deps.compose.material
 
     // Testing
     testImplementation config.deps.test.junit
