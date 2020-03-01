@@ -13,7 +13,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles 'consumer-rules.pro'
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -26,28 +26,14 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':encore-core')
-    implementation project(':ipc')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib
-    implementation config.deps.kotlin.coroutines
-
-    // Androidx
-    implementation config.deps.androidx.core
-    implementation config.deps.androidx.annotation
-    implementation config.deps.androidx.media
-
-    // ExoPlayer
-    implementation config.deps.exoplayer.core
-    implementation config.deps.exoplayer.mediasession
 
     // Testing
     testImplementation config.deps.test.junit
-    androidTestImplementation config.deps.test.espresso
 }
