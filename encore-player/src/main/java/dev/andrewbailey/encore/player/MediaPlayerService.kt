@@ -24,39 +24,37 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 abstract class MediaPlayerService(
-    tag: String,
-    notificationId: Int,
-    notificationProvider: NotificationProvider,
+    private val tag: String,
+    private val notificationId: Int,
+    private val notificationProvider: NotificationProvider,
     private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory,
-    extensions: List<PlaybackExtension> = emptyList(),
-    observers: List<PlaybackObserver> = emptyList()
+    private val extensions: List<PlaybackExtension> = emptyList(),
+    private val observers: List<PlaybackObserver> = emptyList()
 ) : Service() {
 
     private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
-    private val customActions by lazy {
-        onCreateCustomActions() + listOf(
-            QuitActionProvider(this)
-        )
-    }
+    private lateinit var customActions: List<CustomActionProvider>
+    private lateinit var mediaSessionController: MediaSessionController
+    private lateinit var notifier: PlaybackNotifier
+    private lateinit var mediaPlayer: MediaPlayer
 
-    private val mediaSessionController by lazy {
-        MediaSessionController(this, tag)
-    }
+    override fun onCreate() {
+        super.onCreate()
 
-    private val notifier by lazy {
-        PlaybackNotifier(
+        customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
+        mediaSessionController = MediaSessionController(this, tag)
+
+        notifier = PlaybackNotifier(
             service = this,
             mediaSession = mediaSessionController.mediaSession,
             notificationId = notificationId,
             notificationProvider = notificationProvider,
             customActionProviders = customActions
         )
-    }
 
-    private val mediaPlayer by lazy {
-        MediaPlayer(
+        mediaPlayer = MediaPlayer(
             context = applicationContext,
             playbackStateFactory = playbackStateFactory,
             extensions = listOf(
