@@ -75,6 +75,7 @@ internal class MediaSessionController(
             .putString(METADATA_KEY_TITLE, nowPlaying.mediaItem.name)
             .putString(METADATA_KEY_AUTHOR, nowPlaying.mediaItem.author?.name)
             .putString(METADATA_KEY_ALBUM, nowPlaying.mediaItem.collection?.name)
+            .putLong(METADATA_KEY_DURATION, state.durationMs ?: -1)
             .putBitmap(METADATA_KEY_ALBUM_ART, state.artwork)
             .build()
     }

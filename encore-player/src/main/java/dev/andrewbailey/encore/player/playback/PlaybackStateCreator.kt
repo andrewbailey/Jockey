@@ -2,6 +2,7 @@ package dev.andrewbailey.encore.player.playback
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
@@ -28,6 +29,7 @@ internal class PlaybackStateCreator(
             is TransportState.Active -> MediaPlayerState.Prepared(
                 transportState = transportState,
                 artwork = getArtwork(),
+                durationMs = exoPlayer.duration.takeIf { it != C.TIME_UNSET },
                 bufferingState = getBufferingState()
             )
             is TransportState.Idle -> MediaPlayerState.Ready(

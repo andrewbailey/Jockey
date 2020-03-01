@@ -9,6 +9,7 @@ sealed class MediaPlayerState {
     class Prepared internal constructor(
         override val transportState: TransportState.Active,
         val artwork: Bitmap?,
+        val durationMs: Long?,
         val bufferingState: BufferingState
     ) : MediaPlayerState()
 
