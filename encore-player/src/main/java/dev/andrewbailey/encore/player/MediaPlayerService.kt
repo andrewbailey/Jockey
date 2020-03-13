@@ -8,6 +8,7 @@ import androidx.media.session.MediaButtonReceiver
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
+import dev.andrewbailey.encore.player.binder.ServiceHostHandler
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.notification.PlaybackNotifier
 import dev.andrewbailey.encore.player.os.MediaSessionController
@@ -39,12 +40,15 @@ abstract class MediaPlayerService(
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var notifier: PlaybackNotifier
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var binder: ServiceHostHandler
 
     override fun onCreate() {
         super.onCreate()
 
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         mediaSessionController = MediaSessionController(this, tag)
+        binder = ServiceHostHandler(
+        )
 
         notifier = PlaybackNotifier(
             service = this,
@@ -63,17 +67,18 @@ abstract class MediaPlayerService(
             ),
             observers = listOf(
                 notifier,
+                binder,
                 *observers.toTypedArray()
             )
         )
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    final override fun onBind(intent: Intent?): IBinder {
         isBound = true
-        return null
+        return binder.messenger.binder
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
+    final override fun onUnbind(intent: Intent?): Boolean {
         isBound = false
         return false
     }
