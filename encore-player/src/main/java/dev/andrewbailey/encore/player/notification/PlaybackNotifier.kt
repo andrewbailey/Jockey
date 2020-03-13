@@ -18,7 +18,7 @@ internal class PlaybackNotifier(
     private val notificationId: Int,
     private val notificationProvider: NotificationProvider,
     private val customActionProviders: List<CustomActionProvider>
-) : PlaybackObserver() {
+) : PlaybackObserver {
 
     private val notificationManager = service.getSystemService<NotificationManager>()
         ?: throw RuntimeException("Failed to get an instance of NotificationManager")
