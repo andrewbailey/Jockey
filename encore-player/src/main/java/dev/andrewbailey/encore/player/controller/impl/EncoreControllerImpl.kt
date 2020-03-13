@@ -2,8 +2,11 @@ package dev.andrewbailey.encore.player.controller.impl
 
 import android.content.Context
 import dev.andrewbailey.encore.player.MediaPlayerService
+import dev.andrewbailey.encore.player.binder.ServiceClientHandler
+import dev.andrewbailey.encore.player.binder.ServiceHostMessage
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreToken
+import dev.andrewbailey.encore.player.state.TransportState
 
 internal class EncoreControllerImpl constructor(
     context: Context,
@@ -12,6 +15,19 @@ internal class EncoreControllerImpl constructor(
 
     private val activeTokens = mutableSetOf<EncoreToken>()
     private val clientBinder = ServiceClientBinder(context, serviceClass)
+
+    private val clientHandler: ServiceClientHandler
+    private val dispatcher: ServiceControllerDispatcher
+
+    init {
+        clientHandler = ServiceClientHandler(
+        )
+
+        dispatcher = ServiceControllerDispatcher(
+            serviceBinder = clientBinder.serviceBinder,
+            receiver = clientHandler
+        )
+    }
 
     override fun acquireToken(): EncoreToken {
         return EncoreToken().also { token ->
@@ -43,5 +59,15 @@ internal class EncoreControllerImpl constructor(
 
     private fun disconnectFromService() {
         clientBinder.unbind()
+    }
+
+    override fun setState(newState: TransportState) {
+        dispatcher.sendMessage(
+            EncoreControllerCommand.ServiceCommand(
+                ServiceHostMessage.SetState(
+                    newState = newState
+                )
+            )
+        )
     }
 }
