@@ -1,11 +1,13 @@
 package dev.andrewbailey.encore.player.state
 
+import android.os.Parcelable
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
 import kotlin.random.Random
+import kotlinx.android.parcel.Parcelize
 
-sealed class QueueState {
+sealed class QueueState : Parcelable {
 
     abstract val queue: List<QueueItem>
     abstract val queueIndex: Int
@@ -27,6 +29,7 @@ sealed class QueueState {
         }
     }
 
+    @Parcelize
     data class Linear(
         override val queue: List<QueueItem>,
         override val queueIndex: Int
@@ -47,6 +50,7 @@ sealed class QueueState {
 
     }
 
+    @Parcelize
     data class Shuffled(
         override val queue: List<QueueItem>,
         override val queueIndex: Int,
