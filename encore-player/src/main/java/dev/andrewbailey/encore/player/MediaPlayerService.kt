@@ -48,6 +48,7 @@ abstract class MediaPlayerService(
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         mediaSessionController = MediaSessionController(this, tag)
         binder = ServiceHostHandler(
+            getState = { mediaPlayer.getState() },
             getMediaSession = { mediaSessionController.mediaSession },
             onSetState = { mediaPlayer.setState(it) }
         )

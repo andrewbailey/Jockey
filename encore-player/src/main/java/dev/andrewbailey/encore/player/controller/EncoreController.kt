@@ -3,13 +3,20 @@ package dev.andrewbailey.encore.player.controller
 import android.content.Context
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerImpl
+import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.TransportState
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
 
 interface EncoreController {
 
     fun acquireToken(): EncoreToken
 
     fun releaseToken(token: EncoreToken)
+
+    fun observeState(
+        seekUpdateFrequency: SeekUpdateFrequency = SeekUpdateFrequency.Never
+    ): Flow<MediaPlayerState>
 
     fun setState(newState: TransportState)
 
@@ -32,6 +39,25 @@ interface EncoreController {
                 context = context.applicationContext,
                 serviceClass = serviceClass
             )
+        }
+    }
+
+    sealed class SeekUpdateFrequency {
+        object Never : SeekUpdateFrequency()
+
+        data class WhilePlayingEvery(
+            val interval: Long,
+            val timeUnit: TimeUnit
+        ) : SeekUpdateFrequency() {
+
+            internal val intervalMs: Long
+                get() = timeUnit.toMillis(interval)
+
+            init {
+                require(interval > 0) {
+                    "Interval must be greater than 0."
+                }
+            }
         }
     }
 
