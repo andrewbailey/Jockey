@@ -8,4 +8,20 @@ internal sealed class EncoreControllerCommand {
         val message: ServiceHostMessage
     ) : EncoreControllerCommand()
 
+    internal sealed class MediaControllerCommand : EncoreControllerCommand() {
+
+        object Play : MediaControllerCommand()
+
+        object Pause : MediaControllerCommand()
+
+        object SkipPrevious : MediaControllerCommand()
+
+        object SkipNext : MediaControllerCommand()
+
+        class SeekTo(
+            val positionMs: Long
+        ) : MediaControllerCommand()
+
+    }
+
 }

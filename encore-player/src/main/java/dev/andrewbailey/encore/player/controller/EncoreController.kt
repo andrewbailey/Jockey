@@ -13,6 +13,16 @@ interface EncoreController {
 
     fun setState(newState: TransportState)
 
+    fun play()
+
+    fun pause()
+
+    fun skipPrevious()
+
+    fun skipNext()
+
+    fun seekTo(positionMs: Long)
+
     companion object {
         fun create(
             context: Context,

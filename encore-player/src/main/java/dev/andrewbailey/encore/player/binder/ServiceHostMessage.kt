@@ -11,4 +11,7 @@ internal sealed class ServiceHostMessage : Parcelable {
         val newState: TransportState
     ) : ServiceHostMessage()
 
+    @Parcelize
+    object Initialize : ServiceHostMessage()
+
 }

@@ -1,9 +1,11 @@
 package dev.andrewbailey.encore.player.controller.impl
 
 import android.os.DeadObjectException
+import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
 import dev.andrewbailey.encore.player.util.Resource
 import java.util.concurrent.Executors
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 
 internal class ServiceControllerDispatcher(
     private val serviceBinder: Resource<ServiceBidirectionalMessenger>,
+    private val mediaController: Resource<MediaControllerCompat>,
     private val receiver: ServiceClientHandler
 ) {
 
@@ -43,6 +46,7 @@ internal class ServiceControllerDispatcher(
         while (true) {
             when (val message = messageQueue.receive()) {
                 is ServiceCommand -> handleMessage(message)
+                is MediaControllerCommand -> handleMessage(message)
             }
         }
     }
@@ -60,6 +64,18 @@ internal class ServiceControllerDispatcher(
                         "is restored.", e)
             }
         }
+    }
+
+    private suspend fun handleMessage(message: MediaControllerCommand) {
+        val controller = mediaController.getResource().transportControls
+
+        when (message) {
+            MediaControllerCommand.Play -> controller.play()
+            MediaControllerCommand.Pause -> controller.pause()
+            MediaControllerCommand.SkipPrevious -> controller.skipToPrevious()
+            MediaControllerCommand.SkipNext -> controller.skipToNext()
+            is MediaControllerCommand.SeekTo -> controller.seekTo(message.positionMs)
+        }.let { /* Require exhaustive when */ }
     }
 
 }

@@ -33,4 +33,6 @@ internal class Resource<T : Any> {
             .first { filter(it) }
     }
 
+    fun currentResource(): T? = reference.valueOrNull
+
 }
