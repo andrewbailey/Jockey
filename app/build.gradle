@@ -27,6 +27,10 @@ android {
         compose true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion config.versions.androidx.compose
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

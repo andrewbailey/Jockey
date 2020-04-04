@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.fragment.app.Fragment
 import androidx.ui.core.setContent
 
@@ -18,10 +17,8 @@ abstract class ComposableFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return FrameLayout(requireContext()).apply {
-            Compose.composeInto(this) {
-                setContent {
-                    onCompose()
-                }
+            setContent {
+                onCompose()
             }
         }
     }
