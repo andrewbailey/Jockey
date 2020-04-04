@@ -12,6 +12,7 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.*
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode.*
+import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.TransportState
@@ -47,13 +48,25 @@ internal class PlaybackStateCreator(
         } else {
             TransportState.Active(
                 status = when {
-                    exoPlayer.isPlaying -> PLAYING
                     exoPlayer.playbackState == STATE_ENDED -> REACHED_END
+                    exoPlayer.playWhenReady -> PLAYING
                     else -> PAUSED
                 },
-                seekPosition = ComputedSeekPosition(
-                    originalSeekPositionMillis = exoPlayer.currentPosition
-                ),
+                seekPosition = when {
+                    exoPlayer.playWhenReady && exoPlayer.playbackState == STATE_READY -> {
+                        ComputedSeekPosition(
+                            originalSeekPositionMillis = exoPlayer.currentPosition,
+                            maxSeekPositionMillis = exoPlayer.contentDuration
+                                .takeIf { it != C.TIME_UNSET }
+                                ?: Long.MAX_VALUE
+                        )
+                    }
+                    else -> {
+                        AbsoluteSeekPosition(
+                            seekPositionMillis = exoPlayer.currentPosition
+                        )
+                    }
+                },
                 queue = QueueState.Linear(
                     queue = queue.queueItems,
                     queueIndex = exoPlayer.currentWindowIndex
