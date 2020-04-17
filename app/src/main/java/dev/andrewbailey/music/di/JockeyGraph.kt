@@ -4,4 +4,6 @@ import dev.andrewbailey.music.ui.library.LibraryFragment
 
 interface JockeyGraph {
 
+    fun inject(fragment: LibraryFragment)
+
 }

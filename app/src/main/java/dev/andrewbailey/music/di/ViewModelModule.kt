@@ -6,6 +6,7 @@ import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
+import dev.andrewbailey.music.ui.library.LibraryViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -37,5 +38,10 @@ abstract class ViewModelModule {
 
     @Binds
     internal abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LibraryViewModel::class)
+    internal abstract fun postListViewModel(viewModel: LibraryViewModel): ViewModel
 
 }
