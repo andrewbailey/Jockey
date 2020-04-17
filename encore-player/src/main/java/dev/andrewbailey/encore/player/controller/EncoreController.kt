@@ -31,6 +31,9 @@ interface EncoreController {
     fun seekTo(positionMs: Long)
 
     companion object {
+        inline fun <reified T : MediaPlayerService> create(context: Context) =
+            create(context, T::class.java)
+
         fun create(
             context: Context,
             serviceClass: Class<out MediaPlayerService>
