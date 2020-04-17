@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Jockey</string>
+
+    <string name="notification_channel_playback">Music playback</string>
 </resources>
