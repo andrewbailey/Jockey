@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlinVersion = '1.3.71'
+    ext.kotlinVersion = '1.3.61'
     ext.navVersion = '2.2.0-beta01'
 
     repositories {
@@ -40,6 +40,9 @@ ext {
             savedstate: '1.0.0',
             media: '1.2.0-alpha01',
         ],
+        dagger : [
+            core : '2.27',
+        ],
         exoplayer : [
             core : '2.10.8',
         ],
@@ -76,6 +79,10 @@ ext {
         exoplayer : [
             core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",
             mediasession : "com.google.android.exoplayer:extension-mediasession:${versions.exoplayer.core}"
+        ],
+        dagger : [
+            core : "com.google.dagger:dagger:${versions.dagger.core}",
+            compiler: "com.google.dagger:dagger-compiler:${versions.dagger.core}",
         ],
         test : [
             junit : "junit:junit:${versions.test.junit}",

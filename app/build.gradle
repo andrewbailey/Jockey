@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
@@ -28,6 +29,7 @@ android {
     }
 
     composeOptions {
+        kotlinCompilerVersion "1.3.61-dev-withExperimentalGoogleExtensions-20200129"
         kotlinCompilerExtensionVersion config.versions.androidx.compose
     }
 
@@ -39,6 +41,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+kapt {
+    correctErrorTypes = true
 }
 
 androidExtensions {
@@ -72,6 +78,10 @@ dependencies {
     implementation config.deps.compose.layout
     implementation config.deps.compose.foundation
     implementation config.deps.compose.material
+
+    // Dagger
+    implementation config.deps.dagger.core
+    kapt config.deps.dagger.compiler
 
     // Testing
     testImplementation config.deps.test.junit
