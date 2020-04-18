@@ -1,9 +1,11 @@
 package dev.andrewbailey.encore.player
 
-import android.app.Service
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.media.MediaBrowserCompat
+import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
@@ -31,7 +33,7 @@ abstract class MediaPlayerService(
     private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory,
     private val extensions: List<PlaybackExtension> = emptyList(),
     private val observers: List<PlaybackObserver> = emptyList()
-) : Service() {
+) : MediaBrowserServiceCompat() {
 
     private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
@@ -141,6 +143,21 @@ abstract class MediaPlayerService(
         } else {
             stopSelf()
         }
+    }
+
+    final override fun onGetRoot(
+        clientPackageName: String,
+        clientUid: Int,
+        rootHints: Bundle?
+    ): BrowserRoot? {
+        return null
+    }
+
+    final override fun onLoadChildren(
+        parentId: String,
+        result: Result<List<MediaBrowserCompat.MediaItem>>
+    ) {
+        result.sendResult(emptyList())
     }
 
     open fun onCreateCustomActions(): List<CustomActionProvider> {

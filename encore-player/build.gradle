@@ -42,7 +42,7 @@ dependencies {
     // Androidx
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
-    implementation config.deps.androidx.media
+    api config.deps.androidx.media
 
     // ExoPlayer
     implementation config.deps.exoplayer.core
