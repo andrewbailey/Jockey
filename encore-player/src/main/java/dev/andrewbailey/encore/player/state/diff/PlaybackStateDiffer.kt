@@ -14,6 +14,7 @@ internal class PlaybackStateDiffer {
                 generatePauseDiff(oldState, newState),
                 *generateQueueDiff(oldState, newState).toTypedArray(),
                 generateSeekDiff(oldState, newState),
+                generateRepeatDiff(oldState, newState),
                 generatePlayDiff(newState)
             )
         )
@@ -37,6 +38,17 @@ internal class PlaybackStateDiffer {
     ): PlaybackStateModification? {
         return if (newState.isPlaying()) {
             SetPlaying(true)
+        } else {
+            null
+        }
+    }
+
+    private fun generateRepeatDiff(
+        oldState: TransportState,
+        newState: TransportState
+    ): PlaybackStateModification? {
+        return if (oldState.repeatMode != newState.repeatMode) {
+            SetRepeatMode(newState.repeatMode)
         } else {
             null
         }

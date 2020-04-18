@@ -31,6 +31,12 @@ internal class MediaSessionController(
 
     override fun onNewPlayerState(newState: MediaPlayerState) {
         mediaSession.apply {
+            setRepeatMode(when (newState.transportState.repeatMode) {
+                REPEAT_NONE -> REPEAT_MODE_NONE
+                REPEAT_ONE -> REPEAT_MODE_ONE
+                REPEAT_ALL -> REPEAT_MODE_ALL
+            })
+
             when (newState) {
                 is Prepared -> {
                     setMetadata(buildMetadata(newState))

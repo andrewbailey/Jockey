@@ -3,9 +3,11 @@ package dev.andrewbailey.encore.player.playback
 import android.content.Context
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.audio.AudioAttributes
 import dev.andrewbailey.encore.player.BuildConfig
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.*
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
@@ -70,6 +72,13 @@ internal class MediaPlayer(
                     }
                     is StopPlayback -> {
                         exoPlayer.stop(true)
+                    }
+                    is SetRepeatMode -> {
+                        exoPlayer.repeatMode = when (operation.repeatMode) {
+                            RepeatMode.REPEAT_NONE -> Player.REPEAT_MODE_OFF
+                            RepeatMode.REPEAT_ALL -> Player.REPEAT_MODE_ALL
+                            RepeatMode.REPEAT_ONE -> Player.REPEAT_MODE_ONE
+                        }
                     }
                     is QueueModification -> {
                         queue.changeQueue(operation.newQueue)
