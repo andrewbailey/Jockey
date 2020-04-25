@@ -12,7 +12,7 @@ internal object MediaStoreMapper {
 
     fun toMediaItem(songEntity: SongEntity) = MediaItem(
         id = songEntity.id,
-        playbackUri = Uri.withAppendedPath(songEntity.contentUri, songEntity.id),
+        playbackUri = Uri.withAppendedPath(songEntity.contentUri, songEntity.id).toString(),
         name = songEntity.title.orEmpty(),
         author = makeArtist(
             id = songEntity.artistId,

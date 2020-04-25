@@ -1,6 +1,7 @@
 package dev.andrewbailey.encore.player.playback
 
 import android.content.Context
+import android.net.Uri
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -33,7 +34,7 @@ internal class MediaQueue(
     }
 
     private fun buildMediaSource(queueItem: QueueItem): MediaSource {
-        return mediaSourceFactory.createMediaSource(queueItem.mediaItem.playbackUri)
+        return mediaSourceFactory.createMediaSource(Uri.parse(queueItem.mediaItem.playbackUri))
     }
 
 }
