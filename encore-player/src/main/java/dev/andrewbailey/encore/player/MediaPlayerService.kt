@@ -11,6 +11,8 @@ import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.binder.ServiceHostHandler
+import dev.andrewbailey.encore.player.browse.BrowserHierarchy
+import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.notification.PlaybackNotifier
 import dev.andrewbailey.encore.player.os.MediaSessionController
@@ -42,10 +44,12 @@ abstract class MediaPlayerService(
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var notifier: PlaybackNotifier
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var mediaBrowserDelegate: MediaBrowserImpl
     private lateinit var binder: ServiceHostHandler
 
     override fun onCreate() {
         super.onCreate()
+        val browserHierarchy = onCreateMediaBrowserHierarchy()
 
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         mediaSessionController = MediaSessionController(this, tag)
@@ -76,16 +80,27 @@ abstract class MediaPlayerService(
                 *observers.toTypedArray()
             )
         )
+        mediaBrowserDelegate = MediaBrowserImpl(coroutineScope, browserHierarchy)
+
+        sessionToken = mediaSessionController.mediaSession.sessionToken
     }
 
-    final override fun onBind(intent: Intent?): IBinder {
-        isBound = true
-        return binder.messenger.binder
+    final override fun onBind(intent: Intent?): IBinder? {
+        return if (intent?.action == "android.media.browse.MediaBrowserService") {
+            super.onBind(intent)
+        } else {
+            isBound = true
+            binder.messenger.binder
+        }
     }
 
     final override fun onUnbind(intent: Intent?): Boolean {
-        isBound = false
-        return false
+        return if (intent?.action == "android.media.browse.MediaBrowserService") {
+            super.onUnbind(intent)
+        } else {
+            isBound = false
+            return false
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -145,22 +160,35 @@ abstract class MediaPlayerService(
         }
     }
 
+    protected open fun isClientAllowedToBrowse(
+        clientPackageName: String,
+        clientUid: Int
+    ): Boolean {
+        return true
+    }
+
     final override fun onGetRoot(
         clientPackageName: String,
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot? {
-        return null
+        return if (isClientAllowedToBrowse(clientPackageName, clientUid)) {
+            mediaBrowserDelegate.onGetRoot(clientPackageName, clientUid, rootHints)
+        } else {
+            null
+        }
     }
 
     final override fun onLoadChildren(
         parentId: String,
         result: Result<List<MediaBrowserCompat.MediaItem>>
     ) {
-        result.sendResult(emptyList())
+        mediaBrowserDelegate.onLoadChildren(parentId, result)
     }
 
     open fun onCreateCustomActions(): List<CustomActionProvider> {
         return emptyList()
     }
+
+    abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy
 }
