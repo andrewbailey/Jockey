@@ -13,6 +13,8 @@ import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.binder.ServiceHostHandler
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
+import dev.andrewbailey.encore.player.browse.verification.BrowserClient
+import dev.andrewbailey.encore.player.browse.verification.BrowserPackageValidator
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.notification.PlaybackNotifier
 import dev.andrewbailey.encore.player.os.MediaSessionController
@@ -44,6 +46,7 @@ abstract class MediaPlayerService(
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var notifier: PlaybackNotifier
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var browserPackageValidator: BrowserPackageValidator
     private lateinit var mediaBrowserDelegate: MediaBrowserImpl
     private lateinit var binder: ServiceHostHandler
 
@@ -52,7 +55,7 @@ abstract class MediaPlayerService(
         val browserHierarchy = onCreateMediaBrowserHierarchy()
 
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
-        mediaSessionController = MediaSessionController(this, tag)
+        mediaSessionController = MediaSessionController(this, tag, browserHierarchy)
         binder = ServiceHostHandler(
             getState = { mediaPlayer.getState() },
             getMediaSession = { mediaSessionController.mediaSession },
@@ -80,6 +83,8 @@ abstract class MediaPlayerService(
                 *observers.toTypedArray()
             )
         )
+
+        browserPackageValidator = BrowserPackageValidator(applicationContext)
         mediaBrowserDelegate = MediaBrowserImpl(coroutineScope, browserHierarchy)
 
         sessionToken = mediaSessionController.mediaSession.sessionToken
@@ -164,7 +169,10 @@ abstract class MediaPlayerService(
         clientPackageName: String,
         clientUid: Int
     ): Boolean {
-        return true
+        return browserPackageValidator.isClientAllowedToBind(BrowserClient(
+            packageName = clientPackageName,
+            uid = clientUid
+        ))
     }
 
     final override fun onGetRoot(
