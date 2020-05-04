@@ -2,4 +2,6 @@
     <string name="app_name">Jockey</string>
 
     <string name="notification_channel_playback">Music playback</string>
+
+    <string name="media_browser_all_songs_section">All Songs</string>
 </resources>
