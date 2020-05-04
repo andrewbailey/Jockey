@@ -1,11 +1,13 @@
 package dev.andrewbailey.encore.player.os
 
 import android.content.Context
+import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
@@ -14,11 +16,16 @@ import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.RepeatMode.*
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
+import kotlinx.coroutines.*
 
 internal class MediaSessionController(
     context: Context,
-    tag: String
+    tag: String,
+    private val browserHierarchy: BrowserHierarchy
 ) : PlaybackExtension() {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private var mediaSessionActionJob: Job? = null
 
     val mediaSession = MediaSessionCompat(context, tag)
 
@@ -88,34 +95,42 @@ internal class MediaSessionController(
 
     override fun onRelease() {
         mediaSession.release()
+        coroutineScope.cancel()
     }
 
     private inner class MediaSessionCallback : MediaSessionCompat.Callback() {
         override fun onPlay() {
+            onNewAction()
             modifyTransportState { play() }
         }
 
         override fun onPause() {
+            onNewAction()
             modifyTransportState { pause() }
         }
 
         override fun onStop() {
+            onNewAction()
             modifyTransportState { seekTo(0).pause() }
         }
 
         override fun onSeekTo(pos: Long) {
+            onNewAction()
             modifyTransportState { seekTo(pos) }
         }
 
         override fun onSkipToPrevious() {
+            onNewAction()
             modifyTransportState { skipToPrevious() }
         }
 
         override fun onSkipToNext() {
+            onNewAction()
             modifyTransportState { skipToNext() }
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
+            onNewAction()
             modifyTransportState {
                 setRepeatMode(
                     repeatMode = when (repeatMode) {
@@ -129,6 +144,7 @@ internal class MediaSessionController(
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
+            onNewAction()
             modifyTransportState {
                 setShuffleMode(
                     shuffleMode = when (shuffleMode) {
@@ -138,6 +154,17 @@ internal class MediaSessionController(
                     }
                 )
             }
+        }
+
+        override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
+            onNewAction()
+            mediaSessionActionJob = coroutineScope.launch {
+                setTransportState(browserHierarchy.getTransportState(mediaId))
+            }
+        }
+
+        private fun onNewAction() {
+            mediaSessionActionJob?.cancel("Another action has been received")
         }
     }
 
