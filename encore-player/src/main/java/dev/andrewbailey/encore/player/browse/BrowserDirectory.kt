@@ -30,6 +30,7 @@ class BrowserDirectory internal constructor(
         path: BrowserPath,
         pathContents: suspend BrowserDirectory.() -> Unit
     ) {
+        require(entries.none { it is StaticPath && it.path.id == path.id })
         entries += StaticPath(path, pathContents)
     }
 
@@ -38,6 +39,7 @@ class BrowserDirectory internal constructor(
         paths: suspend () -> List<BrowserPath>,
         pathContents: suspend BrowserDirectory.(id: String) -> Unit
     ) {
+        require(entries.none { it is DynamicPath && it.identifier == identifier })
         entries += DynamicPath(identifier, paths, pathContents)
     }
 
@@ -45,6 +47,7 @@ class BrowserDirectory internal constructor(
         identifier: String,
         loadItems: suspend () -> List<MediaItem>
     ) {
+        require(entries.none { it is MediaItems && it.identifier == identifier })
         entries += MediaItems(identifier, loadItems)
     }
 
