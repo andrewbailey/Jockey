@@ -33,7 +33,7 @@ ext {
             core : '1.2.0-beta01',
             annotation : '1.1.0',
             appcompat : '1.1.0',
-            compose : '0.1.0-dev10',
+            compose : '0.1.0-dev14',
             fragment : '1.2.0-beta02',
             navigation : navVersion,
             lifecycle : '2.2.0',
