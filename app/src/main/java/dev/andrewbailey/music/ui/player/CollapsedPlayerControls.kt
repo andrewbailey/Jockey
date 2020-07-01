@@ -2,7 +2,6 @@ package dev.andrewbailey.music.ui.player
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Image
@@ -28,105 +27,127 @@ fun CollapsedPlayerControls(
     Box(modifier = Modifier.preferredHeight(56.dp)) {
         Surface(elevation = 32.dp) {
             ConstraintLayout(
-                modifier = Modifier.fillMaxWidth(),
-                constraintSet = ConstraintSet {
-                    val artwork = tag("artwork")
-                    val title = tag("title")
-                    val artist = tag("artist")
-                    val seekBar = tag("seekBar")
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val artwork = createRef()
+                val title = createRef()
+                val artist = createRef()
+                val seekBar = createRef()
 
-                    val playPauseButton = tag("playPause")
-                    val skipNextButton = tag("skipNext")
-                    val skipPrevButton = tag("skipPrev")
+                val (skipPrevious, playPause, skipNext) = createRefs()
 
-                    title.left constrainTo artwork.right
-                    title.left.margin = 8.dp
-                    title.right constrainTo skipPrevButton.left
-                    artist constrainHorizontallyTo title
-                    title.horizontalBias = 0f
-                    artist.horizontalBias = 0f
+                createHorizontalChain(
+                    elements = *arrayOf(skipPrevious, playPause, skipNext),
+                    chainStyle = ChainStyle.Packed(bias = 1.0f)
+                )
 
-                    seekBar constrainHorizontallyTo parent
+                createVerticalChain(
+                    elements = *arrayOf(title, artist),
+                    chainStyle = ChainStyle.Packed
+                )
 
-                    createVerticalChain(
-                        title,
-                        artist,
-                        chainStyle = ConstraintSetBuilderScope.ChainStyle.Packed
-                    )
-
-                    playPauseButton constrainVerticallyTo parent
-                    skipNextButton constrainVerticallyTo parent
-                    skipPrevButton constrainVerticallyTo parent
-
-                    createHorizontalChain(
-                        skipPrevButton,
-                        playPauseButton,
-                        skipNextButton,
-                        chainStyle = ConstraintSetBuilderScope.ChainStyle.Packed(bias = 1.0f)
-                    )
-                },
-                children = {
-                    Box(modifier = Modifier.tag("artwork") + Modifier.preferredSize(56.dp, 56.dp)) {
-                        playbackState?.artwork?.let {
-                            Image(asset = it.asImageAsset())
-                        }
+                Box(
+                    modifier = Modifier.constrainAs(artwork) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        width = Dimension.value(56.dp)
+                        height = Dimension.value(56.dp)
                     }
-
-                    val nowPlaying = playbackState?.transportState?.queue?.nowPlaying?.mediaItem
-                    Text(
-                        text = nowPlaying?.name.orEmpty(),
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.tag("title")
-                    )
-                    Text(
-                        text = nowPlaying?.author?.name.orEmpty(),
-                        style = MaterialTheme.typography.caption,
-                        modifier = Modifier.tag("artist")
-                    )
-
-                    LinearProgressIndicator(
-                        modifier = Modifier.tag("seekBar") +
-                                Modifier.fillMaxWidth().padding(start = 56.dp),
-                        progress = playbackState?.durationMs?.let { duration ->
-                            val percent = playbackState.transportState.seekPosition
-                                .seekPositionMillis.toFloat() / duration
-
-                            percent.coerceIn(0f..1f)
-                        } ?: 0f,
-                        color = MaterialTheme.colors.secondary
-                    )
-
-                    if (playbackState?.transportState?.status == PlaybackState.PLAYING) {
-                        IconButton(
-                            modifier = Modifier.tag("playPause"),
-                            onClick = encoreController::pause
-                        ) {
-                            Icon(asset = vectorResource(id = R.drawable.ic_pause))
-                        }
-                    } else {
-                        IconButton(
-                            modifier = Modifier.tag("playPause"),
-                            onClick = encoreController::play
-                        ) {
-                            Icon(asset = vectorResource(id = R.drawable.ic_play))
-                        }
-                    }
-
-                    IconButton(
-                        modifier = Modifier.tag("skipNext"),
-                        onClick = encoreController::skipNext
-                    ) {
-                        Icon(asset = vectorResource(id = R.drawable.ic_skip_next))
-                    }
-
-                    IconButton(
-                        modifier = Modifier.tag("skipPrev"),
-                        onClick = encoreController::skipPrevious
-                    ) {
-                        Icon(asset = vectorResource(id = R.drawable.ic_skip_previous))
+                ) {
+                    playbackState?.artwork?.let {
+                        Image(asset = it.asImageAsset())
                     }
                 }
-            )
+
+                val nowPlaying = playbackState?.transportState?.queue?.nowPlaying?.mediaItem
+                Text(
+                    text = nowPlaying?.name.orEmpty(),
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.constrainAs(title) {
+                        top.linkTo(seekBar.bottom)
+                        bottom.linkTo(artist.top)
+                        start.linkTo(artwork.end, 8.dp)
+                        end.linkTo(skipPrevious.start, 8.dp)
+                        width = Dimension.fillToConstraints
+                    }
+                )
+
+                Text(
+                    text = nowPlaying?.author?.name.orEmpty(),
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.constrainAs(artist) {
+                        top.linkTo(title.bottom)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(artwork.end, 8.dp)
+                        end.linkTo(skipPrevious.start, 8.dp)
+                        width = Dimension.fillToConstraints
+                    }
+                )
+
+                LinearProgressIndicator(
+                    progress = playbackState?.durationMs?.let { duration ->
+                        val percent = playbackState.transportState.seekPosition
+                            .seekPositionMillis.toFloat() / duration
+
+                        percent.coerceIn(0f..1f)
+                    } ?: 0f,
+                    color = MaterialTheme.colors.secondary,
+                    modifier = Modifier.constrainAs(seekBar) {
+                        top.linkTo(parent.top)
+                        start.linkTo(artwork.end)
+                        end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
+                    }
+                )
+
+                IconButton(
+                    modifier = Modifier.constrainAs(skipPrevious) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    },
+                    onClick = encoreController::skipPrevious
+                ) {
+                    Icon(asset = vectorResource(id = R.drawable.ic_skip_previous))
+                }
+
+                val isPlaying = playbackState?.transportState?.status == PlaybackState.PLAYING
+                IconButton(
+                    modifier = Modifier.constrainAs(playPause) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    },
+                    onClick = {
+                        if (isPlaying) {
+                            encoreController.pause()
+                        } else {
+                            encoreController.play()
+                        }
+                    }
+                ) {
+                    Icon(
+                        asset = vectorResource(
+                            id = if (isPlaying) {
+                                R.drawable.ic_pause
+                            } else {
+                                R.drawable.ic_play
+                            }
+                        )
+                    )
+                }
+
+                IconButton(
+                    modifier = Modifier.constrainAs(skipNext) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(playPause.end)
+                        end.linkTo(parent.end)
+                    },
+                    onClick = encoreController::skipNext
+                ) {
+                    Icon(asset = vectorResource(id = R.drawable.ic_skip_next))
+                }
+            }
         }
     }
 }
