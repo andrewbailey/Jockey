@@ -48,6 +48,9 @@ dependencies {
     implementation config.deps.exoplayer.core
     implementation config.deps.exoplayer.mediasession
 
+    // Difference
+    implementation config.deps.difference.multiplatform
+
     // Testing
     testImplementation project(':encore-test')
     testImplementation config.deps.test.junit

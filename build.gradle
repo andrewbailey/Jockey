@@ -46,6 +46,7 @@ ext {
         exoplayer : [
             core : '2.10.8',
         ],
+        difference : '1.0.0',
         test : [
             junit : '4.12',
             espresso : '3.2.0',
@@ -83,6 +84,9 @@ ext {
         dagger : [
             core : "com.google.dagger:dagger:${versions.dagger.core}",
             compiler: "com.google.dagger:dagger-compiler:${versions.dagger.core}",
+        ],
+        difference : [
+            multiplatform : "dev.andrewbailey.difference:difference:${versions.difference}"
         ],
         test : [
             junit : "junit:junit:${versions.test.junit}",
