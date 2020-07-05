@@ -8,7 +8,6 @@ import androidx.lifecycle.asLiveData
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.*
 import androidx.ui.res.stringResource
@@ -21,7 +20,7 @@ import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
-import dev.andrewbailey.music.util.fromRes
+import dev.andrewbailey.music.ui.core.colorPalette
 import dev.andrewbailey.music.util.observe
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -107,12 +106,5 @@ class LibraryFragment : ComposableFragment() {
 
     private fun formattedAlbumArtist(album: MediaCollection?, artist: MediaAuthor?): String =
         listOfNotNull(album?.name, artist?.name).joinToString(" - ")
-
-    private fun colorPalette() = lightColorPalette(
-        primary = Color.fromRes(requireContext(), R.color.colorPrimary),
-        primaryVariant = Color.fromRes(requireContext(), R.color.colorPrimary),
-        secondary = Color.fromRes(requireContext(), R.color.colorAccent),
-        secondaryVariant = Color.fromRes(requireContext(), R.color.colorAccentDark)
-    )
 
 }
