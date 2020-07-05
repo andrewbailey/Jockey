@@ -21,7 +21,6 @@ import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
-import dev.andrewbailey.music.ui.player.CollapsedPlayerControls
 import dev.andrewbailey.music.util.fromRes
 import dev.andrewbailey.music.util.observe
 import java.util.*

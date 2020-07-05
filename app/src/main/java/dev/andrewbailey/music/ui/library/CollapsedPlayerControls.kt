@@ -1,4 +1,4 @@
-package dev.andrewbailey.music.ui.player
+package dev.andrewbailey.music.ui.library
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
