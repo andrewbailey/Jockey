@@ -14,10 +14,7 @@ import dev.andrewbailey.encore.player.state.BufferingState.Buffering
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.util.Resource
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
@@ -29,8 +26,8 @@ internal class EncoreControllerImpl constructor(
     private val activeTokens = mutableSetOf<EncoreToken>()
     private val clientBinder = ServiceClientBinder(context, serviceClass)
 
-    private val playbackState = Channel<MediaPlayerState>(CONFLATED)
-    private val mediaController = Resource<MediaControllerCompat>()
+    private val playbackState = MutableStateFlow<MediaPlayerState?>(null)
+    private val mediaController = MutableStateFlow<MediaControllerCompat?>(null)
 
     private val clientHandler: ServiceClientHandler
     private val dispatcher: ServiceControllerDispatcher
@@ -41,17 +38,17 @@ internal class EncoreControllerImpl constructor(
             onSetMediaController = { controller ->
                 controller.registerCallback(object : MediaControllerCompat.Callback() {
                     override fun onSessionReady() {
-                        mediaController.setResource(controller)
+                        mediaController.value = controller
                     }
 
                     override fun onSessionDestroyed() {
-                        if (mediaController.currentResource() == controller) {
-                            mediaController.clearResource()
+                        if (mediaController.value == controller) {
+                            mediaController.value = null
                         }
                     }
                 })
             },
-            onSetMediaPlayerState = { playbackState.offer(it) }
+            onSetMediaPlayerState = { playbackState.value = it }
         )
 
         dispatcher = ServiceControllerDispatcher(
@@ -98,7 +95,8 @@ internal class EncoreControllerImpl constructor(
     override fun observeState(
         seekUpdateFrequency: SeekUpdateFrequency
     ): Flow<MediaPlayerState> {
-        return playbackState.consumeAsFlow()
+        return playbackState
+            .filterNotNull()
             .flatMapLatest { state ->
                 when (seekUpdateFrequency) {
                     is SeekUpdateFrequency.Never -> {

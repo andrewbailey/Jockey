@@ -7,18 +7,18 @@ import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
-import dev.andrewbailey.encore.player.util.Resource
 import java.util.concurrent.Executors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
-internal class ServiceControllerDispatcher(
-    private val serviceBinder: Resource<ServiceBidirectionalMessenger>,
-    private val mediaController: Resource<MediaControllerCompat>,
+internal class ServiceControllerDispatcher constructor(
+    private val serviceBinder: StateFlow<ServiceBidirectionalMessenger?>,
+    private val mediaController: StateFlow<MediaControllerCompat?>,
     private val receiver: ServiceClientHandler
 ) {
 
@@ -53,7 +53,7 @@ internal class ServiceControllerDispatcher(
 
     private suspend fun handleMessage(command: ServiceCommand) {
         while (true) {
-            val sender = serviceBinder.getResource { it.isAlive }
+            val sender = serviceBinder.filterNotNull().filter { it.isAlive }.first()
 
             try {
                 sender.send(command.message, receiver.messenger)
@@ -67,7 +67,7 @@ internal class ServiceControllerDispatcher(
     }
 
     private suspend fun handleMessage(message: MediaControllerCommand) {
-        val controller = mediaController.getResource().transportControls
+        val controller = mediaController.filterNotNull().first().transportControls
 
         when (message) {
             MediaControllerCommand.Play -> controller.play()
