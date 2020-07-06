@@ -5,9 +5,9 @@ import androidx.compose.Composable
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.navigation.fragment.findNavController
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.*
 import androidx.ui.layout.Column
 import androidx.ui.material.*
 import androidx.ui.res.stringResource
@@ -59,10 +59,16 @@ class LibraryFragment : ComposableFragment() {
                         SongList(library.orEmpty().sortedBy { it.name }, viewModel.mediaController)
                     }
 
-                    CollapsedPlayerControls(
-                        encoreController = viewModel.mediaController,
-                        playbackState = observe(playbackState) as? MediaPlayerState.Prepared
-                    )
+                    Box(
+                        modifier = Modifier.clickable(onClick = {
+                            findNavController().navigate(R.id.nowPlayingFragment)
+                        })
+                    ) {
+                        CollapsedPlayerControls(
+                            encoreController = viewModel.mediaController,
+                            playbackState = observe(playbackState) as? MediaPlayerState.Prepared
+                        )
+                    }
                 }
             }
         }

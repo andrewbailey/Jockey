@@ -7,6 +7,7 @@ import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
 import dev.andrewbailey.music.ui.library.LibraryViewModel
+import dev.andrewbailey.music.ui.player.NowPlayingViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -42,6 +43,11 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(LibraryViewModel::class)
-    internal abstract fun postListViewModel(viewModel: LibraryViewModel): ViewModel
+    internal abstract fun libraryViewModel(viewModel: LibraryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NowPlayingViewModel::class)
+    internal abstract fun nowPlayingViewModel(viewModel: NowPlayingViewModel): ViewModel
 
 }

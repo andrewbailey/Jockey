@@ -6,6 +6,14 @@
     <fragment
         android:id="@+id/libraryFragment"
         android:name="dev.andrewbailey.music.ui.library.LibraryFragment"
-        android:label="LibraryFragment" />
+        android:label="LibraryFragment" >
+        <action
+            android:id="@+id/action_libraryFragment_to_nowPlayingFragment"
+            app:destination="@id/nowPlayingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/nowPlayingFragment"
+        android:name="dev.andrewbailey.music.ui.player.NowPlayingFragment"
+        android:label="NowPlayingFragment" />
 
 </navigation>
