@@ -76,3 +76,13 @@ sealed class QueueState : Parcelable {
     }
 
 }
+
+fun QueueState.copy(
+    queue: List<QueueItem> = this.queue,
+    queueIndex: Int = this.queueIndex
+): QueueState {
+    return when (this) {
+        is QueueState.Linear -> copy(queue, queueIndex)
+        is QueueState.Shuffled -> copy(queue, queueIndex)
+    }
+}
