@@ -18,6 +18,8 @@ interface EncoreController {
         seekUpdateFrequency: SeekUpdateFrequency = SeekUpdateFrequency.Never
     ): Flow<MediaPlayerState>
 
+    suspend fun getState(): MediaPlayerState
+
     fun setState(newState: TransportState)
 
     fun play()

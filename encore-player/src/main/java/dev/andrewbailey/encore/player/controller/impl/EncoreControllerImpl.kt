@@ -109,6 +109,10 @@ internal class EncoreControllerImpl constructor(
             }
     }
 
+    override suspend fun getState(): MediaPlayerState {
+        return playbackState.filterNotNull().first()
+    }
+
     @FlowPreview
     private fun resendEveryInterval(
         state: MediaPlayerState,
