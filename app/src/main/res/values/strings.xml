@@ -3,5 +3,7 @@
 
     <string name="notification_channel_playback">Music playback</string>
 
+    <string name="page_title_now_playing">Now Playing</string>
+
     <string name="media_browser_all_songs_section">All Songs</string>
 </resources>
