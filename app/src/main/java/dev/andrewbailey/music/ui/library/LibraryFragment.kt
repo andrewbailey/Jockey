@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.*
+import androidx.ui.foundation.lazy.LazyColumnItems
 import androidx.ui.layout.Column
 import androidx.ui.material.*
 import androidx.ui.res.stringResource
@@ -79,34 +80,32 @@ class LibraryFragment : ComposableFragment() {
         songs: List<MediaItem>,
         mediaController: EncoreController
     ) {
-        VerticalScroller {
-            Column {
-                songs.forEachIndexed { index, song ->
-                    ListItem(
-                        text = song.name,
-                        secondaryText = formattedAlbumArtist(song.collection, song.author),
-                        onClick = {
-                            mediaController.setState(
-                                TransportState.Active(
-                                    status = PlaybackState.PLAYING,
-                                    seekPosition = SeekPosition.AbsoluteSeekPosition(0),
-                                    queue = QueueState.Linear(
-                                        queue = songs.map {
-                                            QueueItem(
-                                                queueId = UUID.randomUUID(),
-                                                mediaItem = it
-                                            )
-                                        },
-                                        queueIndex = index
-                                    ),
-                                    repeatMode = RepeatMode.REPEAT_NONE
-                                )
-                            )
-                        }
+        LazyColumnItems(
+            items = songs.withIndex().toList()
+        ) { (index, song) ->
+            ListItem(
+                text = song.name,
+                secondaryText = formattedAlbumArtist(song.collection, song.author),
+                onClick = {
+                    mediaController.setState(
+                        TransportState.Active(
+                            status = PlaybackState.PLAYING,
+                            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                            queue = QueueState.Linear(
+                                queue = songs.map {
+                                    QueueItem(
+                                        queueId = UUID.randomUUID(),
+                                        mediaItem = it
+                                    )
+                                },
+                                queueIndex = index
+                            ),
+                            repeatMode = RepeatMode.REPEAT_NONE
+                        )
                     )
-                    Divider()
                 }
-            }
+            )
+            Divider()
         }
     }
 
