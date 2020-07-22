@@ -10,7 +10,7 @@ internal object ParcelSplitter {
         chunkSizeInBytes: Int
     ): List<ByteArray> {
         val bytes = Parcel.obtain().use { parcel ->
-            parcelable.writeToParcel(parcel, 0)
+            parcel.writeParcelable(parcelable, 0)
             parcel.marshall()
         }
 
@@ -19,25 +19,18 @@ internal object ParcelSplitter {
             .chunked(chunkSizeInBytes) { it.toByteArray() }
     }
 
-    inline fun <reified T : Parcelable> merge(chunks: List<ByteArray>): T? {
-        return merge(
-            chunks,
-            T::class.java.classLoader!!
-        ) as T?
-    }
-
-    fun merge(chunks: List<ByteArray>, classLoader: ClassLoader): Parcelable? {
+    fun <T : Parcelable> merge(chunks: List<ByteArray>, classLoader: ClassLoader): T? {
         val mergedBytes = ByteArray(size = chunks.sumBy { it.size })
 
         var index = 0
         chunks.forEach { chunk ->
-            chunk.forEach { byte ->
-                mergedBytes[index++] = byte
-            }
+            System.arraycopy(chunk, 0, mergedBytes, index, chunk.size)
+            index += chunk.size
         }
 
         return Parcel.obtain().use {
             it.unmarshall(mergedBytes, 0, mergedBytes.size)
+            it.setDataPosition(0)
             it.readParcelable(classLoader)
         }
     }
