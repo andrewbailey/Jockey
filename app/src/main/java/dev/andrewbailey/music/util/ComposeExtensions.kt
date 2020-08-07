@@ -2,15 +2,15 @@ package dev.andrewbailey.music.util
 
 import android.content.Context
 import androidx.annotation.ColorRes
-import androidx.compose.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.ui.graphics.Color
 
 @Composable
 fun <T> observe(data: LiveData<T>): T? {
-    var result by state(NeverEqual) { data.value }
+    var result by state(neverEqualPolicy()) { data.value }
     val observer = remember { Observer<T> { result = it } }
 
     onCommit(data) {

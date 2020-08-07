@@ -1,17 +1,19 @@
 package dev.andrewbailey.music.ui.library
 
 import android.os.Bundle
-import androidx.compose.Composable
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyColumnItems
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.*
-import androidx.ui.foundation.lazy.LazyColumnItems
-import androidx.ui.layout.Column
-import androidx.ui.material.*
-import androidx.ui.res.stringResource
 import dev.andrewbailey.encore.model.MediaAuthor
 import dev.andrewbailey.encore.model.MediaCollection
 import dev.andrewbailey.encore.model.MediaItem
