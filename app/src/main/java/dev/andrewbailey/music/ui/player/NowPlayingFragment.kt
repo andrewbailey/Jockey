@@ -25,6 +25,7 @@ import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
@@ -73,6 +74,29 @@ class NowPlayingFragment : ComposableFragment() {
                                 asset = vectorResource(id = R.drawable.ic_close_24)
                             )
                         }
+                    },
+                    actions = {
+                        playbackState?.transportState?.shuffleMode?.let { shuffleMode ->
+                            val toggledShuffleMode = when (shuffleMode) {
+                                ShuffleMode.LINEAR -> ShuffleMode.SHUFFLED
+                                ShuffleMode.SHUFFLED -> ShuffleMode.LINEAR
+                            }
+
+                            IconButton(
+                                onClick = { viewModel.setShuffleMode(toggledShuffleMode) }
+                            ) {
+                                Icon(
+                                    asset = vectorResource(id = R.drawable.ic_shuffle),
+                                    tint = contentColor().copy(
+                                        alpha = when (shuffleMode) {
+                                            ShuffleMode.LINEAR -> 0.5f
+                                            ShuffleMode.SHUFFLED -> 1.0f
+                                        }
+                                    )
+                                )
+                            }
+                        }
+
                     }
                 )
 

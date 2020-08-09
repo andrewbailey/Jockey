@@ -5,10 +5,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
-import dev.andrewbailey.encore.player.state.PlaybackState
-import dev.andrewbailey.encore.player.state.SeekPosition
-import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.state.copy
+import dev.andrewbailey.encore.player.state.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -45,6 +42,10 @@ class NowPlayingViewModel @Inject constructor(
 
     fun skipNext() {
         mediaController.skipNext()
+    }
+
+    fun setShuffleMode(shuffleMode: ShuffleMode) {
+        mediaController.setShuffleMode(shuffleMode)
     }
 
     fun playAtQueueIndex(index: Int) {
