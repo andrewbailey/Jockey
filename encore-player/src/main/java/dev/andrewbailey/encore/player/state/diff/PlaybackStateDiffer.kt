@@ -1,7 +1,10 @@
 package dev.andrewbailey.encore.player.state.diff
 
 import dev.andrewbailey.encore.model.QueueItem
+import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
 import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.QueueState.*
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.TransportState.Active
@@ -12,7 +15,7 @@ internal class PlaybackStateDiffer {
         return PlaybackStateDiff(
             operations = listOfNotNull(
                 generatePauseDiff(oldState, newState),
-                *generateQueueDiff(oldState, newState).toTypedArray(),
+                generateQueueDiff(oldState, newState),
                 generateSeekDiff(oldState, newState),
                 generateRepeatDiff(oldState, newState),
                 generatePlayDiff(newState)
@@ -57,17 +60,21 @@ internal class PlaybackStateDiffer {
     private fun generateQueueDiff(
         oldState: TransportState,
         newState: TransportState
-    ): List<PlaybackStateModification> {
+    ): PlaybackStateModification? {
         val oldQueue = oldState.queue()
         val newQueue = newState.queue()
+
         return if (oldQueue != newQueue) {
-            // TODO break this down into a list of atomic operations on the old queue
-            listOf(
-                StopPlayback,
-                QueueModification(newQueue)
+            QueueModification(
+                updatedQueue = when (newQueue) {
+                    is Linear -> LinearQueueItems(newQueue.queue)
+                    is Shuffled -> ShuffledQueueItems(newQueue.queue, newQueue.linearQueue)
+                    null -> null
+                },
+                isSeamless = newQueue?.nowPlaying == oldQueue?.nowPlaying
             )
         } else {
-            emptyList()
+            null
         }
     }
 
@@ -76,18 +83,23 @@ internal class PlaybackStateDiffer {
         newState: TransportState
     ): PlaybackStateModification? {
         val oldStateNowPlaying = oldState.nowPlaying()
-        val oldStateSeekPosition = oldState.seekPosition()
+        val newStateQueueIndex = newState.nowPlayingIndex() ?: return null
         val newStateNowPlaying = newState.nowPlaying() ?: return null
         val newStateSeekPosition = newState.seekPosition() ?: return null
 
-        return if (oldStateNowPlaying != newStateNowPlaying ||
-            oldStateSeekPosition != newStateSeekPosition) {
-            TimelinePositionChange(
-                queueIndex = newState.nowPlayingIndex(),
-                seekPositionMillis = newState.seekPosition()?.seekPositionMillis ?: 0L
-            )
-        } else {
-            null
+        return when {
+            oldStateNowPlaying == newStateNowPlaying &&
+                    newStateSeekPosition is SeekPosition.ComputedSeekPosition -> {
+                null
+            }
+            else -> {
+                TimelinePositionChange(
+                    queueIndex = newStateQueueIndex,
+                    seekPositionMillis = newStateSeekPosition
+                        .takeIf { it !is SeekPosition.ComputedSeekPosition }
+                        ?.seekPositionMillis ?: 0L
+                )
+            }
         }
     }
 
@@ -95,12 +107,12 @@ internal class PlaybackStateDiffer {
         return this is Active && status == PlaybackState.PLAYING
     }
 
-    private fun TransportState.queue(): List<QueueItem> {
-        return (this as? Active)?.queue?.queue.orEmpty()
+    private fun TransportState.queue(): QueueState? {
+        return (this as? Active)?.queue
     }
 
-    private fun TransportState.nowPlayingIndex(): Int {
-        return (this as? Active)?.queue?.queueIndex ?: 0
+    private fun TransportState.nowPlayingIndex(): Int? {
+        return (this as? Active)?.queue?.queueIndex
     }
 
     private fun TransportState.nowPlaying(): QueueItem? {

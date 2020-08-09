@@ -81,8 +81,11 @@ internal class MediaPlayer(
                         }
                     }
                     is QueueModification -> {
-                        queue.changeQueue(operation.newQueue)
-                        exoPlayer.prepare(queue.mediaSource)
+                        queue.updateQueue(operation.updatedQueue).also {
+                            if (!operation.isSeamless) {
+                                exoPlayer.prepare(queue.mediaSource)
+                            }
+                        }
                     }
                 }.let { /* Require when to be exhaustive */ }
             }

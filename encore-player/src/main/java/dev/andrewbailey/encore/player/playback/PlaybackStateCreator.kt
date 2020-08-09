@@ -7,10 +7,11 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
 import com.google.android.exoplayer2.metadata.id3.ApicFrame
+import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.*
-import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.QueueState.*
 import dev.andrewbailey.encore.player.state.RepeatMode.*
 import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
@@ -40,7 +41,8 @@ internal class PlaybackStateCreator(
     }
 
     fun createTransportState(): TransportState {
-        return if (queue.queueItems.isEmpty()) {
+        val queueItems = queue.queueItems
+        return if (queueItems == null) {
             TransportState.Idle(
                 repeatMode = getRepeatMode(),
                 shuffleMode = LINEAR
@@ -67,10 +69,17 @@ internal class PlaybackStateCreator(
                         )
                     }
                 },
-                queue = QueueState.Linear(
-                    queue = queue.queueItems,
-                    queueIndex = exoPlayer.currentWindowIndex
-                ),
+                queue = when (queueItems) {
+                    is LinearQueueItems -> Linear(
+                        queue = queueItems.queue,
+                        queueIndex = exoPlayer.currentWindowIndex
+                    )
+                    is ShuffledQueueItems -> Shuffled(
+                        queue = queueItems.queue,
+                        queueIndex = exoPlayer.currentWindowIndex,
+                        linearQueue = queueItems.linearQueue
+                    )
+                },
                 repeatMode = getRepeatMode()
             )
         }

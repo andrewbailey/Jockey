@@ -1,6 +1,6 @@
 package dev.andrewbailey.encore.player.state.diff
 
-import dev.andrewbailey.encore.model.QueueItem
+import dev.andrewbailey.encore.player.playback.MediaQueueItems
 import dev.andrewbailey.encore.player.state.RepeatMode
 
 internal sealed class PlaybackStateModification
@@ -20,7 +20,7 @@ internal data class SetRepeatMode(
 
 internal object StopPlayback : PlaybackStateModification()
 
-// TODO Break this model into atomic operations
 internal data class QueueModification(
-    val newQueue: List<QueueItem>
+    val updatedQueue: MediaQueueItems?,
+    val isSeamless: Boolean
 ) : PlaybackStateModification()
