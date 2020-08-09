@@ -1,6 +1,7 @@
 package dev.andrewbailey.encore.player.controller.impl
 
 import dev.andrewbailey.encore.player.binder.ServiceHostMessage
+import dev.andrewbailey.encore.player.state.ShuffleMode
 
 internal sealed class EncoreControllerCommand {
 
@@ -20,6 +21,10 @@ internal sealed class EncoreControllerCommand {
 
         class SeekTo(
             val positionMs: Long
+        ) : MediaControllerCommand()
+
+        class SetShuffleMode(
+            val shuffleMode: ShuffleMode
         ) : MediaControllerCommand()
 
     }

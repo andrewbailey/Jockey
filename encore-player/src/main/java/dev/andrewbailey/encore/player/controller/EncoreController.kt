@@ -4,6 +4,7 @@ import android.content.Context
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerImpl
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +32,8 @@ interface EncoreController {
     fun skipNext()
 
     fun seekTo(positionMs: Long)
+
+    fun setShuffleMode(shuffleMode: ShuffleMode)
 
     companion object {
         inline fun <reified T : MediaPlayerService> create(context: Context) =

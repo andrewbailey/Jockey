@@ -2,11 +2,15 @@ package dev.andrewbailey.encore.player.controller.impl
 
 import android.os.DeadObjectException
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaControllerCompat.*
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.*
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
+import dev.andrewbailey.encore.player.state.ShuffleMode
 import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -70,12 +74,20 @@ internal class ServiceControllerDispatcher constructor(
         val controller = mediaController.filterNotNull().first().transportControls
 
         when (message) {
-            MediaControllerCommand.Play -> controller.play()
-            MediaControllerCommand.Pause -> controller.pause()
-            MediaControllerCommand.SkipPrevious -> controller.skipToPrevious()
-            MediaControllerCommand.SkipNext -> controller.skipToNext()
-            is MediaControllerCommand.SeekTo -> controller.seekTo(message.positionMs)
+            Play -> controller.play()
+            Pause -> controller.pause()
+            SkipPrevious -> controller.skipToPrevious()
+            SkipNext -> controller.skipToNext()
+            is SeekTo -> controller.seekTo(message.positionMs)
+            is SetShuffleMode -> controller.setShuffleMode(message.shuffleMode)
         }.let { /* Require exhaustive when */ }
+    }
+
+    private fun TransportControls.setShuffleMode(shuffleMode: ShuffleMode) {
+        setShuffleMode(when (shuffleMode) {
+            ShuffleMode.LINEAR -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+            ShuffleMode.SHUFFLED -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+        })
     }
 
 }

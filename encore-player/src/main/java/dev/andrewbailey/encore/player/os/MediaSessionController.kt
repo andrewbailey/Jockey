@@ -44,6 +44,11 @@ internal class MediaSessionController(
                 REPEAT_ALL -> REPEAT_MODE_ALL
             })
 
+            setShuffleMode(when (newState.transportState.shuffleMode) {
+                LINEAR -> SHUFFLE_MODE_NONE
+                SHUFFLED -> SHUFFLE_MODE_ALL
+            })
+
             when (newState) {
                 is Prepared -> {
                     setMetadata(buildMetadata(newState))

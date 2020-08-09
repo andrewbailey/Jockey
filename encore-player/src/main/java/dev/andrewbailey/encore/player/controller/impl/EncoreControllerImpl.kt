@@ -13,6 +13,7 @@ import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.Se
 import dev.andrewbailey.encore.player.state.BufferingState.Buffering
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
+import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -167,6 +168,10 @@ internal class EncoreControllerImpl constructor(
 
     override fun seekTo(positionMs: Long) {
         dispatcher.sendMessage(SeekTo(positionMs))
+    }
+
+    override fun setShuffleMode(shuffleMode: ShuffleMode) {
+        dispatcher.sendMessage(SetShuffleMode(shuffleMode))
     }
 
 }
