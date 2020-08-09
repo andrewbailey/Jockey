@@ -4,7 +4,6 @@ import android.os.Parcelable
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
-import kotlin.random.Random
 import kotlinx.android.parcel.Parcelize
 
 sealed class QueueState : Parcelable {
@@ -39,15 +38,6 @@ sealed class QueueState : Parcelable {
             assertPreconditions()
         }
 
-        fun shuffled(random: Random? = null): Shuffled {
-            val shuffledQueue = random?.let { queue.shuffled(it) } ?: queue.shuffled()
-            return Shuffled(
-                linearQueue = queue,
-                queue = shuffledQueue,
-                queueIndex = shuffledQueue.indexOf(nowPlaying)
-            )
-        }
-
     }
 
     @Parcelize
@@ -64,14 +54,6 @@ sealed class QueueState : Parcelable {
                 "linearQueue must contain all the items from the shuffled queue"
             }
         }
-
-        val linearQueueIndex: Int
-            get() = linearQueue.indexOf(nowPlaying)
-
-        fun unShuffled() = Linear(
-            queue = linearQueue,
-            queueIndex = linearQueueIndex
-        )
 
     }
 

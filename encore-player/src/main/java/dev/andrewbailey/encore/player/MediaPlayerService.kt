@@ -34,7 +34,7 @@ abstract class MediaPlayerService(
     private val tag: String,
     private val notificationId: Int,
     private val notificationProvider: NotificationProvider,
-    private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory,
+    private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory(),
     private val extensions: List<PlaybackExtension> = emptyList(),
     private val observers: List<PlaybackObserver> = emptyList()
 ) : MediaBrowserServiceCompat() {

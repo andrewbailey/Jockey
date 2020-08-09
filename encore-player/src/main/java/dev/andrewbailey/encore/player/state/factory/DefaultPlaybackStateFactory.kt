@@ -4,9 +4,12 @@ import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.player.state.PlaybackState.*
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
+import java.util.*
 import kotlin.math.min
 
-object DefaultPlaybackStateFactory : PlaybackStateFactory() {
+class DefaultPlaybackStateFactory(
+    private val random: Random = Random()
+) : PlaybackStateFactory() {
 
     override fun play(state: TransportState): TransportState {
         return state.modifyTransportState(
@@ -140,16 +143,37 @@ object DefaultPlaybackStateFactory : PlaybackStateFactory() {
             is QueueState.Linear -> {
                 when (shuffleMode) {
                     ShuffleMode.LINEAR -> this
-                    ShuffleMode.SHUFFLED -> shuffled()
+                    ShuffleMode.SHUFFLED -> toShuffledQueue(random)
                 }
             }
             is QueueState.Shuffled -> {
                 when (shuffleMode) {
                     ShuffleMode.SHUFFLED -> this
-                    ShuffleMode.LINEAR -> unShuffled()
+                    ShuffleMode.LINEAR -> toLinearQueue()
                 }
             }
         }
+    }
+
+    private fun QueueState.Linear.toShuffledQueue(random: Random): QueueState.Shuffled {
+        val shuffledQueue = queue.toMutableList().apply {
+            remove(nowPlaying)
+            shuffle(random)
+            add(element = nowPlaying, index = 0)
+        }.toList()
+
+        return QueueState.Shuffled(
+            linearQueue = queue,
+            queue = shuffledQueue,
+            queueIndex = shuffledQueue.indexOf(nowPlaying)
+        )
+    }
+
+    private fun QueueState.Shuffled.toLinearQueue(): QueueState.Linear {
+        return QueueState.Linear(
+            queue = linearQueue,
+            queueIndex = linearQueue.indexOf(nowPlaying)
+        )
     }
 
 }
