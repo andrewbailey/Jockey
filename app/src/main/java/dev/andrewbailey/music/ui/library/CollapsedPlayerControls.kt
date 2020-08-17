@@ -37,12 +37,12 @@ fun CollapsedPlayerControls(
                 val (skipPrevious, playPause, skipNext) = createRefs()
 
                 createHorizontalChain(
-                    elements = *arrayOf(skipPrevious, playPause, skipNext),
+                    elements = arrayOf(skipPrevious, playPause, skipNext),
                     chainStyle = ChainStyle.Packed(bias = 1.0f)
                 )
 
                 createVerticalChain(
-                    elements = *arrayOf(title, artist),
+                    elements = arrayOf(title, artist),
                     chainStyle = ChainStyle.Packed
                 )
 

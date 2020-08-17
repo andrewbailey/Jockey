@@ -155,7 +155,7 @@ class MediaStoreProvider(
 
             possibleIds.distinct()
                 .associateWith { id -> possibleIds.count { id == it } }
-                .maxBy { (_, count) -> count }
+                .maxByOrNull { (_, count) -> count }
                 ?.key
         } else {
             // On API 29 and higher, we would've already determined the artist directly by looking

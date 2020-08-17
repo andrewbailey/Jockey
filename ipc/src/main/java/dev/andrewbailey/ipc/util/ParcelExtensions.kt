@@ -6,7 +6,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
 
-@UseExperimental(ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
 internal inline fun <T> Parcel.use(action: (Parcel) -> T): T {
     contract { callsInPlace(action, EXACTLY_ONCE) }
     try {
