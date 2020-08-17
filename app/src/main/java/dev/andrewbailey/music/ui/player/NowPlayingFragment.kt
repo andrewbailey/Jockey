@@ -3,7 +3,7 @@ package dev.andrewbailey.music.ui.player
 import android.os.Bundle
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumnItems
+import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.state
@@ -57,11 +57,13 @@ class NowPlayingFragment : ComposableFragment() {
                 val (toolbar, artwork, controls, queue) = createRefs()
 
                 TopAppBar(
-                    modifier = Modifier.constrainAs(toolbar) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    } + Modifier.zIndex(1f),
+                    modifier = Modifier
+                        .zIndex(1f)
+                        .constrainAs(toolbar) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
                     backgroundColor = Color.Transparent,
                     title = { Text(stringResource(R.string.page_title_now_playing)) },
                     elevation = 0.dp,
@@ -101,13 +103,16 @@ class NowPlayingFragment : ComposableFragment() {
                 )
 
                 Box(
-                    modifier = Modifier.constrainAs(artwork) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.wrapContent
-                    } + Modifier.aspectRatio(1.0f) + Modifier.scrim(),
+                    modifier = Modifier
+                        .constrainAs(artwork) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.wrapContent
+                        }
+                        .aspectRatio(1.0f)
+                        .scrim(),
                     backgroundColor = Color.Black
                 ) {
                     (playbackState as? MediaPlayerState.Prepared)?.artwork?.let { albumArt ->
@@ -121,11 +126,12 @@ class NowPlayingFragment : ComposableFragment() {
 
                 NowPlayingControls(
                     playbackState = playbackState,
-                    modifier = Modifier.drawShadow(elevation = 4.dp) +
-                            Modifier.zIndex(4f) +
-                            Modifier.drawBackground(color = MaterialTheme.colors.surface) +
-                            Modifier.padding(16.dp) +
-                            Modifier.constrainAs(controls) {
+                    modifier = Modifier
+                            .drawShadow(elevation = 4.dp)
+                            .zIndex(4f)
+                            .background(color = MaterialTheme.colors.surface)
+                            .padding(16.dp)
+                            .constrainAs(controls) {
                                 top.linkTo(artwork.bottom)
                                 start.linkTo(parent.start)
                                 end.linkTo(parent.end)
@@ -231,11 +237,13 @@ class NowPlayingFragment : ComposableFragment() {
                     }.toLong())
                     userSeekPosition.value = null
                 },
-                modifier = Modifier.constrainAs(seekBar) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                } + Modifier.offset(y = 4.dp) +
-                        Modifier.preferredHeight(36.dp)
+                modifier = Modifier
+                    .constrainAs(seekBar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .offset(y = 4.dp)
+                    .preferredHeight(36.dp)
             )
 
             IconButton(
@@ -302,9 +310,9 @@ class NowPlayingFragment : ComposableFragment() {
             color = MaterialTheme.colors.background,
             modifier = modifier
         ) {
-            LazyColumnItems(
-                items = queue.withIndex().toList()
-            ) { (index, queueItem) ->
+            LazyColumnForIndexed(
+                items = queue
+            ) { index, queueItem ->
                 ListItem(
                     text = queueItem.mediaItem.name,
                     secondaryText = formattedAlbumArtist(queueItem.mediaItem),

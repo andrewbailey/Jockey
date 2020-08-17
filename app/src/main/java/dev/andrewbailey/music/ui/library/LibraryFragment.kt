@@ -5,7 +5,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.LazyColumnItems
+import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -82,9 +82,9 @@ class LibraryFragment : ComposableFragment() {
         songs: List<MediaItem>,
         mediaController: EncoreController
     ) {
-        LazyColumnItems(
-            items = songs.withIndex().toList()
-        ) { (index, song) ->
+        LazyColumnForIndexed(
+            items = songs
+        ) { index, song ->
             ListItem(
                 text = song.name,
                 secondaryText = formattedAlbumArtist(song.collection, song.author),
