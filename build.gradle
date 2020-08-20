@@ -30,18 +30,18 @@ ext {
             coroutines: '1.3.7'
         ],
         androidx : [
-            core : '1.2.0-beta01',
-            annotation : '1.1.0',
-            appcompat : '1.1.0',
+            core : '1.5.0-alpha02',
+            annotation : '1.2.0-alpha01',
+            appcompat : '1.3.0-alpha02',
             compose : '0.1.0-dev17',
-            fragment : '1.2.0-beta02',
+            fragment : '1.3.0-alpha08',
             navigation : navVersion,
-            lifecycle : '2.2.0',
-            savedstate: '1.0.0',
-            media: '1.2.0-alpha01',
+            lifecycle : '2.3.0-alpha07',
+            savedstate: '1.1.0-alpha01',
+            media: '1.2.0-beta01',
         ],
         dagger : [
-            core : '2.27',
+            core : '2.28.3',
         ],
         exoplayer : [
             core : '2.11.7',
