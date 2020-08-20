@@ -44,7 +44,7 @@ ext {
             core : '2.27',
         ],
         exoplayer : [
-            core : '2.10.8',
+            core : '2.11.7',
         ],
         difference : '1.0.0',
         test : [

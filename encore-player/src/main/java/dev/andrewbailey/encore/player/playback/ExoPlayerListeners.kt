@@ -9,13 +9,13 @@ internal class ExoPlayerListeners(
     private val onExoPlayerEvent: () -> Unit
 ) : Player.EventListener {
 
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
+    override fun onTimelineChanged(timeline: Timeline, reason: Int) {
         onExoPlayerEvent()
     }
 
     override fun onTracksChanged(
-        trackGroups: TrackGroupArray?,
-        trackSelections: TrackSelectionArray?
+        trackGroups: TrackGroupArray,
+        trackSelections: TrackSelectionArray
     ) {
         onExoPlayerEvent()
     }
