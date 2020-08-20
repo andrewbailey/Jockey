@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 
 @Composable
 fun <T> observe(data: LiveData<T>): T? {
-    var result by state(neverEqualPolicy()) { data.value }
+    var result by remember { mutableStateOf(data.value, neverEqualPolicy()) }
     val observer = remember { Observer<T> { result = it } }
 
     onCommit(data) {

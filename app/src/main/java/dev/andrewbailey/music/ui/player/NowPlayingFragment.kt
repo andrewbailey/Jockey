@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawShadow
 import androidx.compose.ui.drawWithContent
@@ -192,7 +193,7 @@ class NowPlayingFragment : ComposableFragment() {
                 chainStyle = ChainStyle.Packed
             )
 
-            val userSeekPosition = state<Float?>(init = { null })
+            val userSeekPosition = remember { mutableStateOf<Float?>(null) }
 
             val nowPlaying = playbackState.transportState.queue.nowPlaying.mediaItem
             Text(
@@ -314,11 +315,16 @@ class NowPlayingFragment : ComposableFragment() {
                 items = queue
             ) { index, queueItem ->
                 ListItem(
-                    text = queueItem.mediaItem.name,
-                    secondaryText = formattedAlbumArtist(queueItem.mediaItem),
-                    onClick = {
-                        viewModel.playAtQueueIndex(index)
-                    }
+                    text = {
+                        Text(queueItem.mediaItem.name)
+                    },
+                    secondaryText = {
+                        Text(formattedAlbumArtist(queueItem.mediaItem))
+                    },
+                    modifier = Modifier
+                        .clickable(onClick = {
+                            viewModel.playAtQueueIndex(index)
+                        })
                 )
                 Divider()
             }

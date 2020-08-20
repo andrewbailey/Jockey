@@ -29,7 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion "1.4.0-dev-withExperimentalGoogleExtensions-20200720"
+        kotlinCompilerVersion "1.4.0"
         kotlinCompilerExtensionVersion config.versions.androidx.compose
     }
 
@@ -39,6 +39,7 @@ android {
     }
 
     kotlinOptions {
+        freeCompilerArgs += ["-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check"]
         jvmTarget = "1.8"
     }
 }

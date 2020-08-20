@@ -86,26 +86,31 @@ class LibraryFragment : ComposableFragment() {
             items = songs
         ) { index, song ->
             ListItem(
-                text = song.name,
-                secondaryText = formattedAlbumArtist(song.collection, song.author),
-                onClick = {
-                    mediaController.setState(
-                        TransportState.Active(
-                            status = PlaybackState.PLAYING,
-                            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
-                            queue = QueueState.Linear(
-                                queue = songs.map {
-                                    QueueItem(
-                                        queueId = UUID.randomUUID(),
-                                        mediaItem = it
-                                    )
-                                },
-                                queueIndex = index
-                            ),
-                            repeatMode = RepeatMode.REPEAT_NONE
+                text = {
+                    Text(song.name)
+                },
+                secondaryText = {
+                    Text(formattedAlbumArtist(song.collection, song.author))
+                },
+                modifier = Modifier
+                    .clickable(onClick = {
+                        mediaController.setState(
+                            TransportState.Active(
+                                status = PlaybackState.PLAYING,
+                                seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                                queue = QueueState.Linear(
+                                    queue = songs.map {
+                                        QueueItem(
+                                            queueId = UUID.randomUUID(),
+                                            mediaItem = it
+                                        )
+                                    },
+                                    queueIndex = index
+                                ),
+                                repeatMode = RepeatMode.REPEAT_NONE
+                            )
                         )
-                    )
-                }
+                    })
             )
             Divider()
         }
