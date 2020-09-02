@@ -3,7 +3,7 @@ package com.marverenic.encore.player.action
 import android.support.v4.media.session.PlaybackStateCompat.*
 
 @Suppress("unused")
-enum class PlaybackAction(
+public enum class PlaybackAction(
     @MediaKeyAction
     internal val mediaKeyAction: Long
 ) {

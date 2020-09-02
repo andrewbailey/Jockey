@@ -2,7 +2,7 @@ package dev.andrewbailey.encore.player.browse
 
 import dev.andrewbailey.encore.player.state.TransportState
 
-class BrowserHierarchy(
+public class BrowserHierarchy(
     private val hierarchy: BrowserDirectory.() -> Unit
 ) {
 

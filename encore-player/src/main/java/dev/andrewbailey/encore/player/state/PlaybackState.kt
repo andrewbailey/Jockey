@@ -1,6 +1,6 @@
 package dev.andrewbailey.encore.player.state
 
-enum class PlaybackState {
+public enum class PlaybackState {
     PLAYING,
     PAUSED,
     REACHED_END

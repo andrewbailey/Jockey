@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-abstract class MediaPlayerService(
+public abstract class MediaPlayerService(
     private val tag: String,
     private val notificationId: Int,
     private val notificationProvider: NotificationProvider,
@@ -144,7 +144,7 @@ abstract class MediaPlayerService(
         mediaPlayer.release()
     }
 
-    fun quit() {
+    internal fun quit() {
         /*
             If a client is still using the playback service, pause playback and hide the
             notification. There's a chance that the user will resume playback later on, so we
@@ -194,9 +194,9 @@ abstract class MediaPlayerService(
         mediaBrowserDelegate.onLoadChildren(parentId, result)
     }
 
-    open fun onCreateCustomActions(): List<CustomActionProvider> {
+    public open fun onCreateCustomActions(): List<CustomActionProvider> {
         return emptyList()
     }
 
-    abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy
+    public abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy
 }

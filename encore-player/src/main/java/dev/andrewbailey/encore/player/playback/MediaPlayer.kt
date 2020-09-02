@@ -100,7 +100,7 @@ internal class MediaPlayer(
             val state = getState()
             if (state != lastDispatchedState) {
                 lastDispatchedState = state
-                extensions.forEach { it.onNewPlayerState(state) }
+                extensions.forEach { it.dispatchNewState(state) }
                 observers.forEach { it.onPlaybackStateChanged(state) }
             }
         }

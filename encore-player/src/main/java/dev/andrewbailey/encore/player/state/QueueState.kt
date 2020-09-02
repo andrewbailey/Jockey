@@ -6,12 +6,12 @@ import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
 import kotlinx.android.parcel.Parcelize
 
-sealed class QueueState : Parcelable {
+public sealed class QueueState : Parcelable {
 
-    abstract val queue: List<QueueItem>
-    abstract val queueIndex: Int
+    public abstract val queue: List<QueueItem>
+    public abstract val queueIndex: Int
 
-    val nowPlaying: QueueItem
+    public val nowPlaying: QueueItem
         get() = queue[queueIndex]
 
     protected fun assertPreconditions() {
@@ -29,7 +29,7 @@ sealed class QueueState : Parcelable {
     }
 
     @Parcelize
-    data class Linear(
+    public data class Linear(
         override val queue: List<QueueItem>,
         override val queueIndex: Int
     ) : QueueState() {
@@ -41,7 +41,7 @@ sealed class QueueState : Parcelable {
     }
 
     @Parcelize
-    data class Shuffled(
+    public data class Shuffled(
         override val queue: List<QueueItem>,
         override val queueIndex: Int,
         val linearQueue: List<QueueItem>
@@ -59,7 +59,7 @@ sealed class QueueState : Parcelable {
 
 }
 
-fun QueueState.copy(
+public fun QueueState.copy(
     queue: List<QueueItem> = this.queue,
     queueIndex: Int = this.queueIndex
 ): QueueState {

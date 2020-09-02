@@ -4,20 +4,20 @@ import android.graphics.Bitmap
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-sealed class MediaPlayerState : Parcelable {
+public sealed class MediaPlayerState : Parcelable {
 
-    abstract val transportState: TransportState
+    public abstract val transportState: TransportState
 
     @Parcelize
-    class Prepared internal constructor(
+    public class Prepared internal constructor(
         override val transportState: TransportState.Active,
-        val artwork: Bitmap?,
-        val durationMs: Long?,
-        val bufferingState: BufferingState
+        public val artwork: Bitmap?,
+        public val durationMs: Long?,
+        public val bufferingState: BufferingState
     ) : MediaPlayerState()
 
     @Parcelize
-    class Ready internal constructor(
+    public class Ready internal constructor(
         override val transportState: TransportState.Idle
     ) : MediaPlayerState()
 

@@ -7,7 +7,7 @@ import dev.andrewbailey.encore.player.state.TransportState.Idle
 import java.util.*
 import kotlin.math.min
 
-class DefaultPlaybackStateFactory(
+public class DefaultPlaybackStateFactory(
     private val random: Random = Random()
 ) : PlaybackStateFactory() {
 

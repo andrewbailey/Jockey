@@ -3,13 +3,13 @@ package dev.andrewbailey.encore.player.state
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-sealed class TransportState : Parcelable {
+public sealed class TransportState : Parcelable {
 
-    abstract val repeatMode: RepeatMode
-    abstract val shuffleMode: ShuffleMode
+    public abstract val repeatMode: RepeatMode
+    public abstract val shuffleMode: ShuffleMode
 
     @Parcelize
-    data class Active(
+    public data class Active(
         val status: PlaybackState,
         val seekPosition: SeekPosition,
         val queue: QueueState,
@@ -26,7 +26,7 @@ sealed class TransportState : Parcelable {
     }
 
     @Parcelize
-    data class Idle(
+    public data class Idle(
         override val repeatMode: RepeatMode,
         override val shuffleMode: ShuffleMode
     ) : TransportState()

@@ -2,11 +2,11 @@ package dev.andrewbailey.encore.player.playback
 
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-interface PlaybackObserver {
+public interface PlaybackObserver {
 
-    fun onPlaybackStateChanged(newState: MediaPlayerState)
+    public fun onPlaybackStateChanged(newState: MediaPlayerState)
 
-    fun onRelease() {
+    public fun onRelease() {
 
     }
 

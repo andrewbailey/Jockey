@@ -7,28 +7,28 @@ import dev.andrewbailey.ipc.util.BINDER_TRANSACTION_LIMIT_BYTES
 import dev.andrewbailey.ipc.util.ParcelSplitter
 import java.util.*
 
-typealias OnReceiveMessage<T, R> = BidirectionalMessenger<T, R>.(
+public typealias OnReceiveMessage<T, R> = BidirectionalMessenger<T, R>.(
     data: T,
     replyTo: BidirectionalMessenger<R, T>
 ) -> Unit
 
-fun <T : Parcelable, R : Parcelable> bidirectionalMessenger(
+public fun <T : Parcelable, R : Parcelable> bidirectionalMessenger(
     handler: Handler = Handler(Looper.getMainLooper()),
     onReceiveMessage: OnReceiveMessage<T, R>
 ): BidirectionalMessenger<T, R> = BidirectionalMessengerHost(handler, onReceiveMessage)
 
-fun <T : Parcelable, R : Parcelable> bidirectionalMessenger(
+public fun <T : Parcelable, R : Parcelable> bidirectionalMessenger(
     binder: IBinder
 ): BidirectionalMessenger<T, R> = BidirectionalMessengerClient(binder)
 
-sealed class BidirectionalMessenger<in T : Parcelable, out R : Parcelable> {
+public sealed class BidirectionalMessenger<in T : Parcelable, out R : Parcelable> {
 
-    abstract val binder: IBinder
+    public abstract val binder: IBinder
 
-    val isAlive: Boolean
+    public val isAlive: Boolean
         get() = binder.isBinderAlive
 
-    fun send(message: T, respondTo: BidirectionalMessenger<R, T>) {
+    public fun send(message: T, respondTo: BidirectionalMessenger<R, T>) {
         Chunk.createChunks(message).forEach { chunk ->
             val data = Parcel.obtain()
             val reply = Parcel.obtain()

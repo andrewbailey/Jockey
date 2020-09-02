@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-abstract class CustomActionProvider(
+public abstract class CustomActionProvider(
     internal val id: String,
     /**
      * Determines whether other applications can execute this custom action. If set to true, this

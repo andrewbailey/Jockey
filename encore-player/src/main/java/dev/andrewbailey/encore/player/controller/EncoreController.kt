@@ -9,37 +9,38 @@ import dev.andrewbailey.encore.player.state.TransportState
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
-interface EncoreController {
+public interface EncoreController {
 
-    fun acquireToken(): EncoreToken
+    public fun acquireToken(): EncoreToken
 
-    fun releaseToken(token: EncoreToken)
+    public fun releaseToken(token: EncoreToken)
 
-    fun observeState(
+    public fun observeState(
         seekUpdateFrequency: SeekUpdateFrequency = SeekUpdateFrequency.Never
     ): Flow<MediaPlayerState>
 
-    suspend fun getState(): MediaPlayerState
+    public suspend fun getState(): MediaPlayerState
 
-    fun setState(newState: TransportState)
+    public fun setState(newState: TransportState)
 
-    fun play()
+    public fun play()
 
-    fun pause()
+    public fun pause()
 
-    fun skipPrevious()
+    public fun skipPrevious()
 
-    fun skipNext()
+    public fun skipNext()
 
-    fun seekTo(positionMs: Long)
+    public fun seekTo(positionMs: Long)
 
-    fun setShuffleMode(shuffleMode: ShuffleMode)
+    public fun setShuffleMode(shuffleMode: ShuffleMode)
 
-    companion object {
-        inline fun <reified T : MediaPlayerService> create(context: Context) =
-            create(context, T::class.java)
+    public companion object {
+        public inline fun <reified T : MediaPlayerService> create(
+            context: Context
+        ): EncoreController = create(context, T::class.java)
 
-        fun create(
+        public fun create(
             context: Context,
             serviceClass: Class<out MediaPlayerService>
         ): EncoreController {
@@ -50,10 +51,10 @@ interface EncoreController {
         }
     }
 
-    sealed class SeekUpdateFrequency {
-        object Never : SeekUpdateFrequency()
+    public sealed class SeekUpdateFrequency {
+        public object Never : SeekUpdateFrequency()
 
-        data class WhilePlayingEvery(
+        public data class WhilePlayingEvery(
             val interval: Long,
             val timeUnit: TimeUnit
         ) : SeekUpdateFrequency() {

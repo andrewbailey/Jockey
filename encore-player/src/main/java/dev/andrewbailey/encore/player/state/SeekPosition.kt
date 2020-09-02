@@ -5,11 +5,11 @@ import android.os.SystemClock
 import kotlin.math.min
 import kotlinx.android.parcel.Parcelize
 
-sealed class SeekPosition : Parcelable {
+public sealed class SeekPosition : Parcelable {
 
-    abstract val seekPositionMillis: Long
+    public abstract val seekPositionMillis: Long
 
-    operator fun compareTo(other: SeekPosition): Int {
+    public operator fun compareTo(other: SeekPosition): Int {
         return seekPositionMillis.compareTo(other.seekPositionMillis)
     }
 
@@ -29,7 +29,7 @@ sealed class SeekPosition : Parcelable {
     }
 
     @Parcelize
-    data class AbsoluteSeekPosition(
+    public data class AbsoluteSeekPosition(
         override val seekPositionMillis: Long
     ) : SeekPosition()
 

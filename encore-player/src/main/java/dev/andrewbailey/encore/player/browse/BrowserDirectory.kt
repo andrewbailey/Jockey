@@ -9,13 +9,13 @@ import kotlin.NoSuchElementException
 
 private const val RESERVED_CHARS = "/@[]"
 
-class BrowserDirectory internal constructor(
+public class BrowserDirectory internal constructor(
     private val path: String
 ) {
 
     private val entries = mutableListOf<DirectoryListing>()
 
-    fun staticPath(
+    public fun staticPath(
         id: String,
         name: String,
         pathContents: suspend BrowserDirectory.() -> Unit
@@ -26,7 +26,7 @@ class BrowserDirectory internal constructor(
         )
     }
 
-    fun staticPath(
+    public fun staticPath(
         path: BrowserPath,
         pathContents: suspend BrowserDirectory.() -> Unit
     ) {
@@ -34,7 +34,7 @@ class BrowserDirectory internal constructor(
         entries += StaticPath(path, pathContents)
     }
 
-    fun dynamicPaths(
+    public fun dynamicPaths(
         identifier: String,
         paths: suspend () -> List<BrowserPath>,
         pathContents: suspend BrowserDirectory.(id: String) -> Unit
@@ -43,7 +43,7 @@ class BrowserDirectory internal constructor(
         entries += DynamicPath(identifier, paths, pathContents)
     }
 
-    fun mediaItems(
+    public fun mediaItems(
         identifier: String,
         loadItems: suspend () -> List<MediaItem>
     ) {
@@ -141,7 +141,7 @@ class BrowserDirectory internal constructor(
         )
     }
 
-    data class BrowserPath(
+    public data class BrowserPath(
         val id: String,
         val name: String
     )

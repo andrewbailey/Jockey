@@ -11,7 +11,7 @@ import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MediaStoreProvider(
+public class MediaStoreProvider(
     context: Context
 ) : MediaProvider {
 

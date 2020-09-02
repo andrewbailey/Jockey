@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class MediaItem(
+public data class MediaItem(
     val id: String,
     val playbackUri: String,
     val name: String,

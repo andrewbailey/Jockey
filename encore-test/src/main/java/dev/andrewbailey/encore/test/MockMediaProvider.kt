@@ -5,7 +5,7 @@ import dev.andrewbailey.encore.model.MediaCollection
 import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.provider.MediaProvider
 
-class MockMediaProvider : MediaProvider {
+public class MockMediaProvider : MediaProvider {
 
     private val artists = listOf(
         MediaAuthor(

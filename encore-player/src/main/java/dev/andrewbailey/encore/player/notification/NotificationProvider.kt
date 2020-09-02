@@ -14,7 +14,7 @@ import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-abstract class NotificationProvider(
+public abstract class NotificationProvider(
     private val notificationChannelId: String
 ) {
 
@@ -70,16 +70,26 @@ abstract class NotificationProvider(
     }
 
     @DrawableRes
-    abstract fun getNotificationIcon(playbackState: MediaPlayerState): Int
+    public abstract fun getNotificationIcon(
+        playbackState: MediaPlayerState
+    ): Int
 
     @ColorInt
-    open fun getNotificationColor(context: Context, playbackState: MediaPlayerState): Int {
+    public open fun getNotificationColor(
+        context: Context,
+        playbackState: MediaPlayerState
+    ): Int {
         return NotificationCompat.COLOR_DEFAULT
     }
 
-    abstract fun getContentIntent(context: Context, playbackState: MediaPlayerState): PendingIntent
+    public abstract fun getContentIntent(
+        context: Context,
+        playbackState: MediaPlayerState
+    ): PendingIntent
 
-    abstract fun getActions(playbackState: MediaPlayerState): List<NotificationAction>
+    public abstract fun getActions(
+        playbackState: MediaPlayerState
+    ): List<NotificationAction>
 
     private fun getPendingIntent(
         service: Service,

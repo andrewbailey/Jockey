@@ -6,21 +6,21 @@ import dev.andrewbailey.encore.model.MediaAuthor
 import dev.andrewbailey.encore.model.MediaCollection
 import dev.andrewbailey.encore.model.MediaItem
 
-interface ArtworkProvider {
+public interface ArtworkProvider {
 
-    suspend fun getArtworkForMediaItem(
+    public suspend fun getArtworkForMediaItem(
         mediaItem: MediaItem,
         @Px widthPx: Int? = null,
         @Px heightPx: Int? = null
     ): Bitmap?
 
-    suspend fun getArtworkForMediaAuthor(
+    public suspend fun getArtworkForMediaAuthor(
         mediaAuthor: MediaAuthor,
         @Px widthPx: Int? = null,
         @Px heightPx: Int? = null
     ): Bitmap?
 
-    suspend fun getArtworkForMediaCollection(
+    public suspend fun getArtworkForMediaCollection(
         mediaCollection: MediaCollection,
         @Px widthPx: Int? = null,
         @Px heightPx: Int? = null

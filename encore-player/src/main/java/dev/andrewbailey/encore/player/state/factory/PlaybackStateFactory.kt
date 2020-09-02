@@ -4,22 +4,42 @@ import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 
-abstract class PlaybackStateFactory {
+public abstract class PlaybackStateFactory {
 
-    abstract fun play(state: TransportState): TransportState
+    public abstract fun play(
+        state: TransportState
+    ): TransportState
 
-    abstract fun pause(state: TransportState): TransportState
+    public abstract fun pause(
+        state: TransportState
+    ): TransportState
 
-    abstract fun seekTo(state: TransportState, seekPositionMillis: Long): TransportState
+    public abstract fun seekTo(
+        state: TransportState,
+        seekPositionMillis: Long
+    ): TransportState
 
-    abstract fun skipToPrevious(state: TransportState): TransportState
+    public abstract fun skipToPrevious(
+        state: TransportState
+    ): TransportState
 
-    abstract fun skipToNext(state: TransportState): TransportState
+    public abstract fun skipToNext(
+        state: TransportState
+    ): TransportState
 
-    abstract fun skipToIndex(state: TransportState, index: Int): TransportState
+    public abstract fun skipToIndex(
+        state: TransportState,
+        index: Int
+    ): TransportState
 
-    abstract fun setShuffleMode(state: TransportState, shuffleMode: ShuffleMode): TransportState
+    public abstract fun setShuffleMode(
+        state: TransportState,
+        shuffleMode: ShuffleMode
+    ): TransportState
 
-    abstract fun setRepeatMode(state: TransportState, repeatMode: RepeatMode): TransportState
+    public abstract fun setRepeatMode(
+        state: TransportState,
+        repeatMode: RepeatMode
+    ): TransportState
 
 }

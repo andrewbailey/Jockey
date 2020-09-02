@@ -4,24 +4,24 @@ import dev.andrewbailey.encore.model.MediaAuthor
 import dev.andrewbailey.encore.model.MediaCollection
 import dev.andrewbailey.encore.model.MediaItem
 
-interface MediaProvider {
+public interface MediaProvider {
 
-    suspend fun getAllMedia(): List<MediaItem>
+    public suspend fun getAllMedia(): List<MediaItem>
 
-    suspend fun getMediaById(id: String): MediaItem?
+    public suspend fun getMediaById(id: String): MediaItem?
 
-    suspend fun getAllCollections(): List<MediaCollection>
+    public suspend fun getAllCollections(): List<MediaCollection>
 
-    suspend fun getCollectionById(id: String): MediaCollection?
+    public suspend fun getCollectionById(id: String): MediaCollection?
 
-    suspend fun getMediaInCollection(collection: MediaCollection): List<MediaItem>
+    public suspend fun getMediaInCollection(collection: MediaCollection): List<MediaItem>
 
-    suspend fun getAuthors(): List<MediaAuthor>
+    public suspend fun getAuthors(): List<MediaAuthor>
 
-    suspend fun getAuthorById(id: String): MediaAuthor?
+    public suspend fun getAuthorById(id: String): MediaAuthor?
 
-    suspend fun getCollectionsByAuthor(author: MediaAuthor): List<MediaCollection>
+    public suspend fun getCollectionsByAuthor(author: MediaAuthor): List<MediaCollection>
 
-    suspend fun getMediaByAuthor(author: MediaAuthor): List<MediaItem>
+    public suspend fun getMediaByAuthor(author: MediaAuthor): List<MediaItem>
 
 }

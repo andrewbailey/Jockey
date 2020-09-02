@@ -8,15 +8,15 @@ import com.marverenic.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-sealed class NotificationAction {
+public sealed class NotificationAction {
 
     internal abstract fun getNotificationActionIcon(
         state: MediaPlayerState,
         customActionProviders: List<CustomActionProvider>
     ): NotificationActionIcon?
 
-    companion object {
-        fun fromPlaybackAction(
+    public companion object {
+        public fun fromPlaybackAction(
             @DrawableRes icon: Int,
             @StringRes title: Int,
             action: PlaybackAction,
@@ -28,14 +28,14 @@ sealed class NotificationAction {
             showInCompactView = showInCompactView
         )
 
-        inline fun <reified T : CustomActionProvider> fromCustomAction(
+        public inline fun <reified T : CustomActionProvider> fromCustomAction(
             showInCompactView: Boolean = true
-        ) = fromCustomAction(
+        ): NotificationAction = fromCustomAction(
             customActionClass = T::class.java,
             showInCompactView = showInCompactView
         )
 
-        fun <T : CustomActionProvider> fromCustomAction(
+        public fun <T : CustomActionProvider> fromCustomAction(
             customActionClass: Class<T>,
             showInCompactView: Boolean = true
         ): NotificationAction = CustomNotificationAction(
