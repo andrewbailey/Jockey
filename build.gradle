@@ -23,6 +23,8 @@ buildscript {
 ext {
     targetSdkVersion = 29
     compileSdkVersion = 29
+    encoreMinSdkVersion = 16
+    jockeyMinSdkVersion = 21
 
     versions = [
         kotlin : [

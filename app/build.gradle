@@ -10,7 +10,7 @@ android {
     compileSdkVersion config.compileSdkVersion
     defaultConfig {
         applicationId "dev.andrewbailey.music"
-        minSdkVersion 21
+        minSdkVersion config.jockeyMinSdkVersion
         targetSdkVersion config.targetSdkVersion
         versionCode 1
         versionName "1.0"
