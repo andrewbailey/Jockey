@@ -6,21 +6,21 @@ import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
-import dev.andrewbailey.ipc.bidirectionalMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-internal class ServiceClientBinder(
+internal class ServiceClientBinder<M : MediaItem>(
     private val context: Context,
-    private val serviceClass: Class<out MediaPlayerService>
+    private val serviceClass: Class<out MediaPlayerService<M>>
 ) {
 
     private val serviceConnection = Connection()
 
-    private val _serviceBinder = MutableStateFlow<ServiceBidirectionalMessenger?>(null)
-    val serviceBinder: StateFlow<ServiceBidirectionalMessenger?>
+    private val _serviceBinder = MutableStateFlow<ServiceBidirectionalMessenger<M>?>(null)
+    val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>
         get() = _serviceBinder
 
     fun bind() {
@@ -41,7 +41,7 @@ internal class ServiceClientBinder(
                 "Cannot bind to service $name, because it does not support binding."
             }
 
-            _serviceBinder.value = bidirectionalMessenger(service)
+            _serviceBinder.value = ServiceBidirectionalMessenger(service)
         }
     }
 

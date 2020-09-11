@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player.state.diff
 
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -9,9 +10,12 @@ import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.TransportState.Active
 
-internal class PlaybackStateDiffer {
+internal class PlaybackStateDiffer<M : MediaItem> {
 
-    fun generateDiff(oldState: TransportState, newState: TransportState): PlaybackStateDiff {
+    fun generateDiff(
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateDiff<M> {
         return PlaybackStateDiff(
             operations = listOfNotNull(
                 generatePauseDiff(oldState, newState),
@@ -24,9 +28,9 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generatePauseDiff(
-        oldState: TransportState,
-        newState: TransportState
-    ): PlaybackStateModification? {
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
         val wasPlaying = oldState.isPlaying()
         val shouldPlay = newState.isPlaying()
         return if (wasPlaying && !shouldPlay) {
@@ -37,8 +41,8 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generatePlayDiff(
-        newState: TransportState
-    ): PlaybackStateModification? {
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
         return if (newState.isPlaying()) {
             SetPlaying(true)
         } else {
@@ -47,9 +51,9 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generateRepeatDiff(
-        oldState: TransportState,
-        newState: TransportState
-    ): PlaybackStateModification? {
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
         return if (oldState.repeatMode != newState.repeatMode) {
             SetRepeatMode(newState.repeatMode)
         } else {
@@ -58,9 +62,9 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generateQueueDiff(
-        oldState: TransportState,
-        newState: TransportState
-    ): PlaybackStateModification? {
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
         val oldQueue = oldState.queue()
         val newQueue = newState.queue()
 
@@ -79,9 +83,9 @@ internal class PlaybackStateDiffer {
     }
 
     private fun generateSeekDiff(
-        oldState: TransportState,
-        newState: TransportState
-    ): PlaybackStateModification? {
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
         val oldStateNowPlaying = oldState.nowPlaying()
         val newStateQueueIndex = newState.nowPlayingIndex() ?: return null
         val newStateNowPlaying = newState.nowPlaying() ?: return null
@@ -103,23 +107,23 @@ internal class PlaybackStateDiffer {
         }
     }
 
-    private fun TransportState.isPlaying(): Boolean {
+    private fun TransportState<M>.isPlaying(): Boolean {
         return this is Active && status == PlaybackState.PLAYING
     }
 
-    private fun TransportState.queue(): QueueState? {
+    private fun TransportState<M>.queue(): QueueState<M>? {
         return (this as? Active)?.queue
     }
 
-    private fun TransportState.nowPlayingIndex(): Int? {
+    private fun TransportState<M>.nowPlayingIndex(): Int? {
         return (this as? Active)?.queue?.queueIndex
     }
 
-    private fun TransportState.nowPlaying(): QueueItem? {
+    private fun TransportState<M>.nowPlaying(): QueueItem<M>? {
         return (this as? Active)?.queue?.nowPlaying
     }
 
-    private fun TransportState.seekPosition(): SeekPosition? {
+    private fun TransportState<M>.seekPosition(): SeekPosition? {
         return (this as? Active)?.seekPosition
     }
 

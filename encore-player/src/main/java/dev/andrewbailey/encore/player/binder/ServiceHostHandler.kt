@@ -2,43 +2,42 @@ package dev.andrewbailey.encore.player.binder
 
 import android.os.DeadObjectException
 import android.support.v4.media.session.MediaSessionCompat
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.ipc.BidirectionalMessenger
 import dev.andrewbailey.ipc.bidirectionalMessenger
 
-internal typealias ServiceBidirectionalMessenger =
-        BidirectionalMessenger<ServiceHostMessage, ServiceClientMessage>
-
-internal class ServiceHostHandler(
-    private val getState: () -> MediaPlayerState,
+internal class ServiceHostHandler<M : MediaItem>(
+    private val getState: () -> MediaPlayerState<M>,
     private val getMediaSession: () -> MediaSessionCompat,
-    private val onSetState: (TransportState) -> Unit
-) : PlaybackObserver {
+    private val onSetState: (TransportState<M>) -> Unit
+) : PlaybackObserver<M> {
 
-    private val subscribers = mutableListOf<ClientBidirectionalMessenger>()
+    private val subscribers = mutableListOf<ClientBidirectionalMessenger<M>>()
 
-    val messenger: ServiceBidirectionalMessenger = bidirectionalMessenger { data, replyTo ->
-        when (data) {
-            is ServiceHostMessage.SetState -> {
-                onSetState(data.newState)
-            }
-            ServiceHostMessage.Initialize -> {
-                subscribers += replyTo
-                replyTo.send(
-                    ServiceClientMessage.Initialize(
-                        firstState = getState(),
-                        mediaSessionToken = getMediaSession().sessionToken
-                    ),
-                    this
-                )
-            }
-        }.let { /* Require exhaustive when */ }
-    }
+    val messenger = ServiceBidirectionalMessenger<M>(
+        bidirectionalMessenger { data, replyTo ->
+            when (data) {
+                is ServiceHostMessage.SetState -> {
+                    onSetState(data.newState)
+                }
+                ServiceHostMessage.Initialize -> {
+                    subscribers += ClientBidirectionalMessenger(replyTo)
+                    replyTo.send(
+                        ServiceClientMessage.Initialize(
+                            firstState = getState(),
+                            mediaSessionToken = getMediaSession().sessionToken
+                        ),
+                        this
+                    )
+                }
+            }.let { /* Require exhaustive when */ }
+        }
+    )
 
-    override fun onPlaybackStateChanged(newState: MediaPlayerState) {
-        val deadSubscribers = mutableListOf<ClientBidirectionalMessenger>()
+    override fun onPlaybackStateChanged(newState: MediaPlayerState<M>) {
+        val deadSubscribers = mutableListOf<ClientBidirectionalMessenger<M>>()
 
         subscribers.forEach { subscriber ->
             try {

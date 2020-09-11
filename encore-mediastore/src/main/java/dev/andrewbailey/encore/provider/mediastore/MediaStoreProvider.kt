@@ -3,9 +3,6 @@ package dev.andrewbailey.encore.provider.mediastore
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
-import dev.andrewbailey.encore.model.MediaAuthor
-import dev.andrewbailey.encore.model.MediaCollection
-import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.provider.MediaProvider
 import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import kotlinx.coroutines.Dispatchers
@@ -13,23 +10,35 @@ import kotlinx.coroutines.withContext
 
 public class MediaStoreProvider(
     context: Context
-) : MediaProvider {
+) : MediaProvider<LocalSong> {
 
-    private val mediaStore =
-        MediaStoreResolver(context.applicationContext)
+    private val mediaStore = MediaStoreResolver(context.applicationContext)
 
-    override suspend fun getAllMedia(): List<MediaItem> {
+    override suspend fun getMediaItemsByIds(ids: List<String>): List<LocalSong> {
         return withContext(Dispatchers.IO) {
-            mediaStore.queryAllSongs()
-                .map {
-                    MediaStoreMapper.toMediaItem(
-                        it
+            ids.chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
+                .flatMap { idsSubset ->
+                    mediaStore.querySongs(
+                        selection = idsSubset.asSequence()
+                            .map { "${MediaStore.Audio.Media._ID} = ?" }
+                            .joinToString(separator = " OR "),
+                        selectionArgs = idsSubset
                     )
                 }
+                .map { MediaStoreMapper.toMediaItem(it) }
         }
     }
 
-    override suspend fun getMediaById(id: String): MediaItem? {
+    override suspend fun searchForMediaItems(query: String): List<LocalSong> {
+        return getAllSongs()
+            .filter { song ->
+                song.name.contains(query, true) ||
+                        song.artist?.name.orEmpty().contains(query, true) ||
+                        song.album?.name.orEmpty().contains(query, true)
+            }
+    }
+
+    override suspend fun getMediaItemById(id: String): LocalSong? {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media._ID} = ?",
@@ -43,7 +52,18 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getAllCollections(): List<MediaCollection> {
+    public suspend fun getAllSongs(): List<LocalSong> {
+        return withContext(Dispatchers.IO) {
+            mediaStore.queryAllSongs()
+                .map {
+                    MediaStoreMapper.toMediaItem(
+                        it
+                    )
+                }
+        }
+    }
+
+    public suspend fun getAllAlbums(): List<LocalAlbum> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllAlbums()
                 .map {
@@ -55,7 +75,7 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getCollectionById(id: String): MediaCollection? {
+    public suspend fun getAlbumById(id: String): LocalAlbum? {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAlbums(
                 selection = "${MediaStore.Audio.Albums._ID} = ?",
@@ -70,11 +90,11 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getMediaInCollection(collection: MediaCollection): List<MediaItem> {
+    public suspend fun getSongsInAlbum(album: LocalAlbum): List<LocalSong> {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ALBUM_ID} = ?",
-                selectionArgs = listOf(collection.id)
+                selectionArgs = listOf(album.id)
             ).map {
                 MediaStoreMapper.toMediaItem(
                     it
@@ -83,7 +103,7 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getAuthors(): List<MediaAuthor> {
+    public suspend fun getAllArtists(): List<LocalArtist> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllArtists().map {
                 MediaStoreMapper.toMediaAuthor(
@@ -93,7 +113,7 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getAuthorById(id: String): MediaAuthor? {
+    public suspend fun getArtistById(id: String): LocalArtist? {
         return withContext(Dispatchers.IO) {
             mediaStore.queryArtists(
                 selection = "${MediaStore.Audio.Artists._ID} = ?",
@@ -107,15 +127,15 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun getCollectionsByAuthor(author: MediaAuthor): List<MediaCollection> {
+    public suspend fun getAlbumsByArtist(artist: LocalArtist): List<LocalAlbum> {
         return withContext(Dispatchers.IO) {
             val query = if (Build.VERSION.SDK_INT >= 29) {
                 mediaStore.queryAlbums(
                     selection = "${MediaStore.Audio.Albums.ARTIST_ID} = ?",
-                    selectionArgs = listOf(author.id)
+                    selectionArgs = listOf(artist.id)
                 )
             } else {
-                val albumIds = getMediaByAuthor(author).mapNotNull { it.author?.id }.distinct()
+                val albumIds = getSongsByArtist(artist).mapNotNull { it.artist?.id }.distinct()
 
                 mediaStore.queryAlbums(
                     selection = generateSequence { "${MediaStore.Audio.Albums.ALBUM_ID} = ?" }
@@ -128,16 +148,16 @@ public class MediaStoreProvider(
             query.map {
                 MediaStoreMapper.toMediaCollection(
                     it
-                ) { author.id }
+                ) { artist.id }
             }
         }
     }
 
-    override suspend fun getMediaByAuthor(author: MediaAuthor): List<MediaItem> {
+    public suspend fun getSongsByArtist(artist: LocalArtist): List<LocalSong> {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ARTIST_ID} = ?",
-                selectionArgs = listOf(author.id)
+                selectionArgs = listOf(artist.id)
             ).map {
                 MediaStoreMapper.toMediaItem(
                     it

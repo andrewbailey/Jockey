@@ -22,12 +22,12 @@ import androidx.compose.ui.zIndex
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
@@ -157,7 +157,7 @@ class NowPlayingFragment : ComposableFragment() {
 
     @Composable
     private fun NowPlayingControls(
-        playbackState: MediaPlayerState?,
+        playbackState: MediaPlayerState<LocalSong>?,
         modifier: Modifier = Modifier
     ) {
         if (playbackState is MediaPlayerState.Prepared) {
@@ -174,7 +174,7 @@ class NowPlayingFragment : ComposableFragment() {
 
     @Composable
     private fun ActiveNowPlayingControls(
-        playbackState: MediaPlayerState.Prepared,
+        playbackState: MediaPlayerState.Prepared<LocalSong>,
         modifier: Modifier
     ) {
         ConstraintLayout(
@@ -208,7 +208,7 @@ class NowPlayingFragment : ComposableFragment() {
             )
 
             Text(
-                text = nowPlaying.collection?.name ?: "No album",
+                text = nowPlaying.album?.name ?: "No album",
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.constrainAs(albumName) {
                     start.linkTo(parent.start)
@@ -218,7 +218,7 @@ class NowPlayingFragment : ComposableFragment() {
             )
 
             Text(
-                text = nowPlaying.author?.name ?: "No artist",
+                text = nowPlaying.artist?.name ?: "No artist",
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.constrainAs(artistName) {
                     start.linkTo(parent.start)
@@ -303,7 +303,7 @@ class NowPlayingFragment : ComposableFragment() {
 
     @Composable
     private fun NowPlayingQueue(
-        queue: List<QueueItem>,
+        queue: List<QueueItem<LocalSong>>,
         modifier: Modifier = Modifier
     ) {
         Surface(
@@ -331,8 +331,8 @@ class NowPlayingFragment : ComposableFragment() {
         }
     }
 
-    private fun formattedAlbumArtist(item: MediaItem): String =
-        listOfNotNull(item.collection?.name, item.author?.name).joinToString(" - ")
+    private fun formattedAlbumArtist(item: LocalSong): String =
+        listOfNotNull(item.album?.name, item.artist?.name).joinToString(" - ")
 
     private fun Modifier.scrim() = drawWithContent {
         drawContent()

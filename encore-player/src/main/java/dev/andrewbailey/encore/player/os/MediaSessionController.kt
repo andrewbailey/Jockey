@@ -7,6 +7,7 @@ import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -18,13 +19,14 @@ import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
 import kotlinx.coroutines.*
 
-internal class MediaSessionController(
+internal class MediaSessionController<M : MediaItem>(
     context: Context,
     tag: String,
-    private val browserHierarchy: BrowserHierarchy
-) : PlaybackExtension() {
+    private val browserHierarchy: BrowserHierarchy<M>
+) : PlaybackExtension<M>() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val metadataMapper = MediaMetadataMapper()
     private var mediaSessionActionJob: Job? = null
 
     val mediaSession = MediaSessionCompat(context, tag)
@@ -36,7 +38,7 @@ internal class MediaSessionController(
         }
     }
 
-    override fun onNewPlayerState(newState: MediaPlayerState) {
+    override fun onNewPlayerState(newState: MediaPlayerState<M>) {
         mediaSession.apply {
             setRepeatMode(when (newState.transportState.repeatMode) {
                 REPEAT_NONE -> REPEAT_MODE_NONE
@@ -51,7 +53,7 @@ internal class MediaSessionController(
 
             when (newState) {
                 is Prepared -> {
-                    setMetadata(buildMetadata(newState))
+                    setMetadata(metadataMapper.toMediaMetadataCompat(newState))
 
                     setPlaybackState(PlaybackStateCompat.Builder()
                         .setState(
@@ -79,23 +81,10 @@ internal class MediaSessionController(
                     setPlaybackState(PlaybackStateCompat.Builder()
                         .setState(STATE_NONE, 0, 0f)
                         .build())
-                    setMetadata(MediaMetadataCompat.Builder()
-                        .putString(METADATA_KEY_TITLE, "Nothing is playing")
-                        .build())
+                    setMetadata(MediaMetadataCompat.Builder().build())
                 }
             }
         }
-    }
-
-    private fun buildMetadata(state: Prepared): MediaMetadataCompat {
-        val nowPlaying = state.transportState.queue.nowPlaying
-        return MediaMetadataCompat.Builder()
-            .putString(METADATA_KEY_TITLE, nowPlaying.mediaItem.name)
-            .putString(METADATA_KEY_AUTHOR, nowPlaying.mediaItem.author?.name)
-            .putString(METADATA_KEY_ALBUM, nowPlaying.mediaItem.collection?.name)
-            .putLong(METADATA_KEY_DURATION, state.durationMs ?: -1)
-            .putBitmap(METADATA_KEY_ALBUM_ART, state.artwork)
-            .build()
     }
 
     override fun onRelease() {

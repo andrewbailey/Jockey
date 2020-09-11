@@ -1,17 +1,18 @@
 package dev.andrewbailey.encore.player.state
 
 import android.os.Parcelable
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
 import kotlinx.android.parcel.Parcelize
 
-public sealed class QueueState : Parcelable {
+public sealed class QueueState<out M : MediaItem> : Parcelable {
 
-    public abstract val queue: List<QueueItem>
+    public abstract val queue: List<QueueItem<M>>
     public abstract val queueIndex: Int
 
-    public val nowPlaying: QueueItem
+    public val nowPlaying: QueueItem<M>
         get() = queue[queueIndex]
 
     protected fun assertPreconditions() {
@@ -29,10 +30,10 @@ public sealed class QueueState : Parcelable {
     }
 
     @Parcelize
-    public data class Linear(
-        override val queue: List<QueueItem>,
+    public data class Linear<out M : MediaItem>(
+        override val queue: List<QueueItem<M>>,
         override val queueIndex: Int
-    ) : QueueState() {
+    ) : QueueState<M>() {
 
         init {
             assertPreconditions()
@@ -41,11 +42,11 @@ public sealed class QueueState : Parcelable {
     }
 
     @Parcelize
-    public data class Shuffled(
-        override val queue: List<QueueItem>,
+    public data class Shuffled<out M : MediaItem>(
+        override val queue: List<QueueItem<M>>,
         override val queueIndex: Int,
-        val linearQueue: List<QueueItem>
-    ) : QueueState() {
+        val linearQueue: List<QueueItem<M>>
+    ) : QueueState<M>() {
 
         init {
             assertPreconditions()
@@ -59,10 +60,10 @@ public sealed class QueueState : Parcelable {
 
 }
 
-public fun QueueState.copy(
-    queue: List<QueueItem> = this.queue,
+public fun <M : MediaItem> QueueState<M>.copy(
+    queue: List<QueueItem<M>> = this.queue,
     queueIndex: Int = this.queueIndex
-): QueueState {
+): QueueState<M> {
     return when (this) {
         is QueueState.Linear -> copy(queue, queueIndex)
         is QueueState.Shuffled -> copy(queue, queueIndex)

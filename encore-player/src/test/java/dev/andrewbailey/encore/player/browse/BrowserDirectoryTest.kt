@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player.browse
 
+import dev.andrewbailey.encore.model.MediaItem
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -10,7 +11,7 @@ class BrowserDirectoryTest {
         val illegalIds = listOf("foo/", "/foo", "f/oo", "f@oo", "f[oo", "foo]")
 
         illegalIds.forEach { testCase ->
-            val dir = BrowserDirectory("")
+            val dir = BrowserDirectory<MediaItem>("")
             assertFailsWith<IllegalArgumentException>(
                 message = "Using id '$testCase' should throw an exception"
             ) {
@@ -30,7 +31,7 @@ class BrowserDirectoryTest {
         val illegalIds = listOf("foo/", "/foo", "f/oo", "f@oo", "f[oo", "foo]")
 
         illegalIds.forEach { testCase ->
-            val dir = BrowserDirectory("")
+            val dir = BrowserDirectory<MediaItem>("")
             assertFailsWith<IllegalArgumentException>(
                 message = "Using id '$testCase' should throw an exception"
             ) {
@@ -48,7 +49,7 @@ class BrowserDirectoryTest {
         val illegalIds = listOf("foo/", "/foo", "f/oo", "f@oo", "f[oo", "foo]")
 
         illegalIds.forEach { testCase ->
-            val dir = BrowserDirectory("")
+            val dir = BrowserDirectory<MediaItem>("")
             assertFailsWith<IllegalArgumentException>(
                 message = "Using id '$testCase' should throw an exception"
             ) {

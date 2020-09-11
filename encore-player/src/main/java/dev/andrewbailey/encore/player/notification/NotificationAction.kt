@@ -5,40 +5,34 @@ import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.marverenic.encore.player.action.PlaybackAction
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-public sealed class NotificationAction {
+public sealed class NotificationAction<M : MediaItem> {
 
     internal abstract fun getNotificationActionIcon(
-        state: MediaPlayerState,
-        customActionProviders: List<CustomActionProvider>
+        state: MediaPlayerState<M>,
+        customActionProviders: List<CustomActionProvider<M>>
     ): NotificationActionIcon?
 
     public companion object {
-        public fun fromPlaybackAction(
+        public fun <M : MediaItem> fromPlaybackAction(
             @DrawableRes icon: Int,
             @StringRes title: Int,
             action: PlaybackAction,
             showInCompactView: Boolean = true
-        ): NotificationAction = DefaultNotificationAction(
+        ): NotificationAction<M> = DefaultNotificationAction(
             icon = icon,
             title = title,
             mediaKeyAction = action.mediaKeyAction,
             showInCompactView = showInCompactView
         )
 
-        public inline fun <reified T : CustomActionProvider> fromCustomAction(
+        public fun <P : CustomActionProvider<M>, M : MediaItem> fromCustomAction(
+            customActionClass: Class<P>,
             showInCompactView: Boolean = true
-        ): NotificationAction = fromCustomAction(
-            customActionClass = T::class.java,
-            showInCompactView = showInCompactView
-        )
-
-        public fun <T : CustomActionProvider> fromCustomAction(
-            customActionClass: Class<T>,
-            showInCompactView: Boolean = true
-        ): NotificationAction = CustomNotificationAction(
+        ): NotificationAction<M> = CustomNotificationAction(
             customActionClass = customActionClass,
             showInCompactView = showInCompactView
         )
@@ -46,7 +40,7 @@ public sealed class NotificationAction {
 
 }
 
-internal class DefaultNotificationAction(
+internal class DefaultNotificationAction<M : MediaItem>(
     @DrawableRes
     private val icon: Int,
     @StringRes
@@ -54,11 +48,11 @@ internal class DefaultNotificationAction(
     @MediaKeyAction
     private val mediaKeyAction: Long,
     private val showInCompactView: Boolean
-) : NotificationAction() {
+) : NotificationAction<M>() {
 
     override fun getNotificationActionIcon(
-        state: MediaPlayerState,
-        customActionProviders: List<CustomActionProvider>
+        state: MediaPlayerState<M>,
+        customActionProviders: List<CustomActionProvider<M>>
     ) = DefaultNotificationActionIcon(
         icon = icon,
         title = title,
@@ -68,14 +62,14 @@ internal class DefaultNotificationAction(
 
 }
 
-internal class CustomNotificationAction<T : CustomActionProvider>(
-    private val customActionClass: Class<T>,
+internal class CustomNotificationAction<P : CustomActionProvider<M>, M : MediaItem>(
+    private val customActionClass: Class<P>,
     private val showInCompactView: Boolean
-) : NotificationAction() {
+) : NotificationAction<M>() {
 
     override fun getNotificationActionIcon(
-        state: MediaPlayerState,
-        customActionProviders: List<CustomActionProvider>
+        state: MediaPlayerState<M>,
+        customActionProviders: List<CustomActionProvider<M>>
     ): CustomNotificationActionIcon? {
         val provider = customActionProviders
             .firstOrNull { it.javaClass == customActionClass }

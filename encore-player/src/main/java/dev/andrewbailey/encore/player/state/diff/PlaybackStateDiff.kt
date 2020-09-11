@@ -1,5 +1,7 @@
 package dev.andrewbailey.encore.player.state.diff
 
-internal data class PlaybackStateDiff(
-    val operations: List<PlaybackStateModification>
+import dev.andrewbailey.encore.model.MediaItem
+
+internal data class PlaybackStateDiff<M : MediaItem>(
+    val operations: List<PlaybackStateModification<M>>
 )

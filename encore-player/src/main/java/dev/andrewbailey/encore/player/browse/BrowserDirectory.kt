@@ -9,16 +9,16 @@ import kotlin.NoSuchElementException
 
 private const val RESERVED_CHARS = "/@[]"
 
-public class BrowserDirectory internal constructor(
+public class BrowserDirectory <M : MediaItem> internal constructor(
     private val path: String
 ) {
 
-    private val entries = mutableListOf<DirectoryListing>()
+    private val entries = mutableListOf<DirectoryListing<M>>()
 
     public fun staticPath(
         id: String,
         name: String,
-        pathContents: suspend BrowserDirectory.() -> Unit
+        pathContents: suspend BrowserDirectory<M>.() -> Unit
     ) {
         staticPath(
             path = BrowserPath(id, name),
@@ -28,7 +28,7 @@ public class BrowserDirectory internal constructor(
 
     public fun staticPath(
         path: BrowserPath,
-        pathContents: suspend BrowserDirectory.() -> Unit
+        pathContents: suspend BrowserDirectory<M>.() -> Unit
     ) {
         require(entries.none { it is StaticPath && it.path.id == path.id })
         entries += StaticPath(path, pathContents)
@@ -37,7 +37,7 @@ public class BrowserDirectory internal constructor(
     public fun dynamicPaths(
         identifier: String,
         paths: suspend () -> List<BrowserPath>,
-        pathContents: suspend BrowserDirectory.(id: String) -> Unit
+        pathContents: suspend BrowserDirectory<M>.(id: String) -> Unit
     ) {
         require(entries.none { it is DynamicPath && it.identifier == identifier })
         entries += DynamicPath(identifier, paths, pathContents)
@@ -45,7 +45,7 @@ public class BrowserDirectory internal constructor(
 
     public fun mediaItems(
         identifier: String,
-        loadItems: suspend () -> List<MediaItem>
+        loadItems: suspend () -> List<M>
     ) {
         require(entries.none { it is MediaItems && it.identifier == identifier })
         entries += MediaItems(identifier, loadItems)
@@ -55,7 +55,7 @@ public class BrowserDirectory internal constructor(
         return traversePath(path).loadContents()
     }
 
-    internal suspend fun traversePathAndGetTransportState(path: String): TransportState {
+    internal suspend fun traversePathAndGetTransportState(path: String): TransportState<M> {
         require(path.startsWith("/")) {
             "Invalid path: '$path'. Paths must begin with '/'"
         }
@@ -65,7 +65,7 @@ public class BrowserDirectory internal constructor(
         return traversePath(parentDir).getTransportState(itemId)
     }
 
-    private suspend fun traversePath(path: String): BrowserDirectory {
+    private suspend fun traversePath(path: String): BrowserDirectory<M> {
         require(path.startsWith("/")) {
             "Invalid path: '$path'. Paths must begin with '/'"
         }
@@ -122,8 +122,8 @@ public class BrowserDirectory internal constructor(
             }
     }
 
-    private suspend fun getTransportState(itemId: String): TransportState {
-        val mediaItemProvider = entries.filterIsInstance<MediaItems>()
+    private suspend fun getTransportState(itemId: String): TransportState<M> {
+        val mediaItemProvider = entries.filterIsInstance<MediaItems<M>>()
             .firstOrNull { it.contains(itemId) }
             ?: throw NoSuchElementException("")
 
@@ -146,14 +146,14 @@ public class BrowserDirectory internal constructor(
         val name: String
     )
 
-    private sealed class DirectoryListing {
+    private sealed class DirectoryListing<M : MediaItem> {
 
         abstract fun contains(id: String): Boolean
 
-        class StaticPath(
+        class StaticPath<M : MediaItem>(
             val path: BrowserPath,
-            val pathContents: suspend BrowserDirectory.() -> Unit
-        ) : DirectoryListing() {
+            val pathContents: suspend BrowserDirectory<M>.() -> Unit
+        ) : DirectoryListing<M>() {
 
             init {
                 require(RESERVED_CHARS.all { it !in path.id }) {
@@ -161,8 +161,8 @@ public class BrowserDirectory internal constructor(
                 }
             }
 
-            suspend fun getBrowserDirectory(parentPath: String): BrowserDirectory {
-                return BrowserDirectory(parentPath).apply {
+            suspend fun getBrowserDirectory(parentPath: String): BrowserDirectory<M> {
+                return BrowserDirectory<M>(parentPath).apply {
                     pathContents()
                 }
             }
@@ -172,11 +172,11 @@ public class BrowserDirectory internal constructor(
             }
         }
 
-        class DynamicPath(
+        class DynamicPath<M : MediaItem>(
             val identifier: String,
             val paths: suspend () -> List<BrowserPath>,
-            val pathContents: suspend BrowserDirectory.(String) -> Unit
-        ) : DirectoryListing() {
+            val pathContents: suspend BrowserDirectory<M>.(String) -> Unit
+        ) : DirectoryListing<M>() {
 
             private val pathRegex by lazy {
                 """$identifier@\[.+]""".toRegex()
@@ -188,9 +188,12 @@ public class BrowserDirectory internal constructor(
                 }
             }
 
-            suspend fun getBrowserDirectory(segment: String, parentPath: String): BrowserDirectory {
+            suspend fun getBrowserDirectory(
+                segment: String,
+                parentPath: String
+            ): BrowserDirectory<M> {
                 val itemId = segment.drop("$identifier@[".length).dropLast("]".length)
-                return BrowserDirectory(parentPath).apply {
+                return BrowserDirectory<M>(parentPath).apply {
                     pathContents(itemId)
                 }
             }
@@ -200,10 +203,10 @@ public class BrowserDirectory internal constructor(
             }
         }
 
-        class MediaItems(
+        class MediaItems<M : MediaItem>(
             val identifier: String,
-            val loadItems: suspend () -> List<MediaItem>
-        ) : DirectoryListing() {
+            val loadItems: suspend () -> List<M>
+        ) : DirectoryListing<M>() {
 
             init {
                 require(RESERVED_CHARS.all { it !in identifier }) {

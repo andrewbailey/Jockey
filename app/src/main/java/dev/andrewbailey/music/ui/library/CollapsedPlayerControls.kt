@@ -17,12 +17,13 @@ import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.music.R
 
 @Composable
 fun CollapsedPlayerControls(
-    encoreController: EncoreController,
-    playbackState: MediaPlayerState.Prepared?
+    encoreController: EncoreController<LocalSong>,
+    playbackState: MediaPlayerState.Prepared<LocalSong>?
 ) {
     Box(modifier = Modifier.preferredHeight(56.dp)) {
         Surface(elevation = 32.dp) {
@@ -74,7 +75,7 @@ fun CollapsedPlayerControls(
                 )
 
                 Text(
-                    text = nowPlaying?.author?.name.orEmpty(),
+                    text = nowPlaying?.artist?.name.orEmpty(),
                     style = MaterialTheme.typography.caption,
                     modifier = Modifier.constrainAs(artist) {
                         top.linkTo(title.bottom)

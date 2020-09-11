@@ -8,16 +8,17 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import dev.andrewbailey.diff.DiffResult
 import dev.andrewbailey.diff.differenceOf
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 
-internal class MediaQueue(
+internal class MediaQueue<M : MediaItem>(
     context: Context,
     userAgent: String
 ) {
 
     private val mediaSourceFactory: ProgressiveMediaSource.Factory
 
-    var queueItems: MediaQueueItems? = null
+    var queueItems: MediaQueueItems<M>? = null
         private set
 
     val mediaSource = ConcatenatingMediaSource()
@@ -27,7 +28,7 @@ internal class MediaQueue(
         mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
     }
 
-    fun updateQueue(newState: MediaQueueItems? = null) {
+    fun updateQueue(newState: MediaQueueItems<M>? = null) {
         synchronized(mediaSource) {
             updateExoPlayerQueue(differenceOf(
                 original = queueItems?.queue.orEmpty(),
@@ -39,7 +40,7 @@ internal class MediaQueue(
         }
     }
 
-    private fun updateExoPlayerQueue(operations: DiffResult<QueueItem>) {
+    private fun updateExoPlayerQueue(operations: DiffResult<QueueItem<*>>) {
         operations.applyDiff(
             remove = { index ->
                 mediaSource.removeMediaSource(index)
@@ -75,7 +76,7 @@ internal class MediaQueue(
         )
     }
 
-    private fun buildMediaSource(queueItem: QueueItem): MediaSource {
+    private fun buildMediaSource(queueItem: QueueItem<*>): MediaSource {
         return mediaSourceFactory.createMediaSource(Uri.parse(queueItem.mediaItem.playbackUri))
     }
 
@@ -91,15 +92,15 @@ internal class MediaQueue(
 
 }
 
-internal sealed class MediaQueueItems {
-    abstract val queue: List<QueueItem>
+internal sealed class MediaQueueItems<M : MediaItem> {
+    abstract val queue: List<QueueItem<M>>
 
-    data class LinearQueueItems(
-        override val queue: List<QueueItem>
-    ) : MediaQueueItems()
+    data class LinearQueueItems<M : MediaItem>(
+        override val queue: List<QueueItem<M>>
+    ) : MediaQueueItems<M>()
 
-    data class ShuffledQueueItems(
-        override val queue: List<QueueItem>,
-        val linearQueue: List<QueueItem>
-    ) : MediaQueueItems()
+    data class ShuffledQueueItems<M : MediaItem>(
+        override val queue: List<QueueItem<M>>,
+        val linearQueue: List<QueueItem<M>>
+    ) : MediaQueueItems<M>()
 }

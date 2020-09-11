@@ -1,6 +1,7 @@
 package dev.andrewbailey.encore.player.browse
 
-import dev.andrewbailey.encore.test.MockMediaProvider
+import dev.andrewbailey.encore.test.MockMusicProvider
+import dev.andrewbailey.encore.test.MockSong
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -9,11 +10,11 @@ import kotlinx.coroutines.test.runBlockingTest
 
 class BrowserHierarchyTest {
 
-    private val mediaProvider = MockMediaProvider()
+    private val mediaProvider = MockMusicProvider()
 
     @Test
     fun `empty root has no items`() = runBlockingTest {
-        val hierarchy = BrowserHierarchy { }
+        val hierarchy = BrowserHierarchy<MockSong> { }
 
         assertEquals(
             expected = emptyList(),
@@ -23,9 +24,9 @@ class BrowserHierarchyTest {
 
     @Test
     fun `flat hierarchy has media items`() = runBlockingTest {
-        val mediaItems = mediaProvider.getAllMedia()
+        val mediaItems = mediaProvider.getAllSongs()
 
-        val hierarchy = BrowserHierarchy {
+        val hierarchy = BrowserHierarchy<MockSong> {
             mediaItems(
                 identifier = "media",
                 loadItems = { mediaItems }
@@ -45,9 +46,9 @@ class BrowserHierarchyTest {
 
     @Test
     fun `static path has media items`() = runBlockingTest {
-        val mediaItems = mediaProvider.getAllMedia()
+        val mediaItems = mediaProvider.getAllSongs()
 
-        val hierarchy = BrowserHierarchy {
+        val hierarchy = BrowserHierarchy<MockSong> {
             staticPath(
                 id = "songs",
                 name = "Songs",
@@ -83,11 +84,11 @@ class BrowserHierarchyTest {
 
     @Test
     fun `dynamic paths have media items`() = runBlockingTest {
-        val hierarchy = BrowserHierarchy {
+        val hierarchy = BrowserHierarchy<MockSong> {
             dynamicPaths(
                 identifier = "artist",
                 paths = {
-                    mediaProvider.getAuthors().map { author ->
+                    mediaProvider.getAllArtists().map { author ->
                         BrowserDirectory.BrowserPath(
                             id = author.id,
                             name = author.name
@@ -98,10 +99,10 @@ class BrowserHierarchyTest {
                     mediaItems(
                         identifier = "song",
                         loadItems = {
-                            val author = requireNotNull(mediaProvider.getAuthorById(pathId)) {
+                            val author = requireNotNull(mediaProvider.getArtistById(pathId)) {
                                 "No author with id $pathId"
                             }
-                            mediaProvider.getMediaByAuthor(author)
+                            mediaProvider.getSongsByArtist(author)
                         }
                     )
                 }
@@ -109,7 +110,7 @@ class BrowserHierarchyTest {
         }
 
         assertEquals(
-            expected = mediaProvider.getAuthors().map {
+            expected = mediaProvider.getAllArtists().map {
                 BrowserFolderItem(
                     id = "/artist@[${it.id}]/",
                     name = it.name
@@ -118,9 +119,9 @@ class BrowserHierarchyTest {
             actual = hierarchy.getItems("/")
         )
 
-        mediaProvider.getAuthors().forEach { artist ->
+        mediaProvider.getAllArtists().forEach { artist ->
             assertEquals(
-                expected = mediaProvider.getMediaByAuthor(artist).map {
+                expected = mediaProvider.getSongsByArtist(artist).map {
                     BrowserMediaItem(
                         id = "/artist@[${artist.id}]/song$[${it.id}]",
                         item = it
@@ -133,7 +134,7 @@ class BrowserHierarchyTest {
 
     @Test
     fun `complicated hierarchy has all media`() = runBlockingTest {
-        val hierarchy = BrowserHierarchy {
+        val hierarchy = BrowserHierarchy<MockSong> {
             staticPath(
                 id = "authors",
                 name = "Authors",
@@ -141,7 +142,7 @@ class BrowserHierarchyTest {
                     dynamicPaths(
                         identifier = "artist",
                         paths = {
-                            mediaProvider.getAuthors().map {
+                            mediaProvider.getAllArtists().map {
                                 BrowserDirectory.BrowserPath(
                                     id = it.id,
                                     name = it.name
@@ -149,12 +150,12 @@ class BrowserHierarchyTest {
                             }
                         },
                         pathContents = { artistId ->
-                            val author = mediaProvider.getAuthorById(artistId)!!
+                            val artist = mediaProvider.getArtistById(artistId)!!
 
                             dynamicPaths(
                                 identifier = "album",
                                 paths = {
-                                    mediaProvider.getCollectionsByAuthor(author).map {
+                                    mediaProvider.getAlbumsByArtist(artist).map {
                                         BrowserDirectory.BrowserPath(
                                             id = it.id,
                                             name = it.name
@@ -162,10 +163,10 @@ class BrowserHierarchyTest {
                                     }
                                 },
                                 pathContents = { albumId ->
-                                    val album = mediaProvider.getCollectionById(albumId)!!
+                                    val album = mediaProvider.getAlbumById(albumId)!!
                                     mediaItems(
                                         identifier = "song",
-                                        loadItems = { mediaProvider.getMediaInCollection(album) }
+                                        loadItems = { mediaProvider.getSongsInAlbum(album) }
                                     )
                                 }
                             )
@@ -175,15 +176,15 @@ class BrowserHierarchyTest {
             )
         }
 
-        val allAlbums = mediaProvider.getAllCollections()
+        val allAlbums = mediaProvider.getAllAlbums()
 
         assertFalse(allAlbums.isEmpty(), "The MediaProvider must return some albums")
 
         allAlbums.forEach { album ->
-            val path = "/authors/artist@[${album.author!!.id}]/album@[${album.id}]/"
+            val path = "/authors/artist@[${album.artist.id}]/album@[${album.id}]/"
             assertEquals(
                 message = "The hierarchy did not return the correct media for album $album",
-                expected = mediaProvider.getMediaInCollection(album).map {
+                expected = mediaProvider.getSongsInAlbum(album).map {
                     BrowserMediaItem(
                         id = "${path}song$[${it.id}]",
                         item = it
@@ -192,12 +193,11 @@ class BrowserHierarchyTest {
                 actual = hierarchy.getItems(path)
             )
         }
-
     }
 
     @Test
     fun `static path identifiers must be unique`() {
-        val directory = BrowserDirectory("/path/to/content/")
+        val directory = BrowserDirectory<MockSong>("/path/to/content/")
         directory.staticPath(
             id = "existing-static-path",
             name = "A static path",
@@ -215,7 +215,7 @@ class BrowserHierarchyTest {
 
     @Test
     fun `dynamic path identifiers must be unique`() {
-        val directory = BrowserDirectory("/path/to/content/")
+        val directory = BrowserDirectory<MockSong>("/path/to/content/")
         directory.dynamicPaths(
             identifier = "an-in-use-id",
             paths = { emptyList() },
@@ -233,7 +233,7 @@ class BrowserHierarchyTest {
 
     @Test
     fun `media item identifiers must be unique`() {
-        val directory = BrowserDirectory("/path/to/content/")
+        val directory = BrowserDirectory<MockSong>("/path/to/content/")
         directory.mediaItems(
             identifier = "an-in-use-id",
             loadItems = { emptyList() }
@@ -249,10 +249,10 @@ class BrowserHierarchyTest {
 
     @Test
     fun `ambiguous paths resolve to expected types`() = runBlockingTest {
-        val hierarchy = BrowserHierarchy {
+        val hierarchy = BrowserHierarchy<MockSong> {
             mediaItems(
                 identifier = "ambiguous",
-                loadItems = { mediaProvider.getAllMedia() }
+                loadItems = { mediaProvider.getAllSongs() }
             )
 
             staticPath(

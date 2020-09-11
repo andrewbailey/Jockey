@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
@@ -30,25 +31,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-public abstract class MediaPlayerService(
+public abstract class MediaPlayerService<M : MediaItem>(
     private val tag: String,
     private val notificationId: Int,
-    private val notificationProvider: NotificationProvider,
-    private val playbackStateFactory: PlaybackStateFactory = DefaultPlaybackStateFactory(),
-    private val extensions: List<PlaybackExtension> = emptyList(),
-    private val observers: List<PlaybackObserver> = emptyList()
+    private val notificationProvider: NotificationProvider<M>,
+    private val playbackStateFactory: PlaybackStateFactory<M> = DefaultPlaybackStateFactory(),
+    private val extensions: List<PlaybackExtension<M>> = emptyList(),
+    private val observers: List<PlaybackObserver<M>> = emptyList()
 ) : MediaBrowserServiceCompat() {
 
     private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
-    private lateinit var customActions: List<CustomActionProvider>
-    private lateinit var mediaSessionController: MediaSessionController
-    private lateinit var notifier: PlaybackNotifier
-    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var customActions: List<CustomActionProvider<M>>
+    private lateinit var mediaSessionController: MediaSessionController<M>
+    private lateinit var notifier: PlaybackNotifier<M>
+    private lateinit var mediaPlayer: MediaPlayer<M>
     private lateinit var browserPackageValidator: BrowserPackageValidator
-    private lateinit var mediaBrowserDelegate: MediaBrowserImpl
-    private lateinit var binder: ServiceHostHandler
+    private lateinit var mediaBrowserDelegate: MediaBrowserImpl<M>
+    private lateinit var binder: ServiceHostHandler<M>
 
     override fun onCreate() {
         super.onCreate()
@@ -194,9 +195,9 @@ public abstract class MediaPlayerService(
         mediaBrowserDelegate.onLoadChildren(parentId, result)
     }
 
-    public open fun onCreateCustomActions(): List<CustomActionProvider> {
+    public open fun onCreateCustomActions(): List<CustomActionProvider<M>> {
         return emptyList()
     }
 
-    public abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy
+    public abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<M>
 }

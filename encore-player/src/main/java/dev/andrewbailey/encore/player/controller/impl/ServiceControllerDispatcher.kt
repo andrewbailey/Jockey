@@ -5,6 +5,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaControllerCompat.*
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand
@@ -20,15 +21,15 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
-internal class ServiceControllerDispatcher constructor(
-    private val serviceBinder: StateFlow<ServiceBidirectionalMessenger?>,
+internal class ServiceControllerDispatcher<M : MediaItem> constructor(
+    private val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>,
     private val mediaController: StateFlow<MediaControllerCompat?>,
-    private val receiver: ServiceClientHandler
+    private val receiver: ServiceClientHandler<M>
 ) {
 
     private val executor = Executors.newFixedThreadPool(1)
     private val dispatchScope = CoroutineScope(executor.asCoroutineDispatcher())
-    private val messageQueue = Channel<EncoreControllerCommand>(capacity = UNLIMITED)
+    private val messageQueue = Channel<EncoreControllerCommand<M>>(capacity = UNLIMITED)
 
     init {
         dispatchScope.launch {
@@ -36,7 +37,7 @@ internal class ServiceControllerDispatcher constructor(
         }
     }
 
-    fun sendMessage(message: EncoreControllerCommand) {
+    fun sendMessage(message: EncoreControllerCommand<M>) {
         if (!messageQueue.offer(message)) {
             throw RuntimeException("Failed to enqueue message to be dispatched.")
         }
@@ -49,13 +50,13 @@ internal class ServiceControllerDispatcher constructor(
     private suspend fun dispatchLoop(): Nothing {
         while (true) {
             when (val message = messageQueue.receive()) {
-                is ServiceCommand -> handleMessage(message)
+                is ServiceCommand<M> -> handleMessage(message)
                 is MediaControllerCommand -> handleMessage(message)
             }
         }
     }
 
-    private suspend fun handleMessage(command: ServiceCommand) {
+    private suspend fun handleMessage(command: ServiceCommand<M>) {
         while (true) {
             val sender = serviceBinder.filterNotNull().filter { it.isAlive }.first()
 

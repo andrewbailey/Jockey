@@ -1,45 +1,46 @@
 package dev.andrewbailey.encore.player.state.factory
 
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 
-public abstract class PlaybackStateFactory {
+public abstract class PlaybackStateFactory<M : MediaItem> {
 
     public abstract fun play(
-        state: TransportState
-    ): TransportState
+        state: TransportState<M>
+    ): TransportState<M>
 
     public abstract fun pause(
-        state: TransportState
-    ): TransportState
+        state: TransportState<M>
+    ): TransportState<M>
 
     public abstract fun seekTo(
-        state: TransportState,
+        state: TransportState<M>,
         seekPositionMillis: Long
-    ): TransportState
+    ): TransportState<M>
 
     public abstract fun skipToPrevious(
-        state: TransportState
-    ): TransportState
+        state: TransportState<M>
+    ): TransportState<M>
 
     public abstract fun skipToNext(
-        state: TransportState
-    ): TransportState
+        state: TransportState<M>
+    ): TransportState<M>
 
     public abstract fun skipToIndex(
-        state: TransportState,
+        state: TransportState<M>,
         index: Int
-    ): TransportState
+    ): TransportState<M>
 
     public abstract fun setShuffleMode(
-        state: TransportState,
+        state: TransportState<M>,
         shuffleMode: ShuffleMode
-    ): TransportState
+    ): TransportState<M>
 
     public abstract fun setRepeatMode(
-        state: TransportState,
+        state: TransportState<M>,
         repeatMode: RepeatMode
-    ): TransportState
+    ): TransportState<M>
 
 }

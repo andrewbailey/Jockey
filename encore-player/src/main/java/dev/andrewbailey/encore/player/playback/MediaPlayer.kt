@@ -5,6 +5,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.BuildConfig
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
@@ -12,21 +13,21 @@ import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.*
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
-internal class MediaPlayer(
+internal class MediaPlayer<M : MediaItem>(
     context: Context,
     userAgent: String = "Encore/${BuildConfig.VERSION_NAME}",
-    playbackStateFactory: PlaybackStateFactory,
-    private val extensions: List<PlaybackExtension>,
-    private val observers: List<PlaybackObserver>
+    playbackStateFactory: PlaybackStateFactory<M>,
+    private val extensions: List<PlaybackExtension<M>>,
+    private val observers: List<PlaybackObserver<M>>
 ) {
 
     private val exoPlayer = SimpleExoPlayer.Builder(context).build()
-    private val queue = MediaQueue(context, userAgent)
+    private val queue = MediaQueue<M>(context, userAgent)
 
     private val stateLock = Any()
-    private val differ = PlaybackStateDiffer()
-    private val stateCreator = PlaybackStateCreator(exoPlayer, queue)
-    private var lastDispatchedState: MediaPlayerState? = null
+    private val differ = PlaybackStateDiffer<M>()
+    private val stateCreator = PlaybackStateCreator<M>(exoPlayer, queue)
+    private var lastDispatchedState: MediaPlayerState<M>? = null
     private var shouldDispatchStateChanges: Boolean = true
 
     init {
@@ -44,19 +45,19 @@ internal class MediaPlayer(
         }
     }
 
-    fun getState(): MediaPlayerState {
+    fun getState(): MediaPlayerState<M> {
         return synchronized(stateLock) {
             stateCreator.createPlaybackState()
         }
     }
 
-    private fun getTransportState(): TransportState {
+    private fun getTransportState(): TransportState<M> {
         return synchronized(stateLock) {
             stateCreator.createTransportState()
         }
     }
 
-    fun setState(state: TransportState) {
+    fun setState(state: TransportState<M>) {
         synchronized(stateLock) {
             shouldDispatchStateChanges = false
 

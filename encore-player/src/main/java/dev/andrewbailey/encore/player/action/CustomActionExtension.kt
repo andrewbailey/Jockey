@@ -1,12 +1,13 @@
 package dev.andrewbailey.encore.player.action
 
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-internal class CustomActionExtension(
-    private val providers: List<CustomActionProvider>,
+internal class CustomActionExtension<M : MediaItem>(
+    private val providers: List<CustomActionProvider<M>>,
     private val onActionsChanged: (List<CustomAction>) -> Unit
-) : PlaybackExtension() {
+) : PlaybackExtension<M>() {
 
     private var actions: List<CustomAction> = emptyList()
         set(value) {
@@ -16,7 +17,7 @@ internal class CustomActionExtension(
             }
         }
 
-    override fun onNewPlayerState(newState: MediaPlayerState) {
+    override fun onNewPlayerState(newState: MediaPlayerState<M>) {
         updateActions(newState)
     }
 
@@ -28,7 +29,7 @@ internal class CustomActionExtension(
         updateActions(getCurrentPlaybackState())
     }
 
-    private fun updateActions(newState: MediaPlayerState) {
+    private fun updateActions(newState: MediaPlayerState<M>) {
         actions = providers.mapNotNull { it.getAction(newState) }
     }
 

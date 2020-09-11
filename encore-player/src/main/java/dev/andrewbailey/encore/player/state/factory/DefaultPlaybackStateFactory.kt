@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player.state.factory
 
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.player.state.PlaybackState.*
 import dev.andrewbailey.encore.player.state.TransportState.Active
@@ -7,11 +8,13 @@ import dev.andrewbailey.encore.player.state.TransportState.Idle
 import java.util.*
 import kotlin.math.min
 
-public class DefaultPlaybackStateFactory(
+public class DefaultPlaybackStateFactory<M : MediaItem>(
     private val random: Random = Random()
-) : PlaybackStateFactory() {
+) : PlaybackStateFactory<M>() {
 
-    override fun play(state: TransportState): TransportState {
+    override fun play(
+        state: TransportState<M>
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -36,7 +39,9 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    override fun pause(state: TransportState): TransportState {
+    override fun pause(
+        state: TransportState<M>
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -47,7 +52,10 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    override fun seekTo(state: TransportState, seekPositionMillis: Long): TransportState {
+    override fun seekTo(
+        state: TransportState<M>,
+        seekPositionMillis: Long
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -59,7 +67,9 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    override fun skipToPrevious(state: TransportState): TransportState {
+    override fun skipToPrevious(
+        state: TransportState<M>
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = { PLAYING },
             seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
@@ -73,7 +83,9 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    override fun skipToNext(state: TransportState): TransportState {
+    override fun skipToNext(
+        state: TransportState<M>
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = {
                 if (queue.queueIndex == queue.queue.size - 1) {
@@ -87,14 +99,20 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    override fun skipToIndex(state: TransportState, index: Int): TransportState {
+    override fun skipToIndex(
+        state: TransportState<M>,
+        index: Int
+    ): TransportState<M> {
         return state.modifyTransportState(
             status = { PLAYING },
             queueIndex = { index }
         )
     }
 
-    override fun setShuffleMode(state: TransportState, shuffleMode: ShuffleMode): TransportState {
+    override fun setShuffleMode(
+        state: TransportState<M>,
+        shuffleMode: ShuffleMode
+    ): TransportState<M> {
         return when (state) {
             is Idle -> state.copy(
                 shuffleMode = shuffleMode
@@ -105,7 +123,10 @@ public class DefaultPlaybackStateFactory(
         }
     }
 
-    override fun setRepeatMode(state: TransportState, repeatMode: RepeatMode): TransportState {
+    override fun setRepeatMode(
+        state: TransportState<M>,
+        repeatMode: RepeatMode
+    ): TransportState<M> {
         return when (state) {
             is Idle -> state.copy(
                 repeatMode = repeatMode
@@ -116,11 +137,11 @@ public class DefaultPlaybackStateFactory(
         }
     }
 
-    private inline fun TransportState.modifyTransportState(
-        status: Active.() -> PlaybackState = { this.status },
-        seekPosition: Active.() -> SeekPosition = { this.seekPosition },
-        queueIndex: Active.() -> Int = { this.queue.queueIndex }
-    ): TransportState {
+    private inline fun TransportState<M>.modifyTransportState(
+        status: Active<M>.() -> PlaybackState = { this.status },
+        seekPosition: Active<M>.() -> SeekPosition = { this.seekPosition },
+        queueIndex: Active<M>.() -> Int = { this.queue.queueIndex }
+    ): TransportState<M> {
         return when (this) {
             is Idle -> this
             is Active -> copy(
@@ -138,7 +159,9 @@ public class DefaultPlaybackStateFactory(
         }
     }
 
-    private fun QueueState.changeShuffleMode(shuffleMode: ShuffleMode): QueueState {
+    private fun QueueState<M>.changeShuffleMode(
+        shuffleMode: ShuffleMode
+    ): QueueState<M> {
         return when (this) {
             is QueueState.Linear -> {
                 when (shuffleMode) {
@@ -155,7 +178,9 @@ public class DefaultPlaybackStateFactory(
         }
     }
 
-    private fun QueueState.Linear.toShuffledQueue(random: Random): QueueState.Shuffled {
+    private fun QueueState.Linear<M>.toShuffledQueue(
+        random: Random
+    ): QueueState.Shuffled<M> {
         val shuffledQueue = queue.toMutableList().apply {
             remove(nowPlaying)
             shuffle(random)
@@ -169,7 +194,7 @@ public class DefaultPlaybackStateFactory(
         )
     }
 
-    private fun QueueState.Shuffled.toLinearQueue(): QueueState.Linear {
+    private fun QueueState.Shuffled<M>.toLinearQueue(): QueueState.Linear<M> {
         return QueueState.Linear(
             queue = linearQueue,
             queueIndex = linearQueue.indexOf(nowPlaying)

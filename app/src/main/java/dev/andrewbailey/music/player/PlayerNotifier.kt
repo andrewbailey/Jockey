@@ -11,16 +11,17 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
+import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.MainActivity
 
-class PlayerNotifier : NotificationProvider(CHANNEL_ID) {
+class PlayerNotifier : NotificationProvider<LocalSong>(CHANNEL_ID) {
 
     companion object {
         const val CHANNEL_ID = "playback"
     }
 
-    override fun getNotificationIcon(playbackState: MediaPlayerState): Int {
+    override fun getNotificationIcon(playbackState: MediaPlayerState<LocalSong>): Int {
         val state = playbackState.transportState
         return when {
             state is Active && state.status == PLAYING -> R.drawable.ic_notification_play
@@ -28,13 +29,19 @@ class PlayerNotifier : NotificationProvider(CHANNEL_ID) {
         }
     }
 
-    override fun getNotificationColor(context: Context, playbackState: MediaPlayerState) =
-        ContextCompat.getColor(context, R.color.colorPrimary)
+    override fun getNotificationColor(
+        context: Context,
+        playbackState: MediaPlayerState<LocalSong>
+    ) = ContextCompat.getColor(context, R.color.colorPrimary)
 
-    override fun getContentIntent(context: Context, playbackState: MediaPlayerState) =
-        PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), 0)
+    override fun getContentIntent(
+        context: Context,
+        playbackState: MediaPlayerState<LocalSong>
+    ) = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), 0)
 
-    override fun getActions(playbackState: MediaPlayerState): List<NotificationAction> {
+    override fun getActions(
+        playbackState: MediaPlayerState<LocalSong>
+    ): List<NotificationAction<LocalSong>> {
         return when (val transportState = playbackState.transportState) {
             is Idle -> emptyList()
             is Active -> listOf(

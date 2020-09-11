@@ -2,9 +2,10 @@ package dev.andrewbailey.encore.player.action
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-public abstract class CustomActionProvider(
+public abstract class CustomActionProvider<M : MediaItem>(
     internal val id: String,
     /**
      * Determines whether other applications can execute this custom action. If set to true, this
@@ -14,7 +15,7 @@ public abstract class CustomActionProvider(
     private val exposed: Boolean = true
 ) {
 
-    internal fun getAction(state: MediaPlayerState): CustomAction? {
+    internal fun getAction(state: MediaPlayerState<M>): CustomAction? {
         return if (isEnabled(state)) {
             CustomAction(
                 id = id,
@@ -27,20 +28,20 @@ public abstract class CustomActionProvider(
         }
     }
 
-    internal suspend fun performAction(state: MediaPlayerState) {
+    internal suspend fun performAction(state: MediaPlayerState<M>) {
         onPerformCustomAction(state)
     }
 
     @StringRes
-    protected abstract fun getActionName(state: MediaPlayerState): Int
+    protected abstract fun getActionName(state: MediaPlayerState<M>): Int
 
     @DrawableRes
-    protected abstract fun getActionIcon(state: MediaPlayerState): Int
+    protected abstract fun getActionIcon(state: MediaPlayerState<M>): Int
 
-    protected open fun isEnabled(state: MediaPlayerState): Boolean {
+    protected open fun isEnabled(state: MediaPlayerState<M>): Boolean {
         return true
     }
 
-    protected abstract suspend fun onPerformCustomAction(state: MediaPlayerState)
+    protected abstract suspend fun onPerformCustomAction(state: MediaPlayerState<M>)
 
 }

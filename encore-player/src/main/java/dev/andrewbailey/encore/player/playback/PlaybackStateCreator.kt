@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
 import com.google.android.exoplayer2.metadata.id3.ApicFrame
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -21,14 +22,14 @@ import dev.andrewbailey.encore.player.util.getEntries
 import dev.andrewbailey.encore.player.util.getFormats
 import dev.andrewbailey.encore.player.util.toList
 
-internal class PlaybackStateCreator(
+internal class PlaybackStateCreator<M : MediaItem>(
     private val exoPlayer: ExoPlayer,
-    private val queue: MediaQueue
+    private val queue: MediaQueue<M>
 ) {
 
-    fun createPlaybackState(): MediaPlayerState {
+    fun createPlaybackState(): MediaPlayerState<M> {
         return when (val transportState = createTransportState()) {
-            is TransportState.Active -> MediaPlayerState.Prepared(
+            is TransportState.Active<M> -> MediaPlayerState.Prepared(
                 transportState = transportState,
                 artwork = getArtwork(),
                 durationMs = exoPlayer.duration.takeIf { it != C.TIME_UNSET },
@@ -40,7 +41,7 @@ internal class PlaybackStateCreator(
         }
     }
 
-    fun createTransportState(): TransportState {
+    fun createTransportState(): TransportState<M> {
         val queueItems = queue.queueItems
         return if (queueItems == null) {
             TransportState.Idle(

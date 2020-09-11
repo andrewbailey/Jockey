@@ -13,6 +13,17 @@ internal class MediaStoreResolver(
 ) {
 
     companion object {
+        /**
+         * Android's sqlite implementation has a fixed number of sqlite variables of 999. If a query
+         * exceeds this many variables, an SQLiteException will be thrown. Queries with many
+         * variables should be sure to keep their selection arguments underneath this value, which
+         * has a bit of overhead taken off to account for variables injected by this class.
+         *
+         * The original value from the platform is defined as SQLITE_MAX_VARIABLE_NUMBER in
+         * https://raw.githubusercontent.com/android/platform_external_sqlite/master/dist/sqlite3.c
+         */
+        internal const val MAX_SELECTION_ARGS = 990
+
         private val songProjection = listOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,

@@ -2,6 +2,7 @@ package dev.andrewbailey.encore.player.controller.impl
 
 import android.content.Context
 import android.support.v4.media.session.MediaControllerCompat
+import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.binder.ServiceHostMessage
@@ -19,19 +20,19 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
-internal class EncoreControllerImpl constructor(
+internal class EncoreControllerImpl<M : MediaItem> constructor(
     context: Context,
-    serviceClass: Class<out MediaPlayerService>
-) : EncoreController {
+    serviceClass: Class<out MediaPlayerService<M>>
+) : EncoreController<M> {
 
     private val activeTokens = mutableSetOf<EncoreToken>()
     private val clientBinder = ServiceClientBinder(context, serviceClass)
 
-    private val playbackState = MutableStateFlow<MediaPlayerState?>(null)
+    private val playbackState = MutableStateFlow<MediaPlayerState<M>?>(null)
     private val mediaController = MutableStateFlow<MediaControllerCompat?>(null)
 
-    private val clientHandler: ServiceClientHandler
-    private val dispatcher: ServiceControllerDispatcher
+    private val clientHandler: ServiceClientHandler<M>
+    private val dispatcher: ServiceControllerDispatcher<M>
 
     init {
         clientHandler = ServiceClientHandler(
@@ -95,7 +96,7 @@ internal class EncoreControllerImpl constructor(
     @FlowPreview
     override fun observeState(
         seekUpdateFrequency: SeekUpdateFrequency
-    ): Flow<MediaPlayerState> {
+    ): Flow<MediaPlayerState<M>> {
         return playbackState
             .filterNotNull()
             .flatMapLatest { state ->
@@ -110,15 +111,15 @@ internal class EncoreControllerImpl constructor(
             }
     }
 
-    override suspend fun getState(): MediaPlayerState {
+    override suspend fun getState(): MediaPlayerState<M> {
         return playbackState.filterNotNull().first()
     }
 
     @FlowPreview
     private fun resendEveryInterval(
-        state: MediaPlayerState,
+        state: MediaPlayerState<M>,
         intervalMs: Long
-    ): Flow<MediaPlayerState> {
+    ): Flow<MediaPlayerState<M>> {
         return flow {
             val duration = (state as? MediaPlayerState.Prepared)
                 ?.takeIf { it.transportState.status == PLAYING }
@@ -140,7 +141,7 @@ internal class EncoreControllerImpl constructor(
         }
     }
 
-    override fun setState(newState: TransportState) {
+    override fun setState(newState: TransportState<M>) {
         dispatcher.sendMessage(
             ServiceCommand(
                 ServiceHostMessage.SetState(

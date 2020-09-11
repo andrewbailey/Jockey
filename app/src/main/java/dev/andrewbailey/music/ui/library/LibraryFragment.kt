@@ -14,12 +14,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
-import dev.andrewbailey.encore.model.MediaAuthor
-import dev.andrewbailey.encore.model.MediaCollection
-import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.state.*
+import dev.andrewbailey.encore.provider.mediastore.LocalAlbum
+import dev.andrewbailey.encore.provider.mediastore.LocalArtist
+import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
@@ -79,8 +79,8 @@ class LibraryFragment : ComposableFragment() {
 
     @Composable
     private fun SongList(
-        songs: List<MediaItem>,
-        mediaController: EncoreController
+        songs: List<LocalSong>,
+        mediaController: EncoreController<LocalSong>
     ) {
         LazyColumnForIndexed(
             items = songs
@@ -90,7 +90,7 @@ class LibraryFragment : ComposableFragment() {
                     Text(song.name)
                 },
                 secondaryText = {
-                    Text(formattedAlbumArtist(song.collection, song.author))
+                    Text(formattedAlbumArtist(song.album, song.artist))
                 },
                 modifier = Modifier
                     .clickable(onClick = {
@@ -116,7 +116,7 @@ class LibraryFragment : ComposableFragment() {
         }
     }
 
-    private fun formattedAlbumArtist(album: MediaCollection?, artist: MediaAuthor?): String =
+    private fun formattedAlbumArtist(album: LocalAlbum?, artist: LocalArtist?): String =
         listOfNotNull(album?.name, artist?.name).joinToString(" - ")
 
 }

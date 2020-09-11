@@ -6,12 +6,13 @@ import androidx.lifecycle.viewModelScope
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
 import dev.andrewbailey.encore.player.state.*
+import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 class NowPlayingViewModel @Inject constructor(
-    private val mediaController: EncoreController
+    private val mediaController: EncoreController<LocalSong>
 ) : ViewModel() {
 
     private val token = mediaController.acquireToken()
