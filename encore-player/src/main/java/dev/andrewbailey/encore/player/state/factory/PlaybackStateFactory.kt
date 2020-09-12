@@ -1,11 +1,11 @@
 package dev.andrewbailey.encore.player.state.factory
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 
-public abstract class PlaybackStateFactory<M : MediaItem> {
+public abstract class PlaybackStateFactory<M : MediaObject> {
 
     public abstract fun play(
         state: TransportState<M>

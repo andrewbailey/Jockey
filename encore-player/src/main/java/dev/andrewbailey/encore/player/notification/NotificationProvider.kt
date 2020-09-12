@@ -10,12 +10,12 @@ import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-public abstract class NotificationProvider<M : MediaItem>(
+public abstract class NotificationProvider<M : MediaObject>(
     private val notificationChannelId: String
 ) {
 

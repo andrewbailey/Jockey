@@ -7,7 +7,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
@@ -31,7 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-public abstract class MediaPlayerService<M : MediaItem>(
+public abstract class MediaPlayerService<M : MediaObject>(
     private val tag: String,
     private val notificationId: Int,
     private val notificationProvider: NotificationProvider<M>,

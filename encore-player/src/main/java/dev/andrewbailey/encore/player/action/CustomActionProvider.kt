@@ -2,10 +2,10 @@ package dev.andrewbailey.encore.player.action
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-public abstract class CustomActionProvider<M : MediaItem>(
+public abstract class CustomActionProvider<M : MediaObject>(
     internal val id: String,
     /**
      * Determines whether other applications can execute this custom action. If set to true, this

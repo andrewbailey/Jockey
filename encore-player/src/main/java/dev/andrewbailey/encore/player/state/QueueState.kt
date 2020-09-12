@@ -1,13 +1,13 @@
 package dev.andrewbailey.encore.player.state
 
 import android.os.Parcelable
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
 import kotlinx.android.parcel.Parcelize
 
-public sealed class QueueState<out M : MediaItem> : Parcelable {
+public sealed class QueueState<out M : MediaObject> : Parcelable {
 
     public abstract val queue: List<QueueItem<M>>
     public abstract val queueIndex: Int
@@ -30,7 +30,7 @@ public sealed class QueueState<out M : MediaItem> : Parcelable {
     }
 
     @Parcelize
-    public data class Linear<out M : MediaItem>(
+    public data class Linear<out M : MediaObject>(
         override val queue: List<QueueItem<M>>,
         override val queueIndex: Int
     ) : QueueState<M>() {
@@ -42,7 +42,7 @@ public sealed class QueueState<out M : MediaItem> : Parcelable {
     }
 
     @Parcelize
-    public data class Shuffled<out M : MediaItem>(
+    public data class Shuffled<out M : MediaObject>(
         override val queue: List<QueueItem<M>>,
         override val queueIndex: Int,
         val linearQueue: List<QueueItem<M>>
@@ -60,7 +60,7 @@ public sealed class QueueState<out M : MediaItem> : Parcelable {
 
 }
 
-public fun <M : MediaItem> QueueState<M>.copy(
+public fun <M : MediaObject> QueueState<M>.copy(
     queue: List<QueueItem<M>> = this.queue,
     queueIndex: Int = this.queueIndex
 ): QueueState<M> {

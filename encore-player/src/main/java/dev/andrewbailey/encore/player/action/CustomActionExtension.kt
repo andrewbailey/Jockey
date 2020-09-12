@@ -1,10 +1,10 @@
 package dev.andrewbailey.encore.player.action
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-internal class CustomActionExtension<M : MediaItem>(
+internal class CustomActionExtension<M : MediaObject>(
     private val providers: List<CustomActionProvider<M>>,
     private val onActionsChanged: (List<CustomAction>) -> Unit
 ) : PlaybackExtension<M>() {

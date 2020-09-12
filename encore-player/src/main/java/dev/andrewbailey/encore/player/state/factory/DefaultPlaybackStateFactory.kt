@@ -1,6 +1,6 @@
 package dev.andrewbailey.encore.player.state.factory
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.player.state.PlaybackState.*
 import dev.andrewbailey.encore.player.state.TransportState.Active
@@ -8,7 +8,7 @@ import dev.andrewbailey.encore.player.state.TransportState.Idle
 import java.util.*
 import kotlin.math.min
 
-public class DefaultPlaybackStateFactory<M : MediaItem>(
+public class DefaultPlaybackStateFactory<M : MediaObject>(
     private val random: Random = Random()
 ) : PlaybackStateFactory<M>() {
 

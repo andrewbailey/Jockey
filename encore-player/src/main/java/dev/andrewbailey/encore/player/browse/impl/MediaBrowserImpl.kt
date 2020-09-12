@@ -3,12 +3,12 @@ package dev.andrewbailey.encore.player.browse.impl
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.media.MediaBrowserServiceCompat
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class MediaBrowserImpl<M : MediaItem>(
+internal class MediaBrowserImpl<M : MediaObject>(
     private val coroutineScope: CoroutineScope,
     private val hierarchy: BrowserHierarchy<M>
 ) {

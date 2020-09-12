@@ -1,7 +1,7 @@
 package dev.andrewbailey.encore.player.controller
 
 import android.content.Context
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerImpl
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -10,7 +10,7 @@ import dev.andrewbailey.encore.player.state.TransportState
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
-public interface EncoreController<M : MediaItem> {
+public interface EncoreController<M : MediaObject> {
 
     public fun acquireToken(): EncoreToken
 
@@ -37,7 +37,7 @@ public interface EncoreController<M : MediaItem> {
     public fun setShuffleMode(shuffleMode: ShuffleMode)
 
     public companion object {
-        public fun <M : MediaItem> create(
+        public fun <M : MediaObject> create(
             context: Context,
             serviceClass: Class<out MediaPlayerService<M>>
         ): EncoreController<M> {

@@ -2,7 +2,7 @@ package dev.andrewbailey.encore.player.controller.impl
 
 import android.content.Context
 import android.support.v4.media.session.MediaControllerCompat
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.binder.ServiceHostMessage
@@ -20,7 +20,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 
-internal class EncoreControllerImpl<M : MediaItem> constructor(
+internal class EncoreControllerImpl<M : MediaObject> constructor(
     context: Context,
     serviceClass: Class<out MediaPlayerService<M>>
 ) : EncoreController<M> {

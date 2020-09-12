@@ -1,6 +1,6 @@
 package dev.andrewbailey.encore.player.browse
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.*
 import dev.andrewbailey.encore.player.state.*
@@ -9,7 +9,7 @@ import kotlin.NoSuchElementException
 
 private const val RESERVED_CHARS = "/@[]"
 
-public class BrowserDirectory <M : MediaItem> internal constructor(
+public class BrowserDirectory <M : MediaObject> internal constructor(
     private val path: String
 ) {
 
@@ -146,11 +146,11 @@ public class BrowserDirectory <M : MediaItem> internal constructor(
         val name: String
     )
 
-    private sealed class DirectoryListing<M : MediaItem> {
+    private sealed class DirectoryListing<M : MediaObject> {
 
         abstract fun contains(id: String): Boolean
 
-        class StaticPath<M : MediaItem>(
+        class StaticPath<M : MediaObject>(
             val path: BrowserPath,
             val pathContents: suspend BrowserDirectory<M>.() -> Unit
         ) : DirectoryListing<M>() {
@@ -172,7 +172,7 @@ public class BrowserDirectory <M : MediaItem> internal constructor(
             }
         }
 
-        class DynamicPath<M : MediaItem>(
+        class DynamicPath<M : MediaObject>(
             val identifier: String,
             val paths: suspend () -> List<BrowserPath>,
             val pathContents: suspend BrowserDirectory<M>.(String) -> Unit
@@ -203,7 +203,7 @@ public class BrowserDirectory <M : MediaItem> internal constructor(
             }
         }
 
-        class MediaItems<M : MediaItem>(
+        class MediaItems<M : MediaObject>(
             val identifier: String,
             val loadItems: suspend () -> List<M>
         ) : DirectoryListing<M>() {

@@ -1,9 +1,9 @@
 package dev.andrewbailey.encore.player.browse
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.TransportState
 
-public class BrowserHierarchy<M : MediaItem>(
+public class BrowserHierarchy<M : MediaObject>(
     private val hierarchy: BrowserDirectory<M>.() -> Unit
 ) {
 

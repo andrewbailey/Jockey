@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.metadata.flac.PictureFrame
 import com.google.android.exoplayer2.metadata.id3.ApicFrame
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -22,7 +22,7 @@ import dev.andrewbailey.encore.player.util.getEntries
 import dev.andrewbailey.encore.player.util.getFormats
 import dev.andrewbailey.encore.player.util.toList
 
-internal class PlaybackStateCreator<M : MediaItem>(
+internal class PlaybackStateCreator<M : MediaObject>(
     private val exoPlayer: ExoPlayer,
     private val queue: MediaQueue<M>
 ) {

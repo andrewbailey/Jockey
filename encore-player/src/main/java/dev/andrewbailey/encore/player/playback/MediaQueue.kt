@@ -8,10 +8,10 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import dev.andrewbailey.diff.DiffResult
 import dev.andrewbailey.diff.differenceOf
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 
-internal class MediaQueue<M : MediaItem>(
+internal class MediaQueue<M : MediaObject>(
     context: Context,
     userAgent: String
 ) {
@@ -92,14 +92,14 @@ internal class MediaQueue<M : MediaItem>(
 
 }
 
-internal sealed class MediaQueueItems<M : MediaItem> {
+internal sealed class MediaQueueItems<M : MediaObject> {
     abstract val queue: List<QueueItem<M>>
 
-    data class LinearQueueItems<M : MediaItem>(
+    data class LinearQueueItems<M : MediaObject>(
         override val queue: List<QueueItem<M>>
     ) : MediaQueueItems<M>()
 
-    data class ShuffledQueueItems<M : MediaItem>(
+    data class ShuffledQueueItems<M : MediaObject>(
         override val queue: List<QueueItem<M>>,
         val linearQueue: List<QueueItem<M>>
     ) : MediaQueueItems<M>()

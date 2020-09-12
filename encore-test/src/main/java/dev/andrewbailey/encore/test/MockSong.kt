@@ -1,7 +1,7 @@
 package dev.andrewbailey.encore.test
 
-import dev.andrewbailey.encore.model.MediaItem
 import dev.andrewbailey.encore.model.MediaMetadata
+import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -11,7 +11,7 @@ public data class MockSong(
     val name: String,
     val artist: MockArtist,
     val album: MockAlbum
-) : MediaItem {
+) : MediaObject {
 
     override fun toMediaMetadata(): MediaMetadata {
         return MediaMetadata(

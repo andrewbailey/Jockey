@@ -5,7 +5,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaControllerCompat.*
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand
@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
-internal class ServiceControllerDispatcher<M : MediaItem> constructor(
+internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     private val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>,
     private val mediaController: StateFlow<MediaControllerCompat?>,
     private val receiver: ServiceClientHandler<M>

@@ -4,7 +4,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.content.getSystemService
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.action.CustomActionIntents
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
@@ -13,7 +13,7 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.TransportState.Active
 
-internal class PlaybackNotifier<M : MediaItem>(
+internal class PlaybackNotifier<M : MediaObject>(
     private val service: Service,
     private val mediaSession: MediaSessionCompat,
     private val notificationId: Int,

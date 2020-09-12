@@ -6,13 +6,13 @@ import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-internal class ServiceClientBinder<M : MediaItem>(
+internal class ServiceClientBinder<M : MediaObject>(
     private val context: Context,
     private val serviceClass: Class<out MediaPlayerService<M>>
 ) {

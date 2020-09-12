@@ -1,12 +1,12 @@
 package dev.andrewbailey.encore.player.controller.impl
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.binder.ServiceHostMessage
 import dev.andrewbailey.encore.player.state.ShuffleMode
 
-internal sealed class EncoreControllerCommand<out M : MediaItem> {
+internal sealed class EncoreControllerCommand<out M : MediaObject> {
 
-    internal class ServiceCommand<out M : MediaItem>(
+    internal class ServiceCommand<out M : MediaObject>(
         val message: ServiceHostMessage<M>
     ) : EncoreControllerCommand<M>()
 

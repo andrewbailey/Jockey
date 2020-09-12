@@ -1,12 +1,12 @@
 package dev.andrewbailey.encore.player.browse
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 
 public sealed class BrowserHierarchyItem
 
 public data class BrowserMediaItem(
     val id: String,
-    val item: MediaItem
+    val item: MediaObject
 ) : BrowserHierarchyItem()
 
 public data class BrowserFolderItem(

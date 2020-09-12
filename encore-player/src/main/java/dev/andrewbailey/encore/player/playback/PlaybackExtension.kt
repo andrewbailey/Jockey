@@ -1,13 +1,13 @@
 package dev.andrewbailey.encore.player.playback
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
-public abstract class PlaybackExtension<M : MediaItem> {
+public abstract class PlaybackExtension<M : MediaObject> {
 
     private var mediaPlayer: MediaPlayer<M>? = null
     private var playbackStateFactory: PlaybackStateFactory<M>? = null

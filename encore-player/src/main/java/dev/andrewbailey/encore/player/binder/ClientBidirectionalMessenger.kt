@@ -1,10 +1,10 @@
 package dev.andrewbailey.encore.player.binder
 
 import android.os.IBinder
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.ipc.BidirectionalMessenger
 
-internal inline class ClientBidirectionalMessenger<M : MediaItem>(
+internal inline class ClientBidirectionalMessenger<M : MediaObject>(
     val messenger: BidirectionalMessenger<ServiceClientMessage<M>, ServiceHostMessage<M>>
 ) {
 

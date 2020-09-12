@@ -2,13 +2,13 @@ package dev.andrewbailey.encore.player.binder
 
 import android.os.DeadObjectException
 import android.support.v4.media.session.MediaSessionCompat
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.ipc.bidirectionalMessenger
 
-internal class ServiceHostHandler<M : MediaItem>(
+internal class ServiceHostHandler<M : MediaObject>(
     private val getState: () -> MediaPlayerState<M>,
     private val getMediaSession: () -> MediaSessionCompat,
     private val onSetState: (TransportState<M>) -> Unit

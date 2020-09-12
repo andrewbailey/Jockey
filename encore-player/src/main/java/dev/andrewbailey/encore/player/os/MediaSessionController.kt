@@ -3,11 +3,10 @@ package dev.andrewbailey.encore.player.os
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -19,7 +18,7 @@ import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
 import kotlinx.coroutines.*
 
-internal class MediaSessionController<M : MediaItem>(
+internal class MediaSessionController<M : MediaObject>(
     context: Context,
     tag: String,
     private val browserHierarchy: BrowserHierarchy<M>

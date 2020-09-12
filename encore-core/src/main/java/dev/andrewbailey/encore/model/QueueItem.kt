@@ -5,7 +5,7 @@ import java.util.*
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-public data class QueueItem<out M : MediaItem>(
+public data class QueueItem<out M : MediaObject>(
     val queueId: UUID,
     val mediaItem: M
 ) : Parcelable

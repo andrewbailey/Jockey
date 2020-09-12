@@ -1,8 +1,8 @@
 package dev.andrewbailey.encore.provider
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 
-public interface MediaProvider<out M : MediaItem> {
+public interface MediaProvider<out M : MediaObject> {
 
     public suspend fun getMediaItemById(id: String): M?
 

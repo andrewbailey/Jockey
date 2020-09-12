@@ -5,7 +5,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.BuildConfig
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
@@ -13,7 +13,7 @@ import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.*
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
-internal class MediaPlayer<M : MediaItem>(
+internal class MediaPlayer<M : MediaObject>(
     context: Context,
     userAgent: String = "Encore/${BuildConfig.VERSION_NAME}",
     playbackStateFactory: PlaybackStateFactory<M>,

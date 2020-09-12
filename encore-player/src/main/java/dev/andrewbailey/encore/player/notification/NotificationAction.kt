@@ -5,11 +5,11 @@ import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.marverenic.encore.player.action.PlaybackAction
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-public sealed class NotificationAction<M : MediaItem> {
+public sealed class NotificationAction<M : MediaObject> {
 
     internal abstract fun getNotificationActionIcon(
         state: MediaPlayerState<M>,
@@ -17,7 +17,7 @@ public sealed class NotificationAction<M : MediaItem> {
     ): NotificationActionIcon?
 
     public companion object {
-        public fun <M : MediaItem> fromPlaybackAction(
+        public fun <M : MediaObject> fromPlaybackAction(
             @DrawableRes icon: Int,
             @StringRes title: Int,
             action: PlaybackAction,
@@ -29,7 +29,7 @@ public sealed class NotificationAction<M : MediaItem> {
             showInCompactView = showInCompactView
         )
 
-        public fun <P : CustomActionProvider<M>, M : MediaItem> fromCustomAction(
+        public fun <P : CustomActionProvider<M>, M : MediaObject> fromCustomAction(
             customActionClass: Class<P>,
             showInCompactView: Boolean = true
         ): NotificationAction<M> = CustomNotificationAction(
@@ -40,7 +40,7 @@ public sealed class NotificationAction<M : MediaItem> {
 
 }
 
-internal class DefaultNotificationAction<M : MediaItem>(
+internal class DefaultNotificationAction<M : MediaObject>(
     @DrawableRes
     private val icon: Int,
     @StringRes
@@ -62,7 +62,7 @@ internal class DefaultNotificationAction<M : MediaItem>(
 
 }
 
-internal class CustomNotificationAction<P : CustomActionProvider<M>, M : MediaItem>(
+internal class CustomNotificationAction<P : CustomActionProvider<M>, M : MediaObject>(
     private val customActionClass: Class<P>,
     private val showInCompactView: Boolean
 ) : NotificationAction<M>() {

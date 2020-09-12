@@ -1,11 +1,11 @@
 package dev.andrewbailey.encore.player.action
 
-import dev.andrewbailey.encore.model.MediaItem
+import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.R
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
-internal class QuitActionProvider<M : MediaItem>(
+internal class QuitActionProvider<M : MediaObject>(
     private val service: MediaPlayerService<*>
 ) : CustomActionProvider<M>(
     id = ACTION_ID
