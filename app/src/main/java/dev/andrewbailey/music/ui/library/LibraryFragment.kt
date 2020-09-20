@@ -1,6 +1,5 @@
 package dev.andrewbailey.music.ui.library
 
-import android.os.Bundle
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
@@ -11,35 +10,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.provider.mediastore.LocalAlbum
 import dev.andrewbailey.encore.provider.mediastore.LocalArtist
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
-import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
 import dev.andrewbailey.music.ui.core.colorPalette
 import dev.andrewbailey.music.util.observe
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
+@AndroidEntryPoint
 class LibraryFragment : ComposableFragment() {
 
-    @Inject
-    lateinit var viewModelProvider: ViewModelProvider.Factory
-
-    private val viewModel by viewModels<LibraryViewModel> { viewModelProvider }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        JockeyApplication.getComponent(requireContext()).inject(this)
-    }
+    private val viewModel: LibraryViewModel by viewModels()
 
     @Composable
     override fun onCompose() {

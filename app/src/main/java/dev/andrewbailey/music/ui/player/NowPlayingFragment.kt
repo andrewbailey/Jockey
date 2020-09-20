@@ -1,6 +1,5 @@
 package dev.andrewbailey.music.ui.player
 
-import android.os.Bundle
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
@@ -20,32 +19,23 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
-import dev.andrewbailey.music.JockeyApplication
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.ComposableFragment
 import dev.andrewbailey.music.ui.core.colorPalette
 import dev.andrewbailey.music.util.observe
-import javax.inject.Inject
 
+@AndroidEntryPoint
 class NowPlayingFragment : ComposableFragment() {
 
-    @Inject
-    lateinit var viewModelProvider: ViewModelProvider.Factory
-
-    private val viewModel by viewModels<NowPlayingViewModel> { viewModelProvider }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        JockeyApplication.getComponent(requireContext()).inject(this)
-    }
+    private val viewModel: NowPlayingViewModel by viewModels()
 
     @Composable
     override fun onCompose() {

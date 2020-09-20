@@ -1,5 +1,6 @@
 package dev.andrewbailey.music.ui.player
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -8,10 +9,9 @@ import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFreq
 import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 
-class NowPlayingViewModel @Inject constructor(
+class NowPlayingViewModel @ViewModelInject constructor(
     private val mediaController: EncoreController<LocalSong>
 ) : ViewModel() {
 

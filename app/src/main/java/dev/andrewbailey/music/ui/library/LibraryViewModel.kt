@@ -1,14 +1,14 @@
 package dev.andrewbailey.music.ui.library
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
 import dev.andrewbailey.music.ui.BaseViewModel
-import javax.inject.Inject
 
-class LibraryViewModel @Inject constructor(
+class LibraryViewModel @ViewModelInject constructor(
     private val mediaProvider: MediaStoreProvider,
     val mediaController: EncoreController<LocalSong>
 ) : BaseViewModel() {

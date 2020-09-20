@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'dagger.hilt.android.plugin'
 
 def config = rootProject.extensions.getByName("ext")
 
@@ -82,7 +83,11 @@ dependencies {
 
     // Dagger
     implementation config.deps.dagger.core
+    implementation config.deps.dagger.hilt
+    implementation config.deps.androidx.hiltViewModel
     kapt config.deps.dagger.compiler
+    kapt config.deps.dagger.hiltCompiler
+    kapt config.deps.androidx.hiltCompiler
 
     // Testing
     testImplementation config.deps.test.junit

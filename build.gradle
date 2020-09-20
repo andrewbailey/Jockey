@@ -16,9 +16,11 @@ buildscript {
             lifecycle : '2.3.0-alpha07',
             savedstate: '1.1.0-alpha01',
             media: '1.2.0-beta01',
+            hilt : '1.0.0-alpha02',
         ],
         dagger : [
             core : '2.28.3',
+            hilt : '2.28.3-alpha',
         ],
         exoplayer : [
             core : '2.11.7',
@@ -41,6 +43,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:9.1.1"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}-alpha"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -69,6 +72,8 @@ ext {
             livedata: "androidx.lifecycle:lifecycle-livedata-ktx:${versions.androidx.lifecycle}",
             savedstate: "androidx.lifecycle:lifecycle-viewmodel-savedstate:${versions.androidx.savedstate}",
             media : "androidx.media:media:${versions.androidx.media}",
+            hiltViewModel : "androidx.hilt:hilt-lifecycle-viewmodel:${versions.androidx.hilt}",
+            hiltCompiler : "androidx.hilt:hilt-compiler:${versions.androidx.hilt}",
         ],
         compose : [
             tooling : "androidx.ui:ui-tooling:${versions.androidx.compose}",
@@ -82,7 +87,9 @@ ext {
         ],
         dagger : [
             core : "com.google.dagger:dagger:${versions.dagger.core}",
-            compiler: "com.google.dagger:dagger-compiler:${versions.dagger.core}",
+            compiler : "com.google.dagger:dagger-compiler:${versions.dagger.core}",
+            hilt : "com.google.dagger:hilt-android:${versions.dagger.core}-alpha",
+            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.core}-alpha",
         ],
         difference : [
             multiplatform : "dev.andrewbailey.difference:difference:${versions.difference}"
