@@ -31,17 +31,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-public abstract class MediaPlayerService<M : MediaObject>(
+public abstract class MediaPlayerService<M : MediaObject> constructor(
     private val tag: String,
     private val notificationId: Int,
-    private val notificationProvider: NotificationProvider<M>,
-    private val playbackStateFactory: PlaybackStateFactory<M> = DefaultPlaybackStateFactory(),
-    private val extensions: List<PlaybackExtension<M>> = emptyList(),
-    private val observers: List<PlaybackObserver<M>> = emptyList()
+    private val notificationProvider: NotificationProvider<M>
 ) : MediaBrowserServiceCompat() {
 
     private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
+
+    private lateinit var playbackStateFactory: PlaybackStateFactory<M>
+    private lateinit var extensions: List<PlaybackExtension<M>>
+    private lateinit var observers: List<PlaybackObserver<M>>
 
     private lateinit var customActions: List<CustomActionProvider<M>>
     private lateinit var mediaSessionController: MediaSessionController<M>
@@ -53,9 +54,12 @@ public abstract class MediaPlayerService<M : MediaObject>(
 
     override fun onCreate() {
         super.onCreate()
+        playbackStateFactory = onCreatePlaybackStateFactory()
+        extensions = onCreatePlaybackExtensions()
+        observers = onCreatePlaybackObservers()
+        customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         val browserHierarchy = onCreateMediaBrowserHierarchy()
 
-        customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         mediaSessionController = MediaSessionController(this, tag, browserHierarchy)
         binder = ServiceHostHandler(
             getState = { mediaPlayer.getState() },
@@ -193,6 +197,18 @@ public abstract class MediaPlayerService<M : MediaObject>(
         result: Result<List<MediaBrowserCompat.MediaItem>>
     ) {
         mediaBrowserDelegate.onLoadChildren(parentId, result)
+    }
+
+    public open fun onCreatePlaybackStateFactory(): PlaybackStateFactory<M> {
+        return DefaultPlaybackStateFactory()
+    }
+
+    public open fun onCreatePlaybackExtensions(): List<PlaybackExtension<M>> {
+        return emptyList()
+    }
+
+    public open fun onCreatePlaybackObservers(): List<PlaybackObserver<M>> {
+        return emptyList()
     }
 
     public open fun onCreateCustomActions(): List<CustomActionProvider<M>> {
