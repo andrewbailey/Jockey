@@ -1,6 +1,5 @@
 package dev.andrewbailey.music.ui.library
 
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
