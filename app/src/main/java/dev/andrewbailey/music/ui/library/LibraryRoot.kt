@@ -2,7 +2,6 @@ package dev.andrewbailey.music.ui.library
 
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.Divider
@@ -12,6 +11,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.viewModel
 import dev.andrewbailey.encore.provider.mediastore.LocalAlbum
 import dev.andrewbailey.encore.provider.mediastore.LocalArtist
@@ -19,6 +19,7 @@ import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.navigation.LibraryPage
 import dev.andrewbailey.music.ui.navigation.NowPlayingScreen
+import dev.andrewbailey.music.ui.navigation.RootScreen
 import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.observe
 
@@ -39,12 +40,25 @@ fun LibraryRoot(
             }
         }
 
-        Box {
-            CollapsedPlayerControls(
-                modifier = Modifier.clickable(onClick = {
-                    navigator.push(NowPlayingScreen)
-                })
-            )
+        Surface(elevation = 32.dp) {
+            Column {
+                Surface {
+                    CollapsedPlayerControls(
+                        modifier = Modifier.clickable(onClick = {
+                            navigator.push(NowPlayingScreen)
+                        })
+                    )
+                }
+
+                Surface {
+                    LibraryNavigationBar(
+                        selectedPage = page,
+                        onSelectLibraryPage = { newPage ->
+                            navigator.replace(RootScreen(newPage))
+                        }
+                    )
+                }
+            }
         }
     }
 }

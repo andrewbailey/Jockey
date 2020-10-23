@@ -5,5 +5,11 @@
 
     <string name="page_title_now_playing">Now Playing</string>
 
+    <string name="library_tab_playlists">Playlists</string>
+    <string name="library_tab_songs">Songs</string>
+    <string name="library_tab_albums">Albums</string>
+    <string name="library_tab_artists">Artists</string>
+    <string name="library_tab_folders">Folders</string>
+
     <string name="media_browser_all_songs_section">All Songs</string>
 </resources>

@@ -1,5 +1,9 @@
 package dev.andrewbailey.music.ui.navigation
 
 enum class LibraryPage {
-    Songs
+    Playlists,
+    Songs,
+    Albums,
+    Artists,
+    Folders,
 }
