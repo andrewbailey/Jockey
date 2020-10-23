@@ -1,17 +1,19 @@
-package dev.andrewbailey.music.ui.player
+package dev.andrewbailey.music.ui.root
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
 import dev.andrewbailey.encore.player.state.*
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.launch
 
-class NowPlayingViewModel @ViewModelInject constructor(
+class PlaybackViewModel @ViewModelInject constructor(
     private val mediaController: EncoreController<LocalSong>
 ) : ViewModel() {
 
@@ -25,10 +27,6 @@ class NowPlayingViewModel @ViewModelInject constructor(
         mediaController.releaseToken(token)
     }
 
-    fun seekTo(positionMs: Long) {
-        mediaController.seekTo(positionMs)
-    }
-
     fun play() {
         mediaController.play()
     }
@@ -37,16 +35,46 @@ class NowPlayingViewModel @ViewModelInject constructor(
         mediaController.pause()
     }
 
-    fun skipPrevious() {
-        mediaController.skipPrevious()
-    }
-
     fun skipNext() {
         mediaController.skipNext()
     }
 
+    fun skipPrevious() {
+        mediaController.skipPrevious()
+    }
+
     fun setShuffleMode(shuffleMode: ShuffleMode) {
         mediaController.setShuffleMode(shuffleMode)
+    }
+
+    fun seekTo(positionMs: Long) {
+        mediaController.seekTo(positionMs)
+    }
+
+    fun playFrom(
+        mediaList: List<LocalSong>,
+        startingAt: Int = 0
+    ) {
+        require(mediaList.isNotEmpty()) {
+            "Cannot play from an empty list"
+        }
+
+        mediaController.setState(
+            TransportState.Active(
+                status = PlaybackState.PLAYING,
+                seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                queue = QueueState.Linear(
+                    queue = mediaList.map {
+                        QueueItem(
+                            queueId = UUID.randomUUID(),
+                            mediaItem = it
+                        )
+                    },
+                    queueIndex = startingAt
+                ),
+                repeatMode = RepeatMode.REPEAT_NONE
+            )
+        )
     }
 
     fun playAtQueueIndex(index: Int) {

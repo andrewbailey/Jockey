@@ -13,18 +13,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageAsset
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import dev.andrewbailey.encore.player.controller.EncoreController
+import androidx.compose.ui.viewinterop.viewModel
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.ui.root.PlaybackViewModel
+import dev.andrewbailey.music.util.observe
 
 @Composable
 fun CollapsedPlayerControls(
-    encoreController: EncoreController<LocalSong>,
-    playbackState: MediaPlayerState.Prepared<LocalSong>?
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.preferredHeight(56.dp)) {
+    val viewModel = viewModel<PlaybackViewModel>()
+    val playbackState = observe(viewModel.playbackState) as? MediaPlayerState.Prepared
+
+    Box(modifier = modifier.preferredHeight(56.dp)) {
         Surface(elevation = 32.dp) {
             ConstraintLayout(
                 modifier = Modifier.fillMaxWidth()
@@ -106,7 +109,7 @@ fun CollapsedPlayerControls(
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     },
-                    onClick = encoreController::skipPrevious
+                    onClick = viewModel::skipPrevious
                 ) {
                     Icon(asset = vectorResource(id = R.drawable.ic_skip_previous))
                 }
@@ -119,9 +122,9 @@ fun CollapsedPlayerControls(
                     },
                     onClick = {
                         if (isPlaying) {
-                            encoreController.pause()
+                            viewModel.pause()
                         } else {
-                            encoreController.play()
+                            viewModel.play()
                         }
                     }
                 ) {
@@ -143,7 +146,7 @@ fun CollapsedPlayerControls(
                         start.linkTo(playPause.end)
                         end.linkTo(parent.end)
                     },
-                    onClick = encoreController::skipNext
+                    onClick = viewModel::skipNext
                 ) {
                     Icon(asset = vectorResource(id = R.drawable.ic_skip_next))
                 }
