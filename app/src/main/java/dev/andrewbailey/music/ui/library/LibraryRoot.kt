@@ -2,26 +2,21 @@ package dev.andrewbailey.music.ui.library
 
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.LazyColumnForIndexed
-import androidx.compose.material.Divider
-import androidx.compose.material.ListItem
-import androidx.compose.material.Surface
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.viewModel
-import dev.andrewbailey.encore.provider.mediastore.LocalAlbum
-import dev.andrewbailey.encore.provider.mediastore.LocalArtist
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.navigation.LibraryPage
 import dev.andrewbailey.music.ui.navigation.NowPlayingScreen
 import dev.andrewbailey.music.ui.navigation.RootScreen
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
-import dev.andrewbailey.music.util.observe
 
 @Composable
 fun LibraryRoot(
@@ -35,8 +30,20 @@ fun LibraryRoot(
         )
 
         Surface(Modifier.weight(1f)) {
+            val contentModifier = Modifier.fillMaxSize()
+
             when (page) {
-                LibraryPage.Songs -> SongList()
+                LibraryPage.Songs -> AllSongsRoot(
+                    modifier = contentModifier
+                )
+                else -> {
+                    Box(
+                        modifier = contentModifier,
+                        alignment = Alignment.Center
+                    ) {
+                        Text("Not yet implemented.")
+                    }
+                }
             }
         }
 
@@ -62,40 +69,3 @@ fun LibraryRoot(
         }
     }
 }
-
-@Composable
-fun SongList(
-    modifier: Modifier = Modifier
-) {
-    val viewModel = viewModel<LibraryViewModel>()
-    val playbackViewModel = viewModel<PlaybackViewModel>()
-
-    val songs = observe(viewModel.songs).orEmpty()
-    LazyColumnForIndexed(
-        items = songs,
-        modifier = modifier
-    ) { index, song ->
-        ListItem(
-            text = {
-                Text(
-                    text = song.name,
-                    maxLines = 1
-                )
-            },
-            secondaryText = {
-                Text(
-                    text = formattedAlbumArtist(song.album, song.artist),
-                    maxLines = 1
-                )
-            },
-            modifier = Modifier
-                .clickable(onClick = {
-                    playbackViewModel.playFrom(songs, index)
-                })
-        )
-        Divider()
-    }
-}
-
-private fun formattedAlbumArtist(album: LocalAlbum?, artist: LocalArtist?): String =
-    listOfNotNull(album?.name, artist?.name).joinToString(" - ")

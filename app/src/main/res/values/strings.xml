@@ -11,5 +11,8 @@
     <string name="library_tab_artists">Artists</string>
     <string name="library_tab_folders">Folders</string>
 
+    <string name="library_songs_empty_header">Couldn\'t find any songs</string>
+    <string name="library_songs_empty_description">You can sync songs from your computer or download them from the Internet</string>
+
     <string name="media_browser_all_songs_section">All Songs</string>
 </resources>
