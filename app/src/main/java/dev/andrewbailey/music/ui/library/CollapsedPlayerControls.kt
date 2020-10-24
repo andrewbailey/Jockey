@@ -1,5 +1,8 @@
 package dev.andrewbailey.music.ui.library
 
+import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.core.*
+import androidx.compose.animation.transition
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
@@ -10,8 +13,11 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.graphics.asImageAsset
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -30,11 +36,75 @@ fun CollapsedPlayerControls(
     val playbackViewModel = viewModel<PlaybackViewModel>()
     val playbackState = observe(playbackViewModel.playbackState)
 
-    Box(modifier = modifier.wrapContentHeight()) {
+    val contentOpacity = remember { FloatPropKey() }
+    val contentHeight = remember { DpPropKey() }
+
+    val visibilityTransition = remember {
+        transitionDefinition<Boolean> {
+            state(true) {
+                this[contentOpacity] = 1f
+                this[contentHeight] = 56.dp
+            }
+
+            state(false) {
+                this[contentOpacity] = 0f
+                this[contentHeight] = 0.dp
+            }
+
+            transition(false to true) {
+                contentOpacity using tween(
+                    easing = LinearOutSlowInEasing,
+                    durationMillis = 175,
+                    delayMillis = 75
+                )
+
+                contentHeight using tween(
+                    easing = LinearOutSlowInEasing,
+                    durationMillis = 250
+                )
+            }
+
+            transition(true to false) {
+                contentOpacity using tween(
+                    easing = FastOutLinearInEasing,
+                    durationMillis = 175
+                )
+
+                contentHeight using tween(
+                    easing = FastOutLinearInEasing,
+                    durationMillis = 250
+                )
+            }
+        }
+    }
+
+    val previousContent = remember { mutableStateOf(playbackState as? MediaPlayerState.Prepared) }
+    val previousVisibility = remember { mutableStateOf(playbackState is MediaPlayerState.Prepared) }
+    val transitionState = transition(
+        definition = visibilityTransition,
+        initState = previousVisibility.value,
+        toState = playbackState is MediaPlayerState.Prepared,
+        onStateChangeFinished = { isVisible ->
+            previousVisibility.value = isVisible
+            if (!isVisible) {
+                previousContent.value = null
+            }
+        }
+    )
+
+    Box(modifier = modifier.preferredHeight(transitionState[contentHeight])) {
         if (playbackState is MediaPlayerState.Prepared) {
+            previousContent.value = playbackState
+        }
+
+        val playbackStateToDisplay = previousContent.value
+        if (playbackStateToDisplay != null) {
             PopulatedCollapsedPlaybackControls(
-                playbackState = playbackState,
-                modifier = Modifier.preferredHeight(56.dp)
+                playbackState = playbackStateToDisplay,
+                modifier = Modifier
+                    .height(56.dp)
+                    .offset(y = (56.dp - transitionState[contentHeight]) / 2)
+                    .drawOpacity(transitionState[contentOpacity])
                     .fillMaxWidth(),
                 onSkipPreviousClicked = playbackViewModel::skipPrevious,
                 onPlayClicked = playbackViewModel::play,
