@@ -67,10 +67,10 @@ private fun LibraryNavigationOption(
         val previousSelectionState = remember { mutableStateOf(isSelected) }
         val selectionColor = MaterialTheme.colors.primary
         val unselectedColor = MaterialTheme.colors.onSurface.copy(
-            alpha = if (isSystemInDarkTheme()) {
-                0.6f
-            } else {
+            alpha = if (MaterialTheme.colors.isLight) {
                 0.5f
+            } else {
+                0.6f
             }
         )
 
