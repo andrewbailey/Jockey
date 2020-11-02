@@ -4,12 +4,12 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.*
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme

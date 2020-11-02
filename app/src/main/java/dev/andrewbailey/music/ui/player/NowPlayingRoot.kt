@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.*
+import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,7 +76,7 @@ fun NowPlayingRoot() {
                     ) {
                         Icon(
                             asset = vectorResource(id = R.drawable.ic_shuffle),
-                            tint = contentColor().copy(
+                            tint = AmbientContentColor.current.copy(
                                 alpha = when (shuffleMode) {
                                     ShuffleMode.LINEAR -> 0.5f
                                     ShuffleMode.SHUFFLED -> 1.0f
