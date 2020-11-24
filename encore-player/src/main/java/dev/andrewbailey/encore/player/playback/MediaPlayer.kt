@@ -10,7 +10,12 @@ import dev.andrewbailey.encore.player.BuildConfig
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.state.diff.*
+import dev.andrewbailey.encore.player.state.diff.PlaybackStateDiffer
+import dev.andrewbailey.encore.player.state.diff.QueueModification
+import dev.andrewbailey.encore.player.state.diff.SetPlaying
+import dev.andrewbailey.encore.player.state.diff.SetRepeatMode
+import dev.andrewbailey.encore.player.state.diff.StopPlayback
+import dev.andrewbailey.encore.player.state.diff.TimelinePositionChange
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
 internal class MediaPlayer<M : MediaObject>(

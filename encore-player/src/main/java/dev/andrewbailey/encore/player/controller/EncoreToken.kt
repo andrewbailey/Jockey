@@ -1,6 +1,6 @@
 package dev.andrewbailey.encore.player.controller
 
-import java.util.*
+import java.util.UUID
 
 public class EncoreToken internal constructor() {
 

@@ -9,7 +9,12 @@ import dev.andrewbailey.encore.player.binder.ServiceHostMessage
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency
 import dev.andrewbailey.encore.player.controller.EncoreToken
-import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.*
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.Pause
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.Play
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SeekTo
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SetShuffleMode
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipNext
+import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipPrevious
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
 import dev.andrewbailey.encore.player.state.BufferingState.Buffering
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -18,7 +23,13 @@ import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 internal class EncoreControllerImpl<M : MediaObject> constructor(
     context: Context,

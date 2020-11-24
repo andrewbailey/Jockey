@@ -2,10 +2,12 @@ package dev.andrewbailey.encore.player.state.diff
 
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
-import dev.andrewbailey.encore.player.playback.MediaQueueItems.*
+import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
+import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.QueueState
-import dev.andrewbailey.encore.player.state.QueueState.*
+import dev.andrewbailey.encore.player.state.QueueState.Linear
+import dev.andrewbailey.encore.player.state.QueueState.Shuffled
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.TransportState.Active

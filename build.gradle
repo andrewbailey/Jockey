@@ -116,7 +116,6 @@ allprojects {
         disabledRules = [
             "no-empty-class-body",
             "no-blank-line-before-rbrace",
-            "no-wildcard-imports",
         ]
     }
 

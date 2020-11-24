@@ -1,11 +1,18 @@
 package dev.andrewbailey.encore.player.state.factory
 
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.player.state.*
-import dev.andrewbailey.encore.player.state.PlaybackState.*
+import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackState.PAUSED
+import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
+import dev.andrewbailey.encore.player.state.PlaybackState.REACHED_END
+import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.RepeatMode
+import dev.andrewbailey.encore.player.state.SeekPosition
+import dev.andrewbailey.encore.player.state.ShuffleMode
+import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
-import java.util.*
+import java.util.Random
 import kotlin.math.min
 
 public class DefaultPlaybackStateFactory<M : MediaObject>(

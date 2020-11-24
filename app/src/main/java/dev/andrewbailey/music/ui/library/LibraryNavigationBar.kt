@@ -2,11 +2,19 @@ package dev.andrewbailey.music.ui.library
 
 import androidx.compose.animation.ColorPropKey
 import androidx.compose.animation.DpPropKey
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ripple.RippleIndication
@@ -21,7 +29,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.navigation.LibraryPage
-import dev.andrewbailey.music.ui.navigation.LibraryPage.*
+import dev.andrewbailey.music.ui.navigation.LibraryPage.Albums
+import dev.andrewbailey.music.ui.navigation.LibraryPage.Artists
+import dev.andrewbailey.music.ui.navigation.LibraryPage.Folders
+import dev.andrewbailey.music.ui.navigation.LibraryPage.Playlists
+import dev.andrewbailey.music.ui.navigation.LibraryPage.Songs
 
 @Composable
 fun LibraryNavigationBar(

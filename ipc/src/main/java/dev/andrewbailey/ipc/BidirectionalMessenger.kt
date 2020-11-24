@@ -1,11 +1,17 @@
 package dev.andrewbailey.ipc
 
-import android.os.*
+import android.os.Binder
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.Parcel
+import android.os.Parcelable
 import dev.andrewbailey.ipc.impl.Chunk
-import dev.andrewbailey.ipc.impl.Chunk.*
+import dev.andrewbailey.ipc.impl.Chunk.PartialChunk
+import dev.andrewbailey.ipc.impl.Chunk.WholeChunk
 import dev.andrewbailey.ipc.util.BINDER_TRANSACTION_LIMIT_BYTES
 import dev.andrewbailey.ipc.util.ParcelSplitter
-import java.util.*
+import java.util.UUID
 
 public typealias OnReceiveMessage<T, R> = BidirectionalMessenger<T, R>.(
     data: T,

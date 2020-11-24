@@ -6,7 +6,10 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaDescriptionCompat.*
+import android.support.v4.media.MediaDescriptionCompat.EXTRA_DOWNLOAD_STATUS
+import android.support.v4.media.MediaDescriptionCompat.STATUS_DOWNLOADED
+import android.support.v4.media.MediaDescriptionCompat.STATUS_DOWNLOADING
+import android.support.v4.media.MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 import dev.andrewbailey.encore.model.MediaDownloadStatus
 import dev.andrewbailey.encore.player.browse.BrowserFolderItem
 import dev.andrewbailey.encore.player.browse.BrowserHierarchyItem

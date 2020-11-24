@@ -1,7 +1,13 @@
 package dev.andrewbailey.encore.model
 
-import dev.andrewbailey.encore.model.RatingScale.*
-import dev.andrewbailey.encore.model.RatingValue.*
+import dev.andrewbailey.encore.model.RatingScale.HeartRatingScale
+import dev.andrewbailey.encore.model.RatingScale.PercentageRatingScale
+import dev.andrewbailey.encore.model.RatingScale.StarRatingScale
+import dev.andrewbailey.encore.model.RatingScale.ThumbRatingScale
+import dev.andrewbailey.encore.model.RatingValue.HeartRatingValue
+import dev.andrewbailey.encore.model.RatingValue.PercentageRatingValue
+import dev.andrewbailey.encore.model.RatingValue.StarRatingValue
+import dev.andrewbailey.encore.model.RatingValue.ThumbRatingValue
 
 public data class MediaRating<T : RatingValue>(
     /**

@@ -2,10 +2,15 @@ package dev.andrewbailey.encore.player.browse
 
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
-import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.*
-import dev.andrewbailey.encore.player.state.*
-import java.util.*
-import kotlin.NoSuchElementException
+import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.DynamicPath
+import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.MediaItems
+import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.StaticPath
+import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.RepeatMode
+import dev.andrewbailey.encore.player.state.SeekPosition
+import dev.andrewbailey.encore.player.state.TransportState
+import java.util.UUID
 
 private const val RESERVED_CHARS = "/@[]"
 

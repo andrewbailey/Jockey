@@ -7,9 +7,15 @@ import androidx.lifecycle.viewModelScope
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
-import dev.andrewbailey.encore.player.state.*
+import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.RepeatMode
+import dev.andrewbailey.encore.player.state.SeekPosition
+import dev.andrewbailey.encore.player.state.ShuffleMode
+import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.player.state.copy
 import dev.andrewbailey.encore.provider.mediastore.LocalSong
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.launch
 
