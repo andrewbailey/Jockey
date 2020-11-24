@@ -81,14 +81,18 @@ class PlaybackViewModel @ViewModelInject constructor(
         viewModelScope.launch {
             val currentState = mediaController.getState().transportState
             if (currentState is TransportState.Active) {
-                mediaController.setState(currentState.copy(
-                    status = PlaybackState.PLAYING,
-                    seekPosition = SeekPosition.AbsoluteSeekPosition(0L),
-                    queue = currentState.queue.copy(queueIndex = index)
-                ))
+                mediaController.setState(
+                    currentState.copy(
+                        status = PlaybackState.PLAYING,
+                        seekPosition = SeekPosition.AbsoluteSeekPosition(0L),
+                        queue = currentState.queue.copy(queueIndex = index)
+                    )
+                )
             } else {
-                throw IllegalStateException("Cannot change the seek position " +
-                        "because nothing is playing.")
+                throw IllegalStateException(
+                    "Cannot change the seek position " +
+                        "because nothing is playing."
+                )
             }
         }
     }

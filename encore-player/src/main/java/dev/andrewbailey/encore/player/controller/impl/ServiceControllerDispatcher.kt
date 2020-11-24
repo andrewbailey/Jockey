@@ -63,10 +63,13 @@ internal class ServiceControllerDispatcher<M : MediaObject> constructor(
             try {
                 sender.send(command.message, receiver.messenger)
                 return
-            } catch (e: DeadObjectException) {
-                Log.e("EncoreControllerImpl", "The service has disconnected while attempting " +
-                        "to send a message. We will attempt to resend it once the connection " +
-                        "is restored.", e)
+            } catch (exception: DeadObjectException) {
+                Log.e(
+                    "EncoreControllerImpl",
+                    "The service has disconnected while attempting to send a message. We will " +
+                        "attempt to resend it once the connection is restored.",
+                    exception
+                )
             }
         }
     }
@@ -85,10 +88,12 @@ internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     }
 
     private fun TransportControls.setShuffleMode(shuffleMode: ShuffleMode) {
-        setShuffleMode(when (shuffleMode) {
-            ShuffleMode.LINEAR -> PlaybackStateCompat.SHUFFLE_MODE_NONE
-            ShuffleMode.SHUFFLED -> PlaybackStateCompat.SHUFFLE_MODE_ALL
-        })
+        setShuffleMode(
+            when (shuffleMode) {
+                ShuffleMode.LINEAR -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+                ShuffleMode.SHUFFLED -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+            }
+        )
     }
 
 }

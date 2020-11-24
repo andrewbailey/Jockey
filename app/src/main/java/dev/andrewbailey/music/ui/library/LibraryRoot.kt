@@ -51,9 +51,11 @@ fun LibraryRoot(
             Column {
                 Surface {
                     CollapsedPlayerControls(
-                        modifier = Modifier.clickable(onClick = {
-                            navigator.push(NowPlayingScreen)
-                        })
+                        modifier = Modifier.clickable(
+                            onClick = {
+                                navigator.push(NowPlayingScreen)
+                            }
+                        )
                     )
                 }
 

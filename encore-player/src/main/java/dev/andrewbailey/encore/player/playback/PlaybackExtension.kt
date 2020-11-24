@@ -33,12 +33,12 @@ public abstract class PlaybackExtension<M : MediaObject> {
 
     private fun requireMediaPlayer() = checkNotNull(mediaPlayer) {
         "This extension is not attached to a media player. " +
-                "Did you call this before onPrepared() or after onRelease()?"
+            "Did you call this before onPrepared() or after onRelease()?"
     }
 
     private fun requirePlaybackStateFactory() = checkNotNull(playbackStateFactory) {
         "This extension is not attached to a media player. " +
-                "Did you call this before onPrepared() or after onRelease()?"
+            "Did you call this before onPrepared() or after onRelease()?"
     }
 
     protected fun getCurrentPlaybackState(): MediaPlayerState<M> = requireMediaPlayer().getState()

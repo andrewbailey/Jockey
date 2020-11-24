@@ -8,7 +8,7 @@ import java.util.concurrent.Semaphore
 fun <T> HandlerThread.runBlocking(block: () -> T): T {
     check(Looper.myLooper() != looper) {
         "Cannot synchronously run code on thread $this from the same thread because this will " +
-                "instantly cause a permanent deadlock."
+            "instantly cause a permanent deadlock."
     }
 
     var result: T? = null
@@ -36,7 +36,7 @@ fun <T> HandlerThread.runBlocking(block: () -> T): T {
 fun HandlerThread.waitForIdleSync() {
     check(Looper.myLooper() != looper) {
         "Cannot synchronously wait for thread $this to become idle because this method has been " +
-                "called from the same thread and will instantly cause a permanent deadlock."
+            "called from the same thread and will instantly cause a permanent deadlock."
     }
 
     runBlocking { Unit }

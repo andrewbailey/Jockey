@@ -20,10 +20,12 @@ class PlayerService : MediaPlayerService<LocalSong>(
 
     override fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<LocalSong> {
         return BrowserHierarchy {
-            staticPath(BrowserDirectory.BrowserPath(
-                id = "songs",
-                name = getString(R.string.media_browser_all_songs_section)
-            )) {
+            staticPath(
+                BrowserDirectory.BrowserPath(
+                    id = "songs",
+                    name = getString(R.string.media_browser_all_songs_section)
+                )
+            ) {
                 mediaItems("song") { mediaProvider.getAllSongs() }
             }
         }

@@ -44,7 +44,7 @@ public sealed class RatingScale<T : RatingValue> {
         override fun assertValueIsValid(value: StarRatingValue) {
             require(value.numberOfStars in 0..maxNumberOfStars) {
                 "The rating's `numberOfStars` must be between 0 and $maxNumberOfStars " +
-                        "(was ${value.numberOfStars})"
+                    "(was ${value.numberOfStars})"
             }
         }
     }

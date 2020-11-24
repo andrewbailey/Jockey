@@ -38,17 +38,19 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         clientHandler = ServiceClientHandler(
             context = context,
             onSetMediaController = { controller ->
-                controller.registerCallback(object : MediaControllerCompat.Callback() {
-                    override fun onSessionReady() {
-                        mediaController.value = controller
-                    }
+                controller.registerCallback(
+                    object : MediaControllerCompat.Callback() {
+                        override fun onSessionReady() {
+                            mediaController.value = controller
+                        }
 
-                    override fun onSessionDestroyed() {
-                        if (mediaController.value == controller) {
-                            mediaController.value = null
+                        override fun onSessionDestroyed() {
+                            if (mediaController.value == controller) {
+                                mediaController.value = null
+                            }
                         }
                     }
-                })
+                )
             },
             onSetMediaPlayerState = { playbackState.value = it }
         )
@@ -73,9 +75,8 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
 
     override fun releaseToken(token: EncoreToken) {
         synchronized(activeTokens) {
-            if (!activeTokens.remove(token)) {
-                throw IllegalStateException("The provided token is not currently registered " +
-                        "with this EncoreController instance.")
+            check(activeTokens.remove(token)) {
+                "The provided token is not currently registered with this EncoreController instance"
             }
 
             if (activeTokens.isEmpty()) {

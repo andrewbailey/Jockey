@@ -69,8 +69,10 @@ internal class MediaMetadataMapper {
                             3 -> RATING_3_STARS
                             4 -> RATING_4_STARS
                             5 -> RATING_5_STARS
-                            else -> throw IllegalArgumentException("Invalid maxNumberOfStars " +
-                                    "(${scale.maxNumberOfStars}). Must be between 3 and 5.")
+                            else -> throw IllegalArgumentException(
+                                "Invalid maxNumberOfStars (${scale.maxNumberOfStars})." +
+                                    "Must be between 3 and 5."
+                            )
                         },
                         it.numberOfStars.toFloat()
                     )

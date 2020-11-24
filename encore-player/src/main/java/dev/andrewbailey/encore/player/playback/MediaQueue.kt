@@ -30,11 +30,13 @@ internal class MediaQueue<M : MediaObject>(
 
     fun updateQueue(newState: MediaQueueItems<M>? = null) {
         synchronized(mediaSource) {
-            updateExoPlayerQueue(differenceOf(
-                original = queueItems?.queue.orEmpty(),
-                updated = newState?.queue.orEmpty(),
-                detectMoves = true
-            ))
+            updateExoPlayerQueue(
+                differenceOf(
+                    original = queueItems?.queue.orEmpty(),
+                    updated = newState?.queue.orEmpty(),
+                    detectMoves = true
+                )
+            )
 
             queueItems = newState
         }
@@ -81,7 +83,8 @@ internal class MediaQueue<M : MediaObject>(
     }
 
     private fun ConcatenatingMediaSource.move(oldIndex: Int, newIndex: Int) {
-        moveMediaSource(oldIndex,
+        moveMediaSource(
+            oldIndex,
             if (newIndex < oldIndex) {
                 newIndex
             } else {

@@ -39,47 +39,56 @@ internal class MediaSessionController<M : MediaObject>(
 
     override fun onNewPlayerState(newState: MediaPlayerState<M>) {
         mediaSession.apply {
-            setRepeatMode(when (newState.transportState.repeatMode) {
-                REPEAT_NONE -> REPEAT_MODE_NONE
-                REPEAT_ONE -> REPEAT_MODE_ONE
-                REPEAT_ALL -> REPEAT_MODE_ALL
-            })
+            setRepeatMode(
+                when (newState.transportState.repeatMode) {
+                    REPEAT_NONE -> REPEAT_MODE_NONE
+                    REPEAT_ONE -> REPEAT_MODE_ONE
+                    REPEAT_ALL -> REPEAT_MODE_ALL
+                }
+            )
 
-            setShuffleMode(when (newState.transportState.shuffleMode) {
-                LINEAR -> SHUFFLE_MODE_NONE
-                SHUFFLED -> SHUFFLE_MODE_ALL
-            })
+            setShuffleMode(
+                when (newState.transportState.shuffleMode) {
+                    LINEAR -> SHUFFLE_MODE_NONE
+                    SHUFFLED -> SHUFFLE_MODE_ALL
+                }
+            )
 
             when (newState) {
                 is Prepared -> {
                     setMetadata(metadataMapper.toMediaMetadataCompat(newState))
 
-                    setPlaybackState(PlaybackStateCompat.Builder()
-                        .setState(
-                            when (newState.transportState.status) {
-                                PlaybackState.PLAYING -> STATE_PLAYING
-                                PlaybackState.PAUSED, PlaybackState.REACHED_END -> STATE_PAUSED
-                            },
-                            newState.transportState.seekPosition.seekPositionMillis,
-                            1.0f
-                        )
-                        .setActions(
-                            ACTION_PLAY or
-                            ACTION_PLAY_PAUSE or
-                            ACTION_SEEK_TO or
-                            ACTION_PAUSE or
-                            ACTION_SKIP_TO_NEXT or
-                            ACTION_SKIP_TO_PREVIOUS or
-                            ACTION_STOP or
-                            ACTION_SET_REPEAT_MODE or
-                            ACTION_SET_SHUFFLE_MODE or
-                            ACTION_PLAY_FROM_MEDIA_ID)
-                        .build())
+                    setPlaybackState(
+                        PlaybackStateCompat.Builder()
+                            .setState(
+                                when (newState.transportState.status) {
+                                    PlaybackState.PLAYING -> STATE_PLAYING
+                                    PlaybackState.PAUSED, PlaybackState.REACHED_END -> STATE_PAUSED
+                                },
+                                newState.transportState.seekPosition.seekPositionMillis,
+                                1.0f
+                            )
+                            .setActions(
+                                ACTION_PLAY or
+                                    ACTION_PLAY_PAUSE or
+                                    ACTION_SEEK_TO or
+                                    ACTION_PAUSE or
+                                    ACTION_SKIP_TO_NEXT or
+                                    ACTION_SKIP_TO_PREVIOUS or
+                                    ACTION_STOP or
+                                    ACTION_SET_REPEAT_MODE or
+                                    ACTION_SET_SHUFFLE_MODE or
+                                    ACTION_PLAY_FROM_MEDIA_ID
+                            )
+                            .build()
+                    )
                 }
                 is Ready -> {
-                    setPlaybackState(PlaybackStateCompat.Builder()
-                        .setState(STATE_NONE, 0, 0f)
-                        .build())
+                    setPlaybackState(
+                        PlaybackStateCompat.Builder()
+                            .setState(STATE_NONE, 0, 0f)
+                            .build()
+                    )
                     setMetadata(MediaMetadataCompat.Builder().build())
                 }
             }

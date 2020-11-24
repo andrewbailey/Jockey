@@ -174,10 +174,12 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         clientPackageName: String,
         clientUid: Int
     ): Boolean {
-        return browserPackageValidator.isClientAllowedToBind(BrowserClient(
-            packageName = clientPackageName,
-            uid = clientUid
-        ))
+        return browserPackageValidator.isClientAllowedToBind(
+            BrowserClient(
+                packageName = clientPackageName,
+                uid = clientUid
+            )
+        )
     }
 
     final override fun onGetRoot(

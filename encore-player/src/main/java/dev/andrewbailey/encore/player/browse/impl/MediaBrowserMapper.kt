@@ -43,15 +43,20 @@ internal class MediaBrowserMapper {
             setTitle(metadata.title)
             setSubtitle(metadata.subtitle)
             setDescription(metadata.description)
-            setExtras(Bundle().apply {
-                metadata.downloadStatus?.let { downloadStatus ->
-                    putLong(EXTRA_DOWNLOAD_STATUS, when (downloadStatus) {
-                        MediaDownloadStatus.DOWNLOADED -> STATUS_DOWNLOADED
-                        MediaDownloadStatus.DOWNLOADING -> STATUS_DOWNLOADING
-                        MediaDownloadStatus.NOT_DOWNLOADED -> STATUS_NOT_DOWNLOADED
-                    })
+            setExtras(
+                Bundle().apply {
+                    metadata.downloadStatus?.let { downloadStatus ->
+                        putLong(
+                            EXTRA_DOWNLOAD_STATUS,
+                            when (downloadStatus) {
+                                MediaDownloadStatus.DOWNLOADED -> STATUS_DOWNLOADED
+                                MediaDownloadStatus.DOWNLOADING -> STATUS_DOWNLOADING
+                                MediaDownloadStatus.NOT_DOWNLOADED -> STATUS_NOT_DOWNLOADED
+                            }
+                        )
+                    }
                 }
-            })
+            )
         }.build()
     }
 

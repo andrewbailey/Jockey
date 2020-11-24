@@ -75,9 +75,12 @@ internal class CustomNotificationAction<P : CustomActionProvider<M>, M : MediaOb
             .firstOrNull { it.javaClass == customActionClass }
 
         if (provider == null) {
-            Log.w("Encore", "Cannot show icon for ${customActionClass.name} in notification " +
-                    "because the provider is not registered.  Did you override " +
-                    "PlayerService.onCreateCustomActions()?")
+            Log.w(
+                "Encore",
+                "Cannot show icon for ${customActionClass.name} in notification because the " +
+                    "provider is not registered. Did you override " +
+                    "PlayerService.onCreateCustomActions()?"
+            )
         }
 
         val action = provider?.getAction(state) ?: return null

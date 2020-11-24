@@ -93,7 +93,7 @@ internal class PlaybackStateDiffer<M : MediaObject> {
 
         return when {
             oldStateNowPlaying == newStateNowPlaying &&
-                    newStateSeekPosition is SeekPosition.ComputedSeekPosition -> {
+                newStateSeekPosition is SeekPosition.ComputedSeekPosition -> {
                 null
             }
             else -> {

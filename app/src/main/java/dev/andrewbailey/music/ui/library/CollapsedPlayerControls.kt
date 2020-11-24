@@ -175,9 +175,11 @@ private fun PopulatedCollapsedPlaybackControls(
                 append(nowPlaying.name)
                 nowPlaying.artist?.name?.let { artistName ->
                     append("   ")
-                    pushStyle(SpanStyle(
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
-                    ))
+                    pushStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                        )
+                    )
                     append(artistName)
                     pop()
                 }

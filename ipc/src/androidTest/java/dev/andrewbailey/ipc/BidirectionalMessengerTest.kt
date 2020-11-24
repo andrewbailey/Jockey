@@ -228,7 +228,8 @@ class BidirectionalMessengerTest {
         val conversationTimeoutMs = 2_000
         fun dT() = System.currentTimeMillis() - t0
         while (clientReceivedMessages.size + hostReceivedMessages.size < 5 &&
-            dT() < conversationTimeoutMs) {
+            dT() < conversationTimeoutMs
+        ) {
             clientThread.waitForIdleSync()
             hostThread.waitForIdleSync()
         }
@@ -259,8 +260,8 @@ data class Request(
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
         return other is Request &&
-                other.key == this.key &&
-                other.blob.contentEquals(this.blob)
+            other.key == this.key &&
+            other.blob.contentEquals(this.blob)
     }
 
     override fun hashCode(): Int {

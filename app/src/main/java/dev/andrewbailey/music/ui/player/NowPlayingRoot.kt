@@ -171,12 +171,18 @@ private fun ActiveNowPlayingControls(
         val (seekBar, skipPrevious, playPause, skipNext) = createRefs()
 
         createHorizontalChain(
-            skipPrevious, playPause, skipNext,
+            skipPrevious,
+            playPause,
+            skipNext,
             chainStyle = ChainStyle.Spread
         )
 
         createVerticalChain(
-            songName, artistName, albumName, seekBar, playPause,
+            songName,
+            artistName,
+            albumName,
+            seekBar,
+            playPause,
             chainStyle = ChainStyle.Packed
         )
 
@@ -223,9 +229,11 @@ private fun ActiveNowPlayingControls(
                 ?: playbackState.transportState.seekPosition.seekPositionMillis.toFloat(),
             onValueChange = { userSeekPosition.value = it },
             onValueChangeEnd = {
-                viewModel.seekTo(checkNotNull(userSeekPosition.value) {
-                    "Failed to finalize seek because the requested seek position is unknown."
-                }.toLong())
+                viewModel.seekTo(
+                    checkNotNull(userSeekPosition.value) {
+                        "Failed to finalize seek because the requested seek position is unknown."
+                    }.toLong()
+                )
                 userSeekPosition.value = null
             },
             modifier = Modifier
@@ -326,9 +334,11 @@ private fun NowPlayingQueue(
                     Text(formattedAlbumArtist(queueItem.mediaItem))
                 },
                 modifier = Modifier
-                    .clickable(onClick = {
-                        viewModel.playAtQueueIndex(index)
-                    })
+                    .clickable(
+                        onClick = {
+                            viewModel.playAtQueueIndex(index)
+                        }
+                    )
             )
             Divider()
         }

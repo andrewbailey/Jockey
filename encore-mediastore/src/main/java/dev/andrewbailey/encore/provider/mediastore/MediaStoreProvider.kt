@@ -33,8 +33,8 @@ public class MediaStoreProvider(
         return getAllSongs()
             .filter { song ->
                 song.name.contains(query, true) ||
-                        song.artist?.name.orEmpty().contains(query, true) ||
-                        song.album?.name.orEmpty().contains(query, true)
+                    song.artist?.name.orEmpty().contains(query, true) ||
+                    song.album?.name.orEmpty().contains(query, true)
             }
     }
 
