@@ -9,8 +9,10 @@ import dev.andrewbailey.music.ui.player.NowPlayingRoot
 
 @Composable
 fun JockeyRoot() {
-    when (val currentScreen = AppNavigator.current.currentScreen) {
-        is RootScreen -> LibraryRoot(currentScreen.libraryPage)
-        is NowPlayingScreen -> NowPlayingRoot()
+    AppNavigator.current.render { currentScreen ->
+        when (currentScreen) {
+            is RootScreen -> LibraryRoot()
+            is NowPlayingScreen -> NowPlayingRoot()
+        }
     }
 }

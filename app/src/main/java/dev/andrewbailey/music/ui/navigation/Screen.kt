@@ -1,9 +1,12 @@
 package dev.andrewbailey.music.ui.navigation
 
-sealed class Screen
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-data class RootScreen(
-    val libraryPage: LibraryPage
-) : Screen()
+sealed class Screen : Parcelable
 
+@Parcelize
+object RootScreen : Screen()
+
+@Parcelize
 object NowPlayingScreen : Screen()

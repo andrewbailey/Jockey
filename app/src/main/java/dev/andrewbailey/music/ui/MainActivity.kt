@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.navigation.Navigator
+import dev.andrewbailey.music.ui.navigation.Navigator.Companion.rememberNavigator
 import dev.andrewbailey.music.ui.root.JockeyRoot
 import dev.andrewbailey.music.util.fromRes
 
@@ -24,8 +25,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        navigator = Navigator()
         setContent {
+            navigator = rememberNavigator()
+
             MaterialTheme(
                 colors = colors()
             ) {
@@ -39,9 +41,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (navigator.canNavigateUp) {
-            navigator.navigateUp()
-        } else {
+        if (!navigator.pop()) {
             super.onBackPressed()
         }
     }

@@ -2,16 +2,20 @@ package dev.andrewbailey.music.ui.player
 
 import androidx.compose.foundation.AmbientContentColor
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ChainStyle
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ConstraintLayout
 import androidx.compose.foundation.layout.Dimension
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
@@ -27,7 +31,9 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.draw.drawShadow
 import androidx.compose.ui.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -37,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.viewinterop.viewModel
 import androidx.compose.ui.zIndex
 import dev.andrewbailey.encore.model.QueueItem
@@ -51,19 +58,24 @@ import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.observe
 
 @Composable
-fun NowPlayingRoot() {
+fun NowPlayingRoot(
+    modifier: Modifier = Modifier,
+    @FloatRange(0.0, 1.0)
+    percentVisible: Float = 1.0f
+) {
     val viewModel = viewModel<PlaybackViewModel>()
     val playbackState = observe(viewModel.playbackState)
     val navigator = AppNavigator.current
 
     ConstraintLayout(
-        modifier = Modifier.fillMaxHeight()
+        modifier = modifier.fillMaxHeight()
     ) {
         val (toolbar, artwork, controls, queue) = createRefs()
 
         TopAppBar(
             modifier = Modifier
                 .zIndex(1f)
+                .drawOpacity((2 * percentVisible - 1).coerceIn(0f..1f))
                 .constrainAs(toolbar) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -75,7 +87,7 @@ fun NowPlayingRoot() {
             contentColor = Color.White,
             navigationIcon = {
                 IconButton(
-                    onClick = { navigator.navigateUp() }
+                    onClick = { navigator.pop() }
                 ) {
                     Icon(
                         asset = vectorResource(id = R.drawable.ic_close_24)
@@ -182,68 +194,39 @@ private fun ActiveNowPlayingControls(
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
 
-    ConstraintLayout(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        val (songName, artistName, albumName) = createRefs()
-        val (seekBar, skipPrevious, playPause, skipNext) = createRefs()
-
-        createHorizontalChain(
-            skipPrevious,
-            playPause,
-            skipNext,
-            chainStyle = ChainStyle.Spread
-        )
-
-        createVerticalChain(
-            songName,
-            artistName,
-            albumName,
-            seekBar,
-            playPause,
-            chainStyle = ChainStyle.Packed
-        )
-
         val userSeekPosition = remember { mutableStateOf<Float?>(null) }
-
         val nowPlaying = playbackState.transportState.queue.nowPlaying.mediaItem
+
         Text(
             text = nowPlaying.name,
             style = MaterialTheme.typography.body1,
             color = MaterialTheme.colors.onBackground,
-            modifier = Modifier.constrainAs(songName) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-            }
+            modifier = Modifier.fillMaxWidth()
         )
 
         Text(
             text = nowPlaying.album?.name ?: "No album",
             style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.onBackground,
-            modifier = Modifier.constrainAs(albumName) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-            }
+            modifier = Modifier.fillMaxWidth()
         )
 
         Text(
             text = nowPlaying.artist?.name ?: "No artist",
             style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.onBackground,
-            modifier = Modifier.constrainAs(artistName) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-            }
+            modifier = Modifier.fillMaxWidth()
         )
 
+        val sliderInteractionState = remember { InteractionState() }
         Slider(
             valueRange = 0f..(playbackState.durationMs?.toFloat() ?: 0f),
-            value = userSeekPosition.value
+            interactionState = sliderInteractionState,
+            value = userSeekPosition.value.takeIf { sliderInteractionState.value.isNotEmpty() }
                 ?: playbackState.transportState.seekPosition.seekPositionMillis.toFloat(),
             onValueChange = { userSeekPosition.value = it },
             onValueChangeEnd = {
@@ -255,63 +238,59 @@ private fun ActiveNowPlayingControls(
                 userSeekPosition.value = null
             },
             modifier = Modifier
-                .constrainAs(seekBar) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+                .fillMaxWidth()
                 .offset(y = 4.dp)
                 .preferredHeight(36.dp)
         )
 
-        IconButton(
-            onClick = viewModel::skipPrevious,
-            modifier = Modifier.constrainAs(skipPrevious) {
-                top.linkTo(playPause.top)
-                bottom.linkTo(playPause.bottom)
-            }
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth(0.85f)
         ) {
-            Icon(
-                asset = vectorResource(id = R.drawable.ic_skip_previous),
-                tint = MaterialTheme.colors.onBackground
-            )
-        }
-
-        IconButton(
-            onClick = {
-                if (playbackState.transportState.status == PlaybackState.PLAYING) {
-                    viewModel.pause()
-                } else {
-                    viewModel.play()
+            Box(
+                modifier = Modifier.weight(1.0f),
+                alignment = Alignment.Center
+            ) {
+                IconButton(onClick = viewModel::skipPrevious) {
+                    Icon(
+                        asset = vectorResource(id = R.drawable.ic_skip_previous),
+                        tint = MaterialTheme.colors.onBackground
+                    )
                 }
-            },
-            modifier = Modifier.constrainAs(playPause) {
-                bottom.linkTo(parent.bottom)
             }
-        ) {
-            if (playbackState.transportState.status == PlaybackState.PLAYING) {
-                Icon(
-                    asset = vectorResource(id = R.drawable.ic_pause),
-                    tint = MaterialTheme.colors.onBackground
-                )
-            } else {
-                Icon(
-                    asset = vectorResource(id = R.drawable.ic_play),
-                    tint = MaterialTheme.colors.onBackground
-                )
-            }
-        }
 
-        IconButton(
-            onClick = viewModel::skipNext,
-            modifier = Modifier.constrainAs(skipNext) {
-                top.linkTo(playPause.top)
-                bottom.linkTo(playPause.bottom)
+            Box(
+                modifier = Modifier.weight(1.0f),
+                alignment = Alignment.Center
+            ) {
+                if (playbackState.transportState.status == PlaybackState.PLAYING) {
+                    IconButton(onClick = viewModel::pause) {
+                        Icon(
+                            asset = vectorResource(id = R.drawable.ic_pause),
+                            tint = MaterialTheme.colors.onBackground
+                        )
+                    }
+                } else {
+                    IconButton(onClick = viewModel::play) {
+                        Icon(
+                            asset = vectorResource(id = R.drawable.ic_play),
+                            tint = MaterialTheme.colors.onBackground
+                        )
+                    }
+                }
             }
-        ) {
-            Icon(
-                asset = vectorResource(id = R.drawable.ic_skip_next),
-                tint = MaterialTheme.colors.onBackground
-            )
+
+            Box(
+                modifier = Modifier.weight(1.0f),
+                alignment = Alignment.Center
+            ) {
+                IconButton(onClick = viewModel::skipNext) {
+                    Icon(
+                        asset = vectorResource(id = R.drawable.ic_skip_next),
+                        tint = MaterialTheme.colors.onBackground
+                    )
+                }
+            }
         }
     }
 }

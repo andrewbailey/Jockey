@@ -1,49 +1,109 @@
 package dev.andrewbailey.music.ui.navigation
 
+import android.os.Parcelable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ambientOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
+import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import java.util.Stack
+import java.util.UUID
+import kotlinx.android.parcel.Parcelize
 
 val AppNavigator = ambientOf<Navigator> { error("No navigator has been set") }
 
+@OptIn(ExperimentalRestorableStateHolder::class)
 class Navigator private constructor(
-    initialScreens: Collection<Screen>
+    private val restorableStateHolder: RestorableStateHolder<UUID>,
+    private val backStack: Stack<BackStackEntry>
 ) {
 
-    private val backStack = Stack<Screen>().apply {
-        addAll(initialScreens)
-    }
-
-    var currentScreen by mutableStateOf<Screen>(backStack.peek())
-        private set
-
-    val canNavigateUp: Boolean
-        get() = backStack.size > 1
-
-    constructor() : this(listOf(RootScreen(LibraryPage.Songs)))
-
-    fun navigateUp() {
-        if (canNavigateUp) {
-            backStack.pop()
-            invalidateCurrentScreen()
+    init {
+        require(backStack.isNotEmpty()) {
+            "The backstack must be initialized with at least one item"
         }
     }
 
+    private var popOverrides = Stack<() -> Boolean>()
+
     fun push(screen: Screen) {
-        backStack.push(screen)
-        invalidateCurrentScreen()
+        backStack.push(BackStackEntry(screen))
     }
 
-    fun replace(screen: Screen) {
-        backStack.pop()
-        backStack.push(screen)
-        invalidateCurrentScreen()
+    fun pop(): Boolean {
+        popOverrides.asReversed().forEach { override ->
+            if (override()) {
+                return true
+            }
+        }
+
+        if (backStack.size > 1) {
+            backStack.pop()
+            return true
+        }
+
+        return false
     }
 
-    private fun invalidateCurrentScreen() {
-        currentScreen = backStack.peek()
+    @Composable
+    fun render(
+        content: @Composable (Screen) -> Unit
+    ) {
+        val backStackEntry = backStack.peek()
+        restorableStateHolder.withRestorableState(key = backStackEntry.uuid) {
+            content(backStackEntry.screen)
+        }
     }
 
+    @Composable
+    fun overridePopBehavior(
+        navigateUp: () -> Boolean
+    ) {
+        DisposableEffect(
+            subject = navigateUp,
+            effect = {
+                popOverrides.push(navigateUp)
+                onDispose {
+                    popOverrides.remove(navigateUp)
+                }
+            }
+        )
+    }
+
+    companion object {
+        @Composable
+        @OptIn(ExperimentalRestorableStateHolder::class)
+        fun rememberNavigator(
+            initialBackStack: Collection<Screen> = listOf(RootScreen)
+        ): Navigator {
+            val restorableStateHolder = rememberRestorableStateHolder<UUID>()
+            return rememberSavedInstanceState(
+                init = {
+                    Navigator(
+                        restorableStateHolder = restorableStateHolder,
+                        backStack = initialBackStack.map { BackStackEntry(it) }.toStack()
+                    )
+                },
+                saver = Saver(restorableStateHolder)
+            )
+        }
+
+        fun Saver(
+            restorableStateHolder: RestorableStateHolder<UUID>
+        ) = Saver<Navigator, List<BackStackEntry>>(
+            save = { it.backStack.toList() },
+            restore = { Navigator(restorableStateHolder, it.toStack()) }
+        ) as Saver<Navigator, *>
+    }
 }
+
+@Parcelize
+private class BackStackEntry(
+    val screen: Screen,
+    val uuid: UUID = UUID.randomUUID()
+) : Parcelable
+
+private fun <T> Collection<T>.toStack() = Stack<T>().also { it.addAll(this) }

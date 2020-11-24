@@ -8,24 +8,89 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
+import dev.andrewbailey.music.ui.layout.CollapsingPageValue
+import dev.andrewbailey.music.ui.layout.rememberCollapsingPageState
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.navigation.LibraryPage
-import dev.andrewbailey.music.ui.navigation.NowPlayingScreen
-import dev.andrewbailey.music.ui.navigation.RootScreen
+import dev.andrewbailey.music.ui.player.NowPlayingRoot
 
 @Composable
 fun LibraryRoot(
-    page: LibraryPage
+    modifier: Modifier = Modifier
 ) {
-    val navigator = AppNavigator.current
+    val isFullPlaybackControlsVisible = savedInstanceState { false }
+    val selectedPage = savedInstanceState { LibraryPage.Songs }
 
-    Column {
+    val bottomSheetState = rememberCollapsingPageState(
+        initialValue = if (isFullPlaybackControlsVisible.value) {
+            CollapsingPageValue.expanded
+        } else {
+            CollapsingPageValue.collapsed
+        }
+    )
+
+    AppNavigator.current.overridePopBehavior(
+        navigateUp = {
+            if (bottomSheetState.isFullyExpanded) {
+                bottomSheetState.collapse()
+                true
+            } else {
+                false
+            }
+        }
+    )
+
+    BottomSheetScaffold(
+        modifier = modifier,
+        state = bottomSheetState,
+        bodyContent = {
+            LibraryContent(
+                page = selectedPage.value
+            )
+        },
+        onStateChanged = {
+            when (it) {
+                CollapsingPageValue.expanded -> isFullPlaybackControlsVisible.value = true
+                CollapsingPageValue.collapsed -> isFullPlaybackControlsVisible.value = false
+            }
+        },
+        collapsedSheetLayout = {
+            LibraryNavigation(
+                selectedPage = selectedPage.value,
+                modifier = Modifier
+                    .drawOpacity((1 - 2 * bottomSheetState.expansionPercentage).coerceIn(0f..1f)),
+                showFullPlaybackControls = {
+                    bottomSheetState.expand()
+                },
+                selectTab = { newPage ->
+                    selectedPage.value = newPage
+                }
+            )
+        },
+        expandedSheetLayout = {
+            NowPlayingRoot(
+                percentVisible = bottomSheetState.expansionPercentage
+            )
+        }
+    )
+}
+
+@Composable
+private fun LibraryContent(
+    page: LibraryPage,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
         TopAppBar(
             title = { Text(stringResource(R.string.app_name)) }
         )
@@ -47,28 +112,30 @@ fun LibraryRoot(
                 }
             }
         }
+    }
+}
 
-        Surface(elevation = 32.dp) {
-            Column {
-                Surface {
-                    CollapsedPlayerControls(
-                        modifier = Modifier.clickable(
-                            onClick = {
-                                navigator.push(NowPlayingScreen)
-                            }
-                        )
-                    )
-                }
+@Composable
+private fun LibraryNavigation(
+    selectedPage: LibraryPage,
+    modifier: Modifier = Modifier,
+    showFullPlaybackControls: () -> Unit = {},
+    selectTab: (LibraryPage) -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Surface {
+            CollapsedPlayerControls(
+                modifier = Modifier.clickable(onClick = showFullPlaybackControls)
+            )
+        }
 
-                Surface {
-                    LibraryNavigationBar(
-                        selectedPage = page,
-                        onSelectLibraryPage = { newPage ->
-                            navigator.replace(RootScreen(newPage))
-                        }
-                    )
-                }
-            }
+        Surface {
+            LibraryNavigationBar(
+                selectedPage = selectedPage,
+                onSelectLibraryPage = selectTab
+            )
         }
     }
 }
