@@ -1,4 +1,4 @@
-package com.marverenic.encore.player.action
+package dev.andrewbailey.encore.player.action
 
 import android.support.v4.media.session.PlaybackStateCompat.*
 

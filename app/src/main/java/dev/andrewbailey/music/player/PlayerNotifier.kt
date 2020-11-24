@@ -4,7 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.marverenic.encore.player.action.PlaybackAction
+import dev.andrewbailey.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.notification.NotificationAction
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState

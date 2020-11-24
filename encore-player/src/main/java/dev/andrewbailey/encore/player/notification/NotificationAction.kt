@@ -4,9 +4,9 @@ import android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.marverenic.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.action.CustomActionProvider
+import dev.andrewbailey.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 
 public sealed class NotificationAction<M : MediaObject> {

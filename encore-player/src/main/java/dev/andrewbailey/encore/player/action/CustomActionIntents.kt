@@ -6,8 +6,8 @@ import android.content.Intent
 
 internal object CustomActionIntents {
 
-    private const val ACTION_CUSTOM_ACTION = "com.marverenic.encore.action.CUSTOM_MEDIA_ACTION"
-    private const val EXTRA_ACTION_ID = "com.marverenic.encore.extra.ACTION_ID"
+    private const val ACTION_CUSTOM_ACTION = "dev.andrewbailey.encore.action.CUSTOM_MEDIA_ACTION"
+    private const val EXTRA_ACTION_ID = "dev.andrewbailey.encore.extra.ACTION_ID"
 
     fun createIntent(service: Service, customActionId: String): PendingIntent {
         val intent = Intent(service, service.javaClass).apply {
