@@ -11,6 +11,7 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -68,6 +69,8 @@ fun BottomSheetScaffold(
                 Box {
                     savedState.apply(Body, bodyContent)()
                 }
+            } else {
+                Spacer(modifier = Modifier)
             }
 
             if (shouldRenderShim) {
@@ -79,6 +82,8 @@ fun BottomSheetScaffold(
                 ) {
                     drawRect(scrimColor, alpha = state.expansionPercentage)
                 }
+            } else {
+                Spacer(modifier = Modifier)
             }
 
             Surface(
@@ -123,37 +128,34 @@ fun BottomSheetScaffold(
                 )
             }
         },
-        measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
-            val bodyLayout = when {
-                shouldRenderBody -> measurables.first()
-                else -> null
-            }
+        measureBlocks = remember(state) {
+            MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+                val bodyLayout = measurables[0]
+                val scrimLayout = measurables[1]
+                val bottomSheet = measurables[2]
 
-            val scrimLayout = when {
-                shouldRenderShim -> measurables[1]
-                else -> null
-            }
-
-            val bottomSheet = measurables.last()
-
-            val bodyPlaceable = bodyLayout?.measure(
-                constraints.copy(
-                    minHeight = constraints.minHeight - collapsedSheetHeight.value,
-                    maxHeight = constraints.maxHeight - collapsedSheetHeight.value
+                val bodyPlaceable = bodyLayout.measure(
+                    constraints.copy(
+                        minHeight = constraints.minHeight - collapsedSheetHeight.value,
+                        maxHeight = constraints.maxHeight - collapsedSheetHeight.value
+                    )
                 )
-            )
 
-            val scrimPlaceable = scrimLayout?.measure(constraints)
-            val bottomSheetPlaceable = bottomSheet.measure(
-                constraints.copy(
-                    minHeight = 0
+                val scrimPlaceable = scrimLayout.measure(constraints)
+                val bottomSheetPlaceable = bottomSheet.measure(
+                    constraints.copy(
+                        minHeight = 0
+                    )
                 )
-            )
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                bodyPlaceable?.place(0, 0)
-                scrimPlaceable?.place(0, 0)
-                bottomSheetPlaceable.place(0, constraints.maxHeight - bottomSheetPlaceable.height)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    bodyPlaceable.place(0, 0)
+                    scrimPlaceable.place(0, 0)
+                    bottomSheetPlaceable.place(
+                        x = 0,
+                        y = constraints.maxHeight - bottomSheetPlaceable.height
+                    )
+                }
             }
         }
     )
@@ -186,35 +188,39 @@ private fun PartiallyCollapsedPageLayout(
                 }
             }
         },
-        measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
-            val placeableExpandedLayout = measurables.first().takeIf { shouldDrawExpandedLayout }
-                ?.measure(constraints)
+        measureBlocks = remember(percentExpanded) {
+            MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+                val placeableExpandedLayout =
+                    measurables.first().takeIf { shouldDrawExpandedLayout }
+                        ?.measure(constraints)
 
-            val placeableCollapsedLayout = measurables.last().takeIf { shouldDrawCollapsedLayout }
-                ?.measure(constraints)
+                val placeableCollapsedLayout =
+                    measurables.last().takeIf { shouldDrawCollapsedLayout }
+                        ?.measure(constraints)
 
-            placeableCollapsedLayout?.let {
-                onCollapsedSheetLayoutMeasured(it.width, it.height)
-            }
-
-            val collapsedHeight = placeableCollapsedLayout?.height ?: 0
-            val height: Int = when (percentExpanded) {
-                0f -> collapsedHeight
-                1f -> constraints.maxHeight
-                in 0f..1f -> {
-                    val expansionAmount = constraints.maxHeight - collapsedHeight
-                    (percentExpanded * expansionAmount + collapsedHeight).roundToInt()
+                placeableCollapsedLayout?.let {
+                    onCollapsedSheetLayoutMeasured(it.width, it.height)
                 }
-                else -> {
-                    throw IllegalArgumentException(
-                        "percentExpanded must be within 0..1 (was $percentExpanded)"
-                    )
-                }
-            }
 
-            layout(constraints.maxWidth, height) {
-                placeableExpandedLayout?.place(0, 0)
-                placeableCollapsedLayout?.place(0, 0)
+                val collapsedHeight = placeableCollapsedLayout?.height ?: 0
+                val height: Int = when (percentExpanded) {
+                    0f -> collapsedHeight
+                    1f -> constraints.maxHeight
+                    in 0f..1f -> {
+                        val expansionAmount = constraints.maxHeight - collapsedHeight
+                        (percentExpanded * expansionAmount + collapsedHeight).roundToInt()
+                    }
+                    else -> {
+                        throw IllegalArgumentException(
+                            "percentExpanded must be within 0..1 (was $percentExpanded)"
+                        )
+                    }
+                }
+
+                layout(constraints.maxWidth, height) {
+                    placeableExpandedLayout?.place(0, 0)
+                    placeableCollapsedLayout?.place(0, 0)
+                }
             }
         }
     )

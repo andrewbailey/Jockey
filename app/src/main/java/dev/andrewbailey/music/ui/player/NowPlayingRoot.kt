@@ -9,15 +9,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ConstraintLayout
-import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.material.AmbientContentColor
 import androidx.compose.material.Divider
@@ -65,78 +65,28 @@ fun NowPlayingRoot(
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
     val playbackState = observe(viewModel.playbackState)
-    val navigator = AppNavigator.current
 
-    ConstraintLayout(
+    Column(
         modifier = modifier.fillMaxHeight()
     ) {
-        val (toolbar, artwork, controls, queue) = createRefs()
-
-        TopAppBar(
-            modifier = Modifier
-                .zIndex(1f)
-                .alpha((2 * percentVisible - 1).coerceIn(0f..1f))
-                .constrainAs(toolbar) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-            backgroundColor = Color.Transparent,
-            title = { Text(stringResource(R.string.page_title_now_playing)) },
-            elevation = 0.dp,
-            contentColor = Color.White,
-            navigationIcon = {
-                IconButton(
-                    onClick = { navigator.pop() }
-                ) {
-                    Icon(
-                        imageVector = vectorResource(id = R.drawable.ic_close_24)
-                    )
-                }
-            },
-            actions = {
-                playbackState?.transportState?.shuffleMode?.let { shuffleMode ->
-                    val toggledShuffleMode = when (shuffleMode) {
-                        ShuffleMode.LINEAR -> ShuffleMode.SHUFFLED
-                        ShuffleMode.SHUFFLED -> ShuffleMode.LINEAR
-                    }
-
-                    IconButton(
-                        onClick = { viewModel.setShuffleMode(toggledShuffleMode) }
-                    ) {
-                        Icon(
-                            imageVector = vectorResource(id = R.drawable.ic_shuffle),
-                            tint = AmbientContentColor.current.copy(
-                                alpha = when (shuffleMode) {
-                                    ShuffleMode.LINEAR -> 0.5f
-                                    ShuffleMode.SHUFFLED -> 1.0f
-                                }
-                            )
-                        )
-                    }
-                }
-
-            }
-        )
-
         Box(
             modifier = Modifier
                 .background(Color.Black)
-                .constrainAs(artwork) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.wrapContent
-                }
+                .fillMaxWidth()
                 .aspectRatio(1.0f)
-                .scrim()
         ) {
+            NowPlayingToolbar(
+                playbackViewModel = viewModel,
+                playbackState = playbackState,
+                modifier = Modifier.alpha((2 * percentVisible - 1).coerceIn(0f..1f))
+            )
+
             (playbackState as? MediaPlayerState.Prepared)?.artwork?.let { albumArt ->
                 Image(
                     bitmap = albumArt.asImageBitmap(),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
+                        .scrim()
                 )
             }
         }
@@ -144,30 +94,70 @@ fun NowPlayingRoot(
         NowPlayingControls(
             playbackState = playbackState,
             modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .shadow(elevation = 4.dp)
                 .zIndex(4f)
                 .background(color = MaterialTheme.colors.surface)
                 .padding(16.dp)
-                .constrainAs(controls) {
-                    top.linkTo(artwork.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                }
         )
 
         NowPlayingQueue(
             queue = (playbackState?.transportState as? TransportState.Active)
                 ?.queue?.queue.orEmpty(),
-            modifier = Modifier.constrainAs(queue) {
-                top.linkTo(controls.bottom)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                height = Dimension.fillToConstraints
-            }
+            modifier = Modifier.fillMaxHeight()
         )
     }
+}
+
+@Composable
+private fun NowPlayingToolbar(
+    playbackViewModel: PlaybackViewModel,
+    playbackState: MediaPlayerState<LocalSong>?,
+    modifier: Modifier = Modifier
+) {
+    val navigator = AppNavigator.current
+
+    TopAppBar(
+        modifier = modifier
+            .zIndex(1f),
+        backgroundColor = Color.Transparent,
+        title = { Text(stringResource(R.string.page_title_now_playing)) },
+        elevation = 0.dp,
+        contentColor = Color.White,
+        navigationIcon = {
+            IconButton(
+                onClick = { navigator.pop() }
+            ) {
+                Icon(
+                    imageVector = vectorResource(id = R.drawable.ic_close_24)
+                )
+            }
+        },
+        actions = {
+            playbackState?.transportState?.shuffleMode?.let { shuffleMode ->
+                val toggledShuffleMode = when (shuffleMode) {
+                    ShuffleMode.LINEAR -> ShuffleMode.SHUFFLED
+                    ShuffleMode.SHUFFLED -> ShuffleMode.LINEAR
+                }
+
+                IconButton(
+                    onClick = { playbackViewModel.setShuffleMode(toggledShuffleMode) }
+                ) {
+                    Icon(
+                        imageVector = vectorResource(id = R.drawable.ic_shuffle),
+                        tint = AmbientContentColor.current.copy(
+                            alpha = when (shuffleMode) {
+                                ShuffleMode.LINEAR -> 0.5f
+                                ShuffleMode.SHUFFLED -> 1.0f
+                            }
+                        )
+                    )
+                }
+            }
+
+        }
+    )
 }
 
 @Composable
@@ -240,7 +230,7 @@ private fun ActiveNowPlayingControls(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(y = 4.dp)
-                .preferredHeight(36.dp)
+                .height(36.dp)
         )
 
         Row(
