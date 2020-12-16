@@ -1,17 +1,17 @@
 package dev.andrewbailey.music.ui.library
 
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
@@ -66,7 +66,7 @@ fun LibraryRoot(
             LibraryNavigation(
                 selectedPage = selectedPage.value,
                 modifier = Modifier
-                    .drawOpacity((1 - 2 * bottomSheetState.expansionPercentage).coerceIn(0f..1f)),
+                    .alpha((1 - 2 * bottomSheetState.expansionPercentage).coerceIn(0f..1f)),
                 showFullPlaybackControls = {
                     bottomSheetState.expand()
                 },
@@ -105,7 +105,7 @@ private fun LibraryContent(
                 else -> {
                     Box(
                         modifier = contentModifier,
-                        alignment = Alignment.Center
+                        contentAlignment = Alignment.Center
                     ) {
                         Text("Not yet implemented.")
                     }

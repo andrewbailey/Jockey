@@ -29,7 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion "1.4.0"
+        kotlinCompilerVersion "1.4.20"
         kotlinCompilerExtensionVersion config.versions.androidx.compose
     }
 
@@ -73,10 +73,12 @@ dependencies {
     implementation config.deps.androidx.savedstate
 
     // Compose
-    implementation config.deps.compose.tooling
-    implementation config.deps.compose.layout
+    implementation config.deps.compose.ui
     implementation config.deps.compose.foundation
     implementation config.deps.compose.material
+    implementation config.deps.compose.animation
+    implementation config.deps.compose.runtime
+    implementation config.deps.compose.livedata
 
     // Dagger
     implementation config.deps.dagger.core

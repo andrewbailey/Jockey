@@ -3,14 +3,14 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib: '1.4.0',
+            stdlib: '1.4.20',
             coroutines: '1.3.9'
         ],
         androidx : [
             core : '1.5.0-alpha02',
             annotation : '1.2.0-alpha01',
             appcompat : '1.3.0-alpha02',
-            compose : '1.0.0-alpha06',
+            compose : '1.0.0-alpha08',
             fragment : '1.3.0-alpha08',
             lifecycle : '2.3.0-alpha07',
             savedstate: '1.1.0-alpha01',
@@ -72,10 +72,12 @@ ext {
             hiltCompiler : "androidx.hilt:hilt-compiler:${versions.androidx.hilt}",
         ],
         compose : [
-            tooling : "androidx.ui:ui-tooling:${versions.androidx.compose}",
-            layout : "androidx.compose.foundation:foundation-layout:${versions.androidx.compose}",
+            ui : "androidx.compose.ui:ui:${versions.androidx.compose}",
             foundation : "androidx.compose.foundation:foundation:${versions.androidx.compose}",
             material : "androidx.compose.material:material:${versions.androidx.compose}",
+            animation : "androidx.compose.animation:animation:${versions.androidx.compose}",
+            runtime : "androidx.compose.runtime:runtime:${versions.androidx.compose}",
+            livedata : "androidx.compose.runtime:runtime-livedata:${versions.androidx.compose}",
         ],
         exoplayer : [
             core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",

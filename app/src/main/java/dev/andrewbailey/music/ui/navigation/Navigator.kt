@@ -52,9 +52,11 @@ class Navigator private constructor(
     fun render(
         content: @Composable (Screen) -> Unit
     ) {
-        val backStackEntry = backStack.peek()
-        restorableStateHolder.withRestorableState(key = backStackEntry.uuid) {
-            content(backStackEntry.screen)
+        with(restorableStateHolder) {
+            val backStackEntry = backStack.peek()
+            RestorableStateProvider(key = backStackEntry.uuid) {
+                content(backStackEntry.screen)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package dev.andrewbailey.music.ui.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.asDisposableClock
 import androidx.compose.animation.core.AnimatedFloat
 import androidx.compose.animation.core.AnimationClockObservable
@@ -24,20 +25,21 @@ import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.onSizeChanged
-import androidx.compose.ui.platform.AnimationClockAmbient
-import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasuringIntrinsicsMeasureBlocks
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.AmbientAnimationClock
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.Body
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.BottomSheetContent
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.CollapsedContent
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalRestorableStateHolder::class)
+@OptIn(ExperimentalRestorableStateHolder::class, ExperimentalLayoutNodeApi::class)
 @Composable
 fun BottomSheetScaffold(
     bodyContent: @Composable () -> Unit,
@@ -61,7 +63,7 @@ fun BottomSheetScaffold(
             .onSizeChanged {
                 layoutHeight.value = it.height
             },
-        children = {
+        content = {
             if (shouldRenderBody) {
                 Box {
                     savedState.apply(Body, bodyContent)()
@@ -121,7 +123,7 @@ fun BottomSheetScaffold(
                 )
             }
         },
-        measureBlock = { measurables, constraints ->
+        measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
             val bodyLayout = when {
                 shouldRenderBody -> measurables.first()
                 else -> null
@@ -157,6 +159,7 @@ fun BottomSheetScaffold(
     )
 }
 
+@OptIn(ExperimentalLayoutNodeApi::class)
 @Composable
 private fun PartiallyCollapsedPageLayout(
     collapsedSheetLayout: @Composable () -> Unit,
@@ -170,7 +173,7 @@ private fun PartiallyCollapsedPageLayout(
 
     Layout(
         modifier = modifier,
-        children = {
+        content = {
             if (shouldDrawExpandedLayout) {
                 Box(modifier = Modifier.fillMaxHeight()) {
                     expandedSheetLayout()
@@ -183,7 +186,7 @@ private fun PartiallyCollapsedPageLayout(
                 }
             }
         },
-        measureBlock = { measurables, constraints ->
+        measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
             val placeableExpandedLayout = measurables.first().takeIf { shouldDrawExpandedLayout }
                 ?.measure(constraints)
 
@@ -233,7 +236,7 @@ inline class CollapsingPageValue(
 fun rememberCollapsingPageState(
     initialValue: CollapsingPageValue
 ): CollapsingPageState {
-    val clock = AnimationClockAmbient.current.asDisposableClock()
+    val clock = AmbientAnimationClock.current.asDisposableClock()
     return rememberSavedInstanceState(
         inputs = arrayOf(clock),
         saver = CollapsingPageState.Saver(clock)
@@ -336,5 +339,5 @@ private inline fun RestorableStateHolder<BottomSheetSaveStateKey>.apply(
     key: BottomSheetSaveStateKey,
     crossinline action: @Composable () -> Unit
 ): @Composable () -> Unit {
-    return { withRestorableState(key) { action() } }
+    return { RestorableStateProvider(key) { action() } }
 }

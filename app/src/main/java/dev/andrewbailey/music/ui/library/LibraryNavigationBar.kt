@@ -7,7 +7,6 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ripple.RippleIndication
+import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRippleIndication
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +70,7 @@ private fun LibraryNavigationOption(
     Column(
         modifier = modifier
             .clickable(
-                indication = RippleIndication(
+                indication = rememberRippleIndication(
                     bounded = false,
                     color = MaterialTheme.colors.primary
                 ),
@@ -184,7 +184,7 @@ private fun LibraryNavigationIcon(
     modifier: Modifier = Modifier
 ) {
     Icon(
-        asset = vectorResource(
+        imageVector = vectorResource(
             id = when (page) {
                 Playlists -> R.drawable.ic_library_playlists
                 Songs -> R.drawable.ic_library_songs

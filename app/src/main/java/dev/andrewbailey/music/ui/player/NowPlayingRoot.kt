@@ -1,9 +1,8 @@
 package dev.andrewbailey.music.ui.player
 
-import androidx.compose.foundation.AmbientContentColor
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.InteractionState
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.lazy.LazyColumnForIndexed
+import androidx.compose.material.AmbientContentColor
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -27,23 +27,23 @@ import androidx.compose.material.ListItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.ui.draw.drawShadow
-import androidx.compose.ui.drawWithContent
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradient
-import androidx.compose.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.viewinterop.viewModel
 import androidx.compose.ui.zIndex
 import dev.andrewbailey.encore.model.QueueItem
@@ -60,7 +60,7 @@ import dev.andrewbailey.music.util.observe
 @Composable
 fun NowPlayingRoot(
     modifier: Modifier = Modifier,
-    @FloatRange(0.0, 1.0)
+    @FloatRange(from = 0.0, to = 1.0)
     percentVisible: Float = 1.0f
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
@@ -75,7 +75,7 @@ fun NowPlayingRoot(
         TopAppBar(
             modifier = Modifier
                 .zIndex(1f)
-                .drawOpacity((2 * percentVisible - 1).coerceIn(0f..1f))
+                .alpha((2 * percentVisible - 1).coerceIn(0f..1f))
                 .constrainAs(toolbar) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -90,7 +90,7 @@ fun NowPlayingRoot(
                     onClick = { navigator.pop() }
                 ) {
                     Icon(
-                        asset = vectorResource(id = R.drawable.ic_close_24)
+                        imageVector = vectorResource(id = R.drawable.ic_close_24)
                     )
                 }
             },
@@ -105,7 +105,7 @@ fun NowPlayingRoot(
                         onClick = { viewModel.setShuffleMode(toggledShuffleMode) }
                     ) {
                         Icon(
-                            asset = vectorResource(id = R.drawable.ic_shuffle),
+                            imageVector = vectorResource(id = R.drawable.ic_shuffle),
                             tint = AmbientContentColor.current.copy(
                                 alpha = when (shuffleMode) {
                                     ShuffleMode.LINEAR -> 0.5f
@@ -134,7 +134,7 @@ fun NowPlayingRoot(
         ) {
             (playbackState as? MediaPlayerState.Prepared)?.artwork?.let { albumArt ->
                 Image(
-                    asset = albumArt.asImageAsset(),
+                    bitmap = albumArt.asImageBitmap(),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -144,7 +144,7 @@ fun NowPlayingRoot(
         NowPlayingControls(
             playbackState = playbackState,
             modifier = Modifier
-                .drawShadow(elevation = 4.dp)
+                .shadow(elevation = 4.dp)
                 .zIndex(4f)
                 .background(color = MaterialTheme.colors.surface)
                 .padding(16.dp)
@@ -249,11 +249,11 @@ private fun ActiveNowPlayingControls(
         ) {
             Box(
                 modifier = Modifier.weight(1.0f),
-                alignment = Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = viewModel::skipPrevious) {
                     Icon(
-                        asset = vectorResource(id = R.drawable.ic_skip_previous),
+                        imageVector = vectorResource(id = R.drawable.ic_skip_previous),
                         tint = MaterialTheme.colors.onBackground
                     )
                 }
@@ -261,19 +261,19 @@ private fun ActiveNowPlayingControls(
 
             Box(
                 modifier = Modifier.weight(1.0f),
-                alignment = Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 if (playbackState.transportState.status == PlaybackState.PLAYING) {
                     IconButton(onClick = viewModel::pause) {
                         Icon(
-                            asset = vectorResource(id = R.drawable.ic_pause),
+                            imageVector = vectorResource(id = R.drawable.ic_pause),
                             tint = MaterialTheme.colors.onBackground
                         )
                     }
                 } else {
                     IconButton(onClick = viewModel::play) {
                         Icon(
-                            asset = vectorResource(id = R.drawable.ic_play),
+                            imageVector = vectorResource(id = R.drawable.ic_play),
                             tint = MaterialTheme.colors.onBackground
                         )
                     }
@@ -282,11 +282,11 @@ private fun ActiveNowPlayingControls(
 
             Box(
                 modifier = Modifier.weight(1.0f),
-                alignment = Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = viewModel::skipNext) {
                     Icon(
-                        asset = vectorResource(id = R.drawable.ic_skip_next),
+                        imageVector = vectorResource(id = R.drawable.ic_skip_next),
                         tint = MaterialTheme.colors.onBackground
                     )
                 }

@@ -10,7 +10,6 @@ import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ChainStyle
@@ -25,14 +24,15 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.annotatedString
@@ -123,7 +123,7 @@ fun CollapsedPlayerControls(
                 modifier = Modifier
                     .height(controlBarHeight)
                     .offset(y = (controlBarHeight - transitionState[contentHeight]) / 2)
-                    .drawOpacity(transitionState[contentOpacity])
+                    .alpha(transitionState[contentOpacity])
                     .fillMaxWidth(),
                 onPlayClicked = playbackViewModel::play,
                 onPauseClicked = playbackViewModel::pause,
@@ -174,7 +174,7 @@ private fun PopulatedCollapsedPlaybackControls(
             ) { artwork ->
                 if (artwork != null) {
                     Image(
-                        asset = artwork.asImageAsset(),
+                        bitmap = artwork.asImageBitmap(),
                         modifier = Modifier.clip(RoundedCornerShape(size = 4.dp))
                     )
                 }
@@ -244,7 +244,7 @@ private fun PopulatedCollapsedPlaybackControls(
             }
         ) {
             Icon(
-                asset = vectorResource(
+                imageVector = vectorResource(
                     id = if (isPlaying) {
                         R.drawable.ic_pause
                     } else {
@@ -263,7 +263,7 @@ private fun PopulatedCollapsedPlaybackControls(
             },
             onClick = onSkipNextClicked
         ) {
-            Icon(asset = vectorResource(id = R.drawable.ic_skip_next))
+            Icon(imageVector = vectorResource(id = R.drawable.ic_skip_next))
         }
     }
 }
