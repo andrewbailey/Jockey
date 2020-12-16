@@ -11,7 +11,7 @@ import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import java.util.Stack
 import java.util.UUID
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 val AppNavigator = ambientOf<Navigator> { error("No navigator has been set") }
 

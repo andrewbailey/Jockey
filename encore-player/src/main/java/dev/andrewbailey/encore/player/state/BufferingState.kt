@@ -1,7 +1,7 @@
 package dev.andrewbailey.encore.player.state
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 public sealed class BufferingState : Parcelable {
 

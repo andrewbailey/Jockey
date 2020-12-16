@@ -1,7 +1,7 @@
 package dev.andrewbailey.music.ui.navigation
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class Screen : Parcelable
 

@@ -3,7 +3,7 @@ package dev.andrewbailey.encore.player.state
 import android.graphics.Bitmap
 import android.os.Parcelable
 import dev.andrewbailey.encore.model.MediaObject
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 

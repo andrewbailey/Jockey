@@ -3,7 +3,7 @@ package dev.andrewbailey.encore.player.state
 import android.os.Parcelable
 import android.os.SystemClock
 import kotlin.math.min
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 public sealed class SeekPosition : Parcelable {
 

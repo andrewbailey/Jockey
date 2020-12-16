@@ -2,7 +2,7 @@ package dev.andrewbailey.encore.model
 
 import android.os.Parcelable
 import java.util.UUID
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 public data class QueueItem<out M : MediaObject>(

@@ -2,7 +2,7 @@ package dev.andrewbailey.encore.test
 
 import dev.andrewbailey.encore.model.MediaMetadata
 import dev.andrewbailey.encore.model.MediaObject
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 public data class MockSong(

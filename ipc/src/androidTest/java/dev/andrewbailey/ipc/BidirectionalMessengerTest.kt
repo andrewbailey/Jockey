@@ -6,7 +6,7 @@ import android.os.Parcelable
 import java.util.concurrent.Semaphore
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

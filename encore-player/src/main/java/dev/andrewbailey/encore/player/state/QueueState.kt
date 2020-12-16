@@ -5,7 +5,7 @@ import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 public sealed class QueueState<out M : MediaObject> : Parcelable {
 

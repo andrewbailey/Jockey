@@ -4,7 +4,7 @@ import android.os.Parcelable
 import android.support.v4.media.session.MediaSessionCompat
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 internal sealed class ServiceClientMessage<out M : MediaObject> : Parcelable {
 
