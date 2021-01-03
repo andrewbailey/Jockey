@@ -7,15 +7,15 @@ import androidx.compose.material.ListItem
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.andrewbailey.encore.provider.mediastore.LocalAlbum
-import dev.andrewbailey.encore.provider.mediastore.LocalArtist
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreAlbum
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreArtist
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 
 @Composable
 fun SongList(
-    songs: List<LocalSong>,
+    songs: List<MediaStoreSong>,
     modifier: Modifier = Modifier,
-    onClickSong: ((index: Int, song: LocalSong) -> Unit)? = null
+    onClickSong: ((index: Int, song: MediaStoreSong) -> Unit)? = null
 ) {
     LazyColumnForIndexed(
         items = songs,
@@ -44,5 +44,5 @@ fun SongList(
     }
 }
 
-private fun formattedAlbumArtist(album: LocalAlbum?, artist: LocalArtist?): String =
+private fun formattedAlbumArtist(album: MediaStoreAlbum?, artist: MediaStoreArtist?): String =
     listOfNotNull(album?.name, artist?.name).joinToString(" - ")

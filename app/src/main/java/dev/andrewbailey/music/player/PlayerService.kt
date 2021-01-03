@@ -5,13 +5,13 @@ import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.browse.BrowserDirectory
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.provider.MediaProvider
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PlayerService : MediaPlayerService<LocalSong>(
+class PlayerService : MediaPlayerService<MediaStoreSong>(
     tag = "Jockey",
     notificationId = 1,
     notificationProvider = PlayerNotifier()
@@ -19,11 +19,11 @@ class PlayerService : MediaPlayerService<LocalSong>(
 
     @Inject lateinit var mediaProvider: MediaStoreProvider
 
-    override fun onCreateMediaProvider(): MediaProvider<LocalSong> {
+    override fun onCreateMediaProvider(): MediaProvider<MediaStoreSong> {
         return mediaProvider
     }
 
-    override fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<LocalSong> {
+    override fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<MediaStoreSong> {
         return BrowserHierarchy {
             staticPath(
                 BrowserDirectory.BrowserPath(

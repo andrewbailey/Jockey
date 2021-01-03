@@ -5,12 +5,12 @@ import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-public data class LocalSong(
+public data class MediaStoreSong(
     override val id: String,
     override val playbackUri: String,
     val name: String,
-    val artist: LocalArtist?,
-    val album: LocalAlbum?
+    val artist: MediaStoreArtist?,
+    val album: MediaStoreAlbum?
 ) : MediaObject {
 
     override fun toMediaMetadata(): MediaMetadata = MediaMetadata(

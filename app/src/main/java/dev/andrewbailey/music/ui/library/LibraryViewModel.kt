@@ -5,18 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import kotlinx.coroutines.launch
 
 class LibraryViewModel @ViewModelInject constructor(
     private val mediaProvider: MediaStoreProvider
 ) : ViewModel() {
 
-    val songs = MutableLiveData<List<LocalSong>>().apply {
+    val songs = MutableLiveData<List<MediaStoreSong>>().apply {
         viewModelScope.launch {
             value = mediaProvider.getAllSongs()
         }
-    } as LiveData<List<LocalSong>>
+    } as LiveData<List<MediaStoreSong>>
 
 }

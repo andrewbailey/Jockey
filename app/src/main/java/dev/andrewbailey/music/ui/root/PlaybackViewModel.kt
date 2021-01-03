@@ -14,13 +14,13 @@ import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.launch
 
 class PlaybackViewModel @ViewModelInject constructor(
-    private val mediaController: EncoreController<LocalSong>
+    private val mediaController: EncoreController<MediaStoreSong>
 ) : ViewModel() {
 
     private val token = mediaController.acquireToken()
@@ -58,7 +58,7 @@ class PlaybackViewModel @ViewModelInject constructor(
     }
 
     fun playFrom(
-        mediaList: List<LocalSong>,
+        mediaList: List<MediaStoreSong>,
         startingAt: Int = 0
     ) {
         require(mediaList.isNotEmpty()) {

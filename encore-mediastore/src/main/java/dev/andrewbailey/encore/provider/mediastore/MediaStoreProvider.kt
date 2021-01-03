@@ -16,11 +16,11 @@ import kotlinx.coroutines.withContext
 
 public class MediaStoreProvider(
     context: Context
-) : MediaProvider<LocalSong> {
+) : MediaProvider<MediaStoreSong> {
 
     private val mediaStore = MediaStoreResolver(context.applicationContext)
 
-    override suspend fun getMediaItemsByIds(ids: List<String>): List<LocalSong> {
+    override suspend fun getMediaItemsByIds(ids: List<String>): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
             ids.chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
                 .flatMap { idsSubset ->
@@ -38,7 +38,7 @@ public class MediaStoreProvider(
     override suspend fun searchForMediaItems(
         query: String,
         arguments: MediaSearchArguments
-    ): MediaSearchResults<LocalSong> {
+    ): MediaSearchResults<MediaStoreSong> {
         val allSongs = getAllSongs()
 
         val searchResults = allSongs
@@ -69,7 +69,7 @@ public class MediaStoreProvider(
         )
     }
 
-    override suspend fun getMediaItemById(id: String): LocalSong? {
+    override suspend fun getMediaItemById(id: String): MediaStoreSong? {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media._ID} = ?",
@@ -83,7 +83,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getAllSongs(): List<LocalSong> {
+    public suspend fun getAllSongs(): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllSongs()
                 .map {
@@ -94,7 +94,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getAllAlbums(): List<LocalAlbum> {
+    public suspend fun getAllAlbums(): List<MediaStoreAlbum> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllAlbums()
                 .map {
@@ -106,7 +106,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getAlbumById(id: String): LocalAlbum? {
+    public suspend fun getAlbumById(id: String): MediaStoreAlbum? {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAlbums(
                 selection = "${MediaStore.Audio.Albums._ID} = ?",
@@ -121,7 +121,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getSongsInAlbum(album: LocalAlbum): List<LocalSong> {
+    public suspend fun getSongsInAlbum(album: MediaStoreAlbum): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ALBUM_ID} = ?",
@@ -134,7 +134,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getAllArtists(): List<LocalArtist> {
+    public suspend fun getAllArtists(): List<MediaStoreArtist> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllArtists().map {
                 MediaStoreMapper.toMediaAuthor(
@@ -144,7 +144,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getArtistById(id: String): LocalArtist? {
+    public suspend fun getArtistById(id: String): MediaStoreArtist? {
         return withContext(Dispatchers.IO) {
             mediaStore.queryArtists(
                 selection = "${MediaStore.Audio.Artists._ID} = ?",
@@ -158,7 +158,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getAlbumsByArtist(artist: LocalArtist): List<LocalAlbum> {
+    public suspend fun getAlbumsByArtist(artist: MediaStoreArtist): List<MediaStoreAlbum> {
         return withContext(Dispatchers.IO) {
             val query = if (Build.VERSION.SDK_INT >= 29) {
                 mediaStore.queryAlbums(
@@ -184,7 +184,7 @@ public class MediaStoreProvider(
         }
     }
 
-    public suspend fun getSongsByArtist(artist: LocalArtist): List<LocalSong> {
+    public suspend fun getSongsByArtist(artist: MediaStoreArtist): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
             mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ARTIST_ID} = ?",

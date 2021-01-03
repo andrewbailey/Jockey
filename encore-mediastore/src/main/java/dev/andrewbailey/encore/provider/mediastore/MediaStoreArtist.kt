@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-public data class LocalArtist(
+public data class MediaStoreArtist(
     val id: String,
     val name: String
 ) : Parcelable

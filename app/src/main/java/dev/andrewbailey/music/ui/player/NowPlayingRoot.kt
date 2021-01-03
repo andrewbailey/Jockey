@@ -51,7 +51,7 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.provider.mediastore.LocalSong
+import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.root.PlaybackViewModel
@@ -113,7 +113,7 @@ fun NowPlayingRoot(
 @Composable
 private fun NowPlayingToolbar(
     playbackViewModel: PlaybackViewModel,
-    playbackState: MediaPlayerState<LocalSong>?,
+    playbackState: MediaPlayerState<MediaStoreSong>?,
     modifier: Modifier = Modifier
 ) {
     val navigator = AppNavigator.current
@@ -162,7 +162,7 @@ private fun NowPlayingToolbar(
 
 @Composable
 private fun NowPlayingControls(
-    playbackState: MediaPlayerState<LocalSong>?,
+    playbackState: MediaPlayerState<MediaStoreSong>?,
     modifier: Modifier = Modifier
 ) {
     if (playbackState is MediaPlayerState.Prepared) {
@@ -179,7 +179,7 @@ private fun NowPlayingControls(
 
 @Composable
 private fun ActiveNowPlayingControls(
-    playbackState: MediaPlayerState.Prepared<LocalSong>,
+    playbackState: MediaPlayerState.Prepared<MediaStoreSong>,
     modifier: Modifier
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
@@ -300,7 +300,7 @@ private fun InactiveNowPlayingControls(
 
 @Composable
 private fun NowPlayingQueue(
-    queue: List<QueueItem<LocalSong>>,
+    queue: List<QueueItem<MediaStoreSong>>,
     modifier: Modifier = Modifier
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
@@ -332,7 +332,7 @@ private fun NowPlayingQueue(
     }
 }
 
-private fun formattedAlbumArtist(item: LocalSong): String =
+private fun formattedAlbumArtist(item: MediaStoreSong): String =
     listOfNotNull(item.album?.name, item.artist?.name).joinToString(" - ")
 
 private fun Modifier.scrim() = drawWithContent {

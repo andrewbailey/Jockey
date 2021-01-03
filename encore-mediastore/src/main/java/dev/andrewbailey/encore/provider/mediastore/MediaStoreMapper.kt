@@ -7,7 +7,7 @@ import dev.andrewbailey.encore.provider.mediastore.entity.SongEntity
 
 internal object MediaStoreMapper {
 
-    fun toMediaItem(songEntity: SongEntity) = LocalSong(
+    fun toMediaItem(songEntity: SongEntity) = MediaStoreSong(
         id = songEntity.id,
         playbackUri = Uri.withAppendedPath(songEntity.contentUri, songEntity.id).toString(),
         name = songEntity.title.orEmpty(),
@@ -28,8 +28,8 @@ internal object MediaStoreMapper {
     private fun makeArtist(
         id: String?,
         name: String?
-    ): LocalArtist? {
-        return LocalArtist(
+    ): MediaStoreArtist? {
+        return MediaStoreArtist(
             id = id ?: return null,
             name = name ?: return null
         )
@@ -38,9 +38,9 @@ internal object MediaStoreMapper {
     private fun makeAlbum(
         id: String?,
         name: String?,
-        artist: LocalArtist?
-    ): LocalAlbum? {
-        return LocalAlbum(
+        artist: MediaStoreArtist?
+    ): MediaStoreAlbum? {
+        return MediaStoreAlbum(
             id = id ?: return null,
             name = name ?: return null,
             author = artist
@@ -50,7 +50,7 @@ internal object MediaStoreMapper {
     fun toMediaCollection(
         albumEntity: AlbumEntity,
         fallbackArtistIdLookup: (AlbumEntity) -> String?
-    ) = LocalAlbum(
+    ) = MediaStoreAlbum(
         id = albumEntity.id,
         name = albumEntity.title.orEmpty(),
         author = makeArtist(
@@ -59,7 +59,7 @@ internal object MediaStoreMapper {
         )
     )
 
-    fun toMediaAuthor(artistEntity: ArtistEntity) = LocalArtist(
+    fun toMediaAuthor(artistEntity: ArtistEntity) = MediaStoreArtist(
         id = artistEntity.id,
         name = artistEntity.name.orEmpty()
     )
