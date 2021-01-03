@@ -17,6 +17,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <!--
+                    Required by Android Auto's Google Assistant voice command integration. The
+                    command itself isn't actually sent here (it goes to the MediaSession.Callback),
+                    but there needs to be an Activity with this intent filter for the Assistant to
+                    respect the MediaSession's play from search support.
+                -->
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <service

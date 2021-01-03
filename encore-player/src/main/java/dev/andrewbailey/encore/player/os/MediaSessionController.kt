@@ -1,13 +1,24 @@
 package dev.andrewbailey.encore.player.os
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore.Audio.Albums
+import android.provider.MediaStore.Audio.Artists
+import android.provider.MediaStore.Audio.Genres
+import android.provider.MediaStore.Audio.Media
+import android.provider.MediaStore.EXTRA_MEDIA_ALBUM
+import android.provider.MediaStore.EXTRA_MEDIA_ARTIST
+import android.provider.MediaStore.EXTRA_MEDIA_FOCUS
+import android.provider.MediaStore.EXTRA_MEDIA_GENRE
+import android.provider.MediaStore.EXTRA_MEDIA_TITLE
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_SEEK_TO
 import android.support.v4.media.session.PlaybackStateCompat.ACTION_SET_REPEAT_MODE
@@ -25,7 +36,9 @@ import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.STATE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.STATE_PAUSED
 import android.support.v4.media.session.PlaybackStateCompat.STATE_PLAYING
+import androidx.core.content.IntentCompat.EXTRA_START_PLAYBACK
 import dev.andrewbailey.encore.model.MediaObject
+import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -37,6 +50,9 @@ import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_NONE
 import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ONE
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
+import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
+import dev.andrewbailey.encore.provider.MediaField
+import dev.andrewbailey.encore.provider.MediaProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -46,7 +62,9 @@ import kotlinx.coroutines.launch
 internal class MediaSessionController<M : MediaObject>(
     context: Context,
     tag: String,
-    private val browserHierarchy: BrowserHierarchy<M>
+    private val playbackStateFactory: PlaybackStateFactory<M>,
+    private val browserHierarchy: BrowserHierarchy<M>,
+    private val mediaProvider: MediaProvider<M>
 ) : PlaybackExtension<M>() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -58,6 +76,7 @@ internal class MediaSessionController<M : MediaObject>(
     override fun onPrepared() {
         mediaSession.apply {
             setCallback(MediaSessionCallback())
+            onNewPlayerState(getCurrentPlaybackState())
             isActive = true
         }
     }
@@ -103,7 +122,8 @@ internal class MediaSessionController<M : MediaObject>(
                                     ACTION_STOP or
                                     ACTION_SET_REPEAT_MODE or
                                     ACTION_SET_SHUFFLE_MODE or
-                                    ACTION_PLAY_FROM_MEDIA_ID
+                                    ACTION_PLAY_FROM_MEDIA_ID or
+                                    ACTION_PLAY_FROM_SEARCH
                             )
                             .build()
                     )
@@ -112,6 +132,12 @@ internal class MediaSessionController<M : MediaObject>(
                     setPlaybackState(
                         PlaybackStateCompat.Builder()
                             .setState(STATE_NONE, 0, 0f)
+                            .setActions(
+                                ACTION_SET_REPEAT_MODE or
+                                    ACTION_SET_SHUFFLE_MODE or
+                                    ACTION_PLAY_FROM_MEDIA_ID or
+                                    ACTION_PLAY_FROM_SEARCH
+                            )
                             .build()
                     )
                     setMetadata(MediaMetadataCompat.Builder().build())
@@ -179,6 +205,65 @@ internal class MediaSessionController<M : MediaObject>(
                         SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> SHUFFLED
                         else -> throw IllegalArgumentException("Invalid shuffle mode: $shuffleMode")
                     }
+                )
+            }
+        }
+
+        override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+            super.onPrepareFromSearch(query, extras)
+        }
+
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+            onNewAction()
+            if (query.isNullOrEmpty()) {
+                // Use provided a generic command (e.g. "Play music"). Attempt to resume playback.
+
+                // TODO: It might be beneficial for library consumers to be able to override this
+                //       behavior and change the queue that will be played. Consider adding a new
+                //       API to support querying for an undefined media set in the future.
+                return onPlay()
+            }
+
+            mediaSessionActionJob = coroutineScope.launch {
+                val searchArguments = MediaSearchArguments(
+                    preferredSearchField = when (extras?.getString(EXTRA_MEDIA_FOCUS)) {
+                        Media.ENTRY_CONTENT_TYPE -> MediaField.Title
+                        Artists.ENTRY_CONTENT_TYPE -> MediaField.Author
+                        Albums.ENTRY_CONTENT_TYPE -> MediaField.Collection
+                        Genres.ENTRY_CONTENT_TYPE -> MediaField.Genre
+                        else ->
+                            if (extras?.containsKey(EXTRA_MEDIA_TITLE) == true) {
+                                MediaField.Title
+                            } else {
+                                null
+                            }
+                    },
+                    fields = MediaField.values()
+                        .mapNotNull { field ->
+                            when (field) {
+                                MediaField.Title -> extras?.getString(EXTRA_MEDIA_TITLE)
+                                MediaField.Author -> extras?.getString(EXTRA_MEDIA_ARTIST)
+                                MediaField.Collection -> extras?.getString(EXTRA_MEDIA_ALBUM)
+                                MediaField.Genre -> {
+                                    if (Build.VERSION.SDK_INT >= 21) {
+                                        extras?.getString(EXTRA_MEDIA_GENRE)
+                                    } else {
+                                        null
+                                    }
+                                }
+                            }?.let { field to it }
+                        }
+                        .toMap()
+                )
+
+                setTransportState(
+                    playbackStateFactory.playFromSearchResults(
+                        state = getCurrentPlaybackState().transportState,
+                        query = query,
+                        beginPlayback = extras?.getBoolean(EXTRA_START_PLAYBACK, true) ?: true,
+                        arguments = searchArguments,
+                        searchResults = mediaProvider.searchForMediaItems(query, searchArguments)
+                    )
                 )
             }
         }

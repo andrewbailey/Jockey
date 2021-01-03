@@ -1,9 +1,11 @@
 package dev.andrewbailey.encore.player.state.factory
 
 import dev.andrewbailey.encore.model.MediaObject
+import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.provider.MediaSearchResults
 
 public abstract class PlaybackStateFactory<M : MediaObject> {
 
@@ -41,6 +43,14 @@ public abstract class PlaybackStateFactory<M : MediaObject> {
     public abstract fun setRepeatMode(
         state: TransportState<M>,
         repeatMode: RepeatMode
+    ): TransportState<M>
+
+    public abstract fun playFromSearchResults(
+        state: TransportState<M>,
+        query: String,
+        beginPlayback: Boolean,
+        arguments: MediaSearchArguments,
+        searchResults: MediaSearchResults<M>
     ): TransportState<M>
 
 }

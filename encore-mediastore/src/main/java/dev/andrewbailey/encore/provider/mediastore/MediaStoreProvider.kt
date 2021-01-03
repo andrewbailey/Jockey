@@ -3,7 +3,13 @@ package dev.andrewbailey.encore.provider.mediastore
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
+import dev.andrewbailey.encore.model.MediaSearchArguments
+import dev.andrewbailey.encore.provider.MediaField.Author
+import dev.andrewbailey.encore.provider.MediaField.Collection
+import dev.andrewbailey.encore.provider.MediaField.Genre
+import dev.andrewbailey.encore.provider.MediaField.Title
 import dev.andrewbailey.encore.provider.MediaProvider
+import dev.andrewbailey.encore.provider.MediaSearchResults
 import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,13 +35,38 @@ public class MediaStoreProvider(
         }
     }
 
-    override suspend fun searchForMediaItems(query: String): List<LocalSong> {
-        return getAllSongs()
+    override suspend fun searchForMediaItems(
+        query: String,
+        arguments: MediaSearchArguments
+    ): MediaSearchResults<LocalSong> {
+        val allSongs = getAllSongs()
+
+        val searchResults = allSongs
             .filter { song ->
-                song.name.contains(query, true) ||
-                    song.artist?.name.orEmpty().contains(query, true) ||
-                    song.album?.name.orEmpty().contains(query, true)
+                // TODO: Add genre support.
+                song.name.contains(arguments.fields[Title] ?: query, true) ||
+                    song.artist?.name.orEmpty().contains(arguments.fields[Author] ?: query, true) ||
+                    song.album?.name.orEmpty().contains(arguments.fields[Collection] ?: query, true)
             }
+
+        val playbackContinuation = when (arguments.preferredSearchField) {
+            Title, Collection -> {
+                // Include other songs by the artists in the search results
+                searchResults.mapNotNull { it.artist }
+                    .toSet()
+                    .flatMap { getSongsByArtist(it) }
+                    .filter { it !in searchResults }
+            }
+            Author -> emptyList() // TODO: Search for songs in the same genre.
+            Genre -> emptyList()
+            null -> emptyList() // TODO: Search for songs in the same genre.
+        }
+
+        // TODO: Search results should be sorted with better matches appearing first.
+        return MediaSearchResults(
+            searchResults = searchResults,
+            playbackContinuation = playbackContinuation
+        )
     }
 
     override suspend fun getMediaItemById(id: String): LocalSong? {

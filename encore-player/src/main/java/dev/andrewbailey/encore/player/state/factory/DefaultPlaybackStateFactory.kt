@@ -1,6 +1,8 @@
 package dev.andrewbailey.encore.player.state.factory
 
 import dev.andrewbailey.encore.model.MediaObject
+import dev.andrewbailey.encore.model.MediaSearchArguments
+import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.PlaybackState.PAUSED
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
@@ -12,11 +14,18 @@ import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
+import dev.andrewbailey.encore.provider.MediaSearchResults
 import java.util.Random
+import java.util.UUID
 import kotlin.math.min
 
 public class DefaultPlaybackStateFactory<M : MediaObject>(
-    private val random: Random = Random()
+    private val random: Random = Random(),
+    /**
+     * Controls whether or not [playFromSearchResults] will also play items returned in the
+     * [MediaSearchResults.playbackContinuation] field. The default is true.
+     */
+    private val playFromSearchShouldIncludeContinuationResults: Boolean = true
 ) : PlaybackStateFactory<M>() {
 
     override fun play(
@@ -142,6 +151,50 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
                 repeatMode = repeatMode
             )
         }
+    }
+
+    override fun playFromSearchResults(
+        state: TransportState<M>,
+        query: String,
+        beginPlayback: Boolean,
+        arguments: MediaSearchArguments,
+        searchResults: MediaSearchResults<M>
+    ): TransportState<M> {
+        if (searchResults.searchResults.isEmpty()) {
+            // Do nothing if there aren't any search results.
+            return state
+        }
+
+        val searchResultsQueue = searchResults.searchResults.map { searchResult ->
+            QueueItem(queueId = UUID.randomUUID(), mediaItem = searchResult)
+        }
+
+        val continuationQueue = if (playFromSearchShouldIncludeContinuationResults) {
+            searchResults.playbackContinuation.map { continuationItem ->
+                QueueItem(queueId = UUID.randomUUID(), mediaItem = continuationItem)
+            }
+        } else {
+            emptyList()
+        }
+
+        return Active(
+            status = if (beginPlayback) PLAYING else PAUSED,
+            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+            queue = when (state.shuffleMode) {
+                ShuffleMode.LINEAR -> QueueState.Linear(
+                    queue = searchResultsQueue + continuationQueue,
+                    queueIndex = 0
+                )
+                ShuffleMode.SHUFFLED -> QueueState.Shuffled(
+                    queue = searchResultsQueue.take(1)
+                        .plus(searchResultsQueue.drop(1).shuffled(random))
+                        .plus(continuationQueue.shuffled(random)),
+                    queueIndex = 0,
+                    linearQueue = searchResultsQueue + continuationQueue
+                )
+            },
+            repeatMode = state.repeatMode
+        )
     }
 
     private inline fun TransportState<M>.modifyTransportState(

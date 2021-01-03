@@ -1,6 +1,8 @@
 package dev.andrewbailey.encore.test
 
+import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.provider.MediaProvider
+import dev.andrewbailey.encore.provider.MediaSearchResults
 
 public class MockMusicProvider : MediaProvider<MockSong> {
 
@@ -141,9 +143,15 @@ public class MockMusicProvider : MediaProvider<MockSong> {
             .filter { it.id in ids }
     }
 
-    override suspend fun searchForMediaItems(query: String): List<MockSong> {
-        return getAllSongs()
-            .filter { it.name.contains(query, ignoreCase = true) }
+    override suspend fun searchForMediaItems(
+        query: String,
+        arguments: MediaSearchArguments
+    ): MediaSearchResults<MockSong> {
+        return MediaSearchResults(
+            searchResults = getAllSongs()
+                .filter { it.name.contains(query, ignoreCase = true) },
+            playbackContinuation = emptyList()
+        )
     }
 
     public suspend fun getAllSongs(): List<MockSong> {

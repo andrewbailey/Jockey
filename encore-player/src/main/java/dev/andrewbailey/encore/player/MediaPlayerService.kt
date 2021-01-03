@@ -26,6 +26,7 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
+import dev.andrewbailey.encore.provider.MediaProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -58,9 +59,17 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         extensions = onCreatePlaybackExtensions()
         observers = onCreatePlaybackObservers()
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
+        val mediaProvider = onCreateMediaProvider()
         val browserHierarchy = onCreateMediaBrowserHierarchy()
 
-        mediaSessionController = MediaSessionController(this, tag, browserHierarchy)
+        mediaSessionController = MediaSessionController(
+            context = this,
+            tag = tag,
+            playbackStateFactory = playbackStateFactory,
+            browserHierarchy = browserHierarchy,
+            mediaProvider = mediaProvider
+        )
+
         binder = ServiceHostHandler(
             getState = { mediaPlayer.getState() },
             getMediaSession = { mediaSessionController.mediaSession },
@@ -216,6 +225,8 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
     public open fun onCreateCustomActions(): List<CustomActionProvider<M>> {
         return emptyList()
     }
+
+    public abstract fun onCreateMediaProvider(): MediaProvider<M>
 
     public abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<M>
 }
