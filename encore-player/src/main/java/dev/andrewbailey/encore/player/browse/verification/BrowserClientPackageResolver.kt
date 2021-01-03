@@ -75,8 +75,8 @@ private class BrowserClientPackageResolverApi28(
 }
 
 private fun PackageInfo.getGrantedPermissions(): Set<String> {
-    return requestedPermissions
-        .zip(requestedPermissionsFlags.asIterable()) { permission, flag -> permission to flag }
+    return requestedPermissions?.zip(requestedPermissionsFlags.asIterable())
+        .orEmpty()
         .filter { (_, flag) -> flag and PackageInfo.REQUESTED_PERMISSION_GRANTED != 0 }
         .map { (packageName, _) -> packageName }
         .toSet()
