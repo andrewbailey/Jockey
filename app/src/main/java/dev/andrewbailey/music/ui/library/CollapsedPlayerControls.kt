@@ -35,7 +35,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.annotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.viewModel
@@ -183,7 +183,7 @@ private fun PopulatedCollapsedPlaybackControls(
 
         val nowPlaying = playbackState.transportState.queue.nowPlaying.mediaItem
         Text(
-            text = annotatedString {
+            text = buildAnnotatedString {
                 append(nowPlaying.name)
                 nowPlaying.artist?.name?.let { artistName ->
                     append("   ")

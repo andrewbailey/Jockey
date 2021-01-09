@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRippleIndication
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +70,7 @@ private fun LibraryNavigationOption(
     Column(
         modifier = modifier
             .clickable(
-                indication = rememberRippleIndication(
+                indication = rememberRipple(
                     bounded = false,
                     color = MaterialTheme.colors.primary
                 ),

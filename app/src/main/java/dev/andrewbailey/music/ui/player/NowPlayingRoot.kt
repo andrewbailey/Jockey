@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumnForIndexed
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.AmbientContentColor
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -37,8 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -310,24 +311,27 @@ private fun NowPlayingQueue(
         color = MaterialTheme.colors.background,
         modifier = modifier
     ) {
-        LazyColumnForIndexed(
-            items = queue
-        ) { index, queueItem ->
-            ListItem(
-                text = {
-                    Text(queueItem.mediaItem.name)
-                },
-                secondaryText = {
-                    Text(formattedAlbumArtist(queueItem.mediaItem))
-                },
-                modifier = Modifier
-                    .clickable(
-                        onClick = {
-                            viewModel.playAtQueueIndex(index)
-                        }
+        LazyColumn {
+            itemsIndexed(
+                items = queue,
+                itemContent = { index, queueItem ->
+                    ListItem(
+                        text = {
+                            Text(queueItem.mediaItem.name)
+                        },
+                        secondaryText = {
+                            Text(formattedAlbumArtist(queueItem.mediaItem))
+                        },
+                        modifier = Modifier
+                            .clickable(
+                                onClick = {
+                                    viewModel.playAtQueueIndex(index)
+                                }
+                            )
                     )
+                    Divider()
+                }
             )
-            Divider()
         }
     }
 }
@@ -338,14 +342,14 @@ private fun formattedAlbumArtist(item: MediaStoreSong): String =
 private fun Modifier.scrim() = drawWithContent {
     drawContent()
     drawRect(
-        brush = LinearGradient(
-            0.0f to Color.Black.copy(alpha = 0.40f),
-            0.5f to Color.Black.copy(alpha = 0.05f),
-            1.0f to Color.Black.copy(alpha = 0.00f),
-            startX = 0f,
-            startY = 0f,
-            endX = 0f,
-            endY = size.height
+        brush = Brush.linearGradient(
+            colorStops = arrayOf(
+                0.0f to Color.Black.copy(alpha = 0.40f),
+                0.5f to Color.Black.copy(alpha = 0.05f),
+                1.0f to Color.Black.copy(alpha = 0.00f)
+            ),
+            start = Offset(0f, 0f),
+            end = Offset(0f, size.height)
         )
     )
 }

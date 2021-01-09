@@ -33,14 +33,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasuringIntrinsicsMeasureBlocks
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.platform.AmbientAnimationClock
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.Body
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.BottomSheetContent
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.CollapsedContent
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalRestorableStateHolder::class, ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
 fun BottomSheetScaffold(
     bodyContent: @Composable () -> Unit,
@@ -161,7 +160,6 @@ fun BottomSheetScaffold(
     )
 }
 
-@OptIn(ExperimentalLayoutNodeApi::class)
 @Composable
 private fun PartiallyCollapsedPageLayout(
     collapsedSheetLayout: @Composable () -> Unit,

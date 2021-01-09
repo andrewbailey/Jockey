@@ -29,7 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion "1.4.20"
+        kotlinCompilerVersion config.versions.kotlin.stdlib
         kotlinCompilerExtensionVersion config.versions.androidx.compose
     }
 
