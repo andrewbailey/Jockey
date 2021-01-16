@@ -11,7 +11,7 @@ import dev.andrewbailey.encore.provider.mediastore.getString
 
 internal data class SongEntity(
     val contentUri: Uri,
-    val id: Long,
+    val id: Long?,
     val title: String?,
     val albumName: String?,
     val albumId: String?,
@@ -28,9 +28,7 @@ internal data class SongEntity(
             cursor: Cursor
         ) = SongEntity(
             contentUri = contentUri,
-            id = requireNotNull(cursor.getLongOrNull(MediaStore.Audio.Media._ID)) {
-                "A media track was returned by the cursor that had a null ID value."
-            },
+            id = cursor.getLongOrNull(MediaStore.Audio.Media._ID),
             title = cursor.getString(MediaStore.Audio.Media.TITLE),
             albumName = cursor.getString(MediaStore.Audio.Media.ALBUM),
             albumId = cursor.getString(MediaStore.Audio.Media.ALBUM_ID),

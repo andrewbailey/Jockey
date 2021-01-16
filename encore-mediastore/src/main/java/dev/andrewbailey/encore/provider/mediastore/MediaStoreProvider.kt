@@ -32,15 +32,16 @@ public class MediaStoreProvider(
                             selectionArgs = idsSubset
                         ),
                         genreEntities = allGenres,
-                        genreContents = allGenres.flatMap { genre ->
-                            mediaStore.queryGenreContents(
-                                genreId = genre.id,
-                                selection = idsSubset.asSequence()
-                                    .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
-                                    .joinToString(separator = " OR "),
-                                selectionArgs = idsSubset
-                            )
-                        }
+                        genreContents = allGenres.mapNotNull { it.id }
+                            .flatMap { genreId ->
+                                mediaStore.queryGenreContents(
+                                    genreId = genreId,
+                                    selection = idsSubset.asSequence()
+                                        .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
+                                        .joinToString(separator = " OR "),
+                                    selectionArgs = idsSubset
+                                )
+                            }
                     )
                 }
         }
@@ -96,21 +97,20 @@ public class MediaStoreProvider(
 
             val genreId = mediaStore.queryAllGenres()
                 .asSequence()
-                .filter { genre ->
+                .mapNotNull { it.id }
+                .filter { genreId ->
                     mediaStore.queryGenreContents(
-                        genreId = genre.id,
+                        genreId = genreId,
                         selection = "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?",
                         selectionArgs = listOf(song.id.toString())
                     ).isNotEmpty()
                 }
                 .firstOrNull()
-                ?.id
-                ?.toString()
 
             val genre = genreId?.let {
                 mediaStore.queryGenres(
                     selection = "${MediaStore.Audio.Genres._ID} = ?",
-                    selectionArgs = listOf(genreId)
+                    selectionArgs = listOf(genreId.toString())
                 )
             }?.firstOrNull()
 
@@ -127,9 +127,11 @@ public class MediaStoreProvider(
             MediaStoreMapper.toMediaItems(
                 songEntities = mediaStore.queryAllSongs(),
                 genreEntities = allGenres,
-                genreContents = allGenres.flatMap {
-                    mediaStore.queryAllGenreContents(genreId = it.id)
-                }
+                genreContents = allGenres
+                    .mapNotNull { it.id }
+                    .flatMap { genreId ->
+                        mediaStore.queryAllGenreContents(genreId = genreId)
+                    }
             )
         }
     }
@@ -164,15 +166,16 @@ public class MediaStoreProvider(
                 .map { it.id.toString() }
                 .chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
                 .flatMap { songIdsSubset ->
-                    allGenres.flatMap { genre ->
-                        mediaStore.queryGenreContents(
-                            genreId = genre.id,
-                            selection = songIdsSubset.asSequence()
-                                .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
-                                .joinToString(separator = " OR "),
-                            selectionArgs = songIdsSubset
-                        )
-                    }
+                    allGenres.mapNotNull { it.id }
+                        .flatMap { genreId ->
+                            mediaStore.queryGenreContents(
+                                genreId = genreId,
+                                selection = songIdsSubset.asSequence()
+                                    .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
+                                    .joinToString(separator = " OR "),
+                                selectionArgs = songIdsSubset
+                            )
+                        }
                 }
                 .toList()
 
@@ -227,9 +230,9 @@ public class MediaStoreProvider(
                 .map { it.id.toString() }
                 .chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
                 .flatMap { songIdsSubset ->
-                    allGenres.flatMap { genre ->
+                    allGenres.mapNotNull { it.id }.flatMap { genreId ->
                         mediaStore.queryGenreContents(
-                            genreId = genre.id,
+                            genreId = genreId,
                             selection = songIdsSubset.asSequence()
                                 .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
                                 .joinToString(separator = " OR "),

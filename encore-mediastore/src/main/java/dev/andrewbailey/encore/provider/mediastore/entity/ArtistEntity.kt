@@ -6,7 +6,7 @@ import dev.andrewbailey.encore.provider.mediastore.getLongOrNull
 import dev.andrewbailey.encore.provider.mediastore.getString
 
 internal data class ArtistEntity(
-    val id: Long,
+    val id: Long?,
     val name: String?
 ) {
 
@@ -14,9 +14,7 @@ internal data class ArtistEntity(
         fun fromCursor(
             cursor: Cursor
         ) = ArtistEntity(
-            id = requireNotNull(cursor.getLongOrNull(MediaStore.Audio.Artists._ID)) {
-                "An artist was returned by the cursor that had a null ID value."
-            },
+            id = cursor.getLongOrNull(MediaStore.Audio.Artists._ID),
             name = cursor.getString(MediaStore.Audio.Artists.ARTIST)
         )
     }
