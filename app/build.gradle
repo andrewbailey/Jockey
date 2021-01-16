@@ -78,10 +78,8 @@ dependencies {
     // Dagger
     implementation config.deps.dagger.core
     implementation config.deps.dagger.hilt
-    implementation config.deps.androidx.hiltViewModel
     kapt config.deps.dagger.compiler
     kapt config.deps.dagger.hiltCompiler
-    kapt config.deps.androidx.hiltCompiler
 
     // Testing
     testImplementation config.deps.test.junit

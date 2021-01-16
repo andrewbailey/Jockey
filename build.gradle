@@ -15,11 +15,10 @@ buildscript {
             lifecycle : '2.3.0-alpha07',
             savedstate: '1.1.0-alpha01',
             media: '1.2.0-beta01',
-            hilt : '1.0.0-alpha02',
         ],
         dagger : [
-            core : '2.28.3',
-            hilt : '2.28.3-alpha',
+            core : '2.31',
+            hilt : '2.31-alpha',
         ],
         exoplayer : [
             core : '2.11.7',
@@ -68,8 +67,6 @@ ext {
             livedata: "androidx.lifecycle:lifecycle-livedata-ktx:${versions.androidx.lifecycle}",
             savedstate: "androidx.lifecycle:lifecycle-viewmodel-savedstate:${versions.androidx.savedstate}",
             media : "androidx.media:media:${versions.androidx.media}",
-            hiltViewModel : "androidx.hilt:hilt-lifecycle-viewmodel:${versions.androidx.hilt}",
-            hiltCompiler : "androidx.hilt:hilt-compiler:${versions.androidx.hilt}",
         ],
         compose : [
             ui : "androidx.compose.ui:ui:${versions.androidx.compose}",

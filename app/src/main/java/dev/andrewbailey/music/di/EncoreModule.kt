@@ -4,15 +4,15 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
 import dev.andrewbailey.music.player.PlayerService
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ApplicationComponent::class)
+@InstallIn(SingletonComponent::class)
 class EncoreModule {
 
     @Provides

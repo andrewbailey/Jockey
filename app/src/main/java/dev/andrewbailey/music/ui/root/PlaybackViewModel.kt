@@ -1,9 +1,9 @@
 package dev.andrewbailey.music.ui.root
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
@@ -17,9 +17,11 @@ import dev.andrewbailey.encore.player.state.copy
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
-class PlaybackViewModel @ViewModelInject constructor(
+@HiltViewModel
+class PlaybackViewModel @Inject constructor(
     private val mediaController: EncoreController<MediaStoreSong>
 ) : ViewModel() {
 
