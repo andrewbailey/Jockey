@@ -1,7 +1,6 @@
 package dev.andrewbailey.encore.provider.mediastore
 
 import android.content.Context
-import android.os.Build
 import android.provider.MediaStore
 import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.provider.MediaField.Author
@@ -10,7 +9,6 @@ import dev.andrewbailey.encore.provider.MediaField.Genre
 import dev.andrewbailey.encore.provider.MediaField.Title
 import dev.andrewbailey.encore.provider.MediaProvider
 import dev.andrewbailey.encore.provider.MediaSearchResults
-import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -22,16 +20,29 @@ public class MediaStoreProvider(
 
     override suspend fun getMediaItemsByIds(ids: List<String>): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
+            val allGenres = mediaStore.queryAllGenres()
+
             ids.chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
                 .flatMap { idsSubset ->
-                    mediaStore.querySongs(
-                        selection = idsSubset.asSequence()
-                            .map { "${MediaStore.Audio.Media._ID} = ?" }
-                            .joinToString(separator = " OR "),
-                        selectionArgs = idsSubset
+                    MediaStoreMapper.toMediaItems(
+                        songEntities = mediaStore.querySongs(
+                            selection = idsSubset.asSequence()
+                                .map { "${MediaStore.Audio.Media._ID} = ?" }
+                                .joinToString(separator = " OR "),
+                            selectionArgs = idsSubset
+                        ),
+                        genreEntities = allGenres,
+                        genreContents = allGenres.flatMap { genre ->
+                            mediaStore.queryGenreContents(
+                                genreId = genre.id,
+                                selection = idsSubset.asSequence()
+                                    .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
+                                    .joinToString(separator = " OR "),
+                                selectionArgs = idsSubset
+                            )
+                        }
                     )
                 }
-                .map { MediaStoreMapper.toMediaItem(it) }
         }
     }
 
@@ -43,8 +54,8 @@ public class MediaStoreProvider(
 
         val searchResults = allSongs
             .filter { song ->
-                // TODO: Add genre support.
                 song.name.contains(arguments.fields[Title] ?: query, true) ||
+                    song.genre?.name.orEmpty().contains(arguments.fields[Genre] ?: query, true) ||
                     song.artist?.name.orEmpty().contains(arguments.fields[Author] ?: query, true) ||
                     song.album?.name.orEmpty().contains(arguments.fields[Collection] ?: query, true)
             }
@@ -52,14 +63,21 @@ public class MediaStoreProvider(
         val playbackContinuation = when (arguments.preferredSearchField) {
             Title, Collection -> {
                 // Include other songs by the artists in the search results
-                searchResults.mapNotNull { it.artist }
+                searchResults.asSequence()
+                    .mapNotNull { it.artist }
                     .toSet()
                     .flatMap { getSongsByArtist(it) }
                     .filter { it !in searchResults }
             }
-            Author -> emptyList() // TODO: Search for songs in the same genre.
             Genre -> emptyList()
-            null -> emptyList() // TODO: Search for songs in the same genre.
+            Author, null -> {
+                // Include other songs in the same genre in the search results
+                searchResults.asSequence()
+                    .mapNotNull { it.genre }
+                    .toSet()
+                    .flatMap { genre -> allSongs.filter { it.genre == genre } }
+                    .filter { it !in searchResults }
+            }
         }
 
         // TODO: Search results should be sorted with better matches appearing first.
@@ -71,38 +89,55 @@ public class MediaStoreProvider(
 
     override suspend fun getMediaItemById(id: String): MediaStoreSong? {
         return withContext(Dispatchers.IO) {
-            mediaStore.querySongs(
+            val song = mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media._ID} = ?",
                 selectionArgs = listOf(id)
-            ).firstOrNull()
-                ?.let {
-                    MediaStoreMapper.toMediaItem(
-                        it
-                    )
+            ).firstOrNull() ?: return@withContext null
+
+            val genreId = mediaStore.queryAllGenres()
+                .asSequence()
+                .filter { genre ->
+                    mediaStore.queryGenreContents(
+                        genreId = genre.id,
+                        selection = "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?",
+                        selectionArgs = listOf(song.id.toString())
+                    ).isNotEmpty()
                 }
+                .firstOrNull()
+                ?.id
+                ?.toString()
+
+            val genre = genreId?.let {
+                mediaStore.queryGenres(
+                    selection = "${MediaStore.Audio.Genres._ID} = ?",
+                    selectionArgs = listOf(genreId)
+                )
+            }?.firstOrNull()
+
+            MediaStoreMapper.toMediaItem(
+                songEntity = song,
+                genre = genre?.let { MediaStoreMapper.toMediaStoreGenre(it) }
+            )
         }
     }
 
     public suspend fun getAllSongs(): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
-            mediaStore.queryAllSongs()
-                .map {
-                    MediaStoreMapper.toMediaItem(
-                        it
-                    )
+            val allGenres = mediaStore.queryAllGenres()
+            MediaStoreMapper.toMediaItems(
+                songEntities = mediaStore.queryAllSongs(),
+                genreEntities = allGenres,
+                genreContents = allGenres.flatMap {
+                    mediaStore.queryAllGenreContents(genreId = it.id)
                 }
+            )
         }
     }
 
     public suspend fun getAllAlbums(): List<MediaStoreAlbum> {
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllAlbums()
-                .map {
-                    MediaStoreMapper.toMediaCollection(
-                        it,
-                        ::preApi29ArtistIdLookup
-                    )
-                }
+                .map { MediaStoreMapper.toMediaCollection(it) }
         }
     }
 
@@ -112,35 +147,46 @@ public class MediaStoreProvider(
                 selection = "${MediaStore.Audio.Albums._ID} = ?",
                 selectionArgs = listOf(id)
             ).firstOrNull()
-                ?.let {
-                    MediaStoreMapper.toMediaCollection(
-                        it,
-                        ::preApi29ArtistIdLookup
-                    )
-                }
+                ?.let { MediaStoreMapper.toMediaCollection(it) }
         }
     }
 
     public suspend fun getSongsInAlbum(album: MediaStoreAlbum): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
-            mediaStore.querySongs(
+            val songs = mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ALBUM_ID} = ?",
                 selectionArgs = listOf(album.id)
-            ).map {
-                MediaStoreMapper.toMediaItem(
-                    it
-                )
-            }
+            )
+
+            val allGenres = mediaStore.queryAllGenres()
+
+            val genreLookup = songs.asSequence()
+                .map { it.id.toString() }
+                .chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
+                .flatMap { songIdsSubset ->
+                    allGenres.flatMap { genre ->
+                        mediaStore.queryGenreContents(
+                            genreId = genre.id,
+                            selection = songIdsSubset.asSequence()
+                                .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
+                                .joinToString(separator = " OR "),
+                            selectionArgs = songIdsSubset
+                        )
+                    }
+                }
+                .toList()
+
+            MediaStoreMapper.toMediaItems(
+                songEntities = songs,
+                genreEntities = allGenres,
+                genreContents = genreLookup
+            )
         }
     }
 
     public suspend fun getAllArtists(): List<MediaStoreArtist> {
         return withContext(Dispatchers.IO) {
-            mediaStore.queryAllArtists().map {
-                MediaStoreMapper.toMediaAuthor(
-                    it
-                )
-            }
+            mediaStore.queryAllArtists().map { MediaStoreMapper.toMediaAuthor(it) }
         }
     }
 
@@ -160,59 +206,44 @@ public class MediaStoreProvider(
 
     public suspend fun getAlbumsByArtist(artist: MediaStoreArtist): List<MediaStoreAlbum> {
         return withContext(Dispatchers.IO) {
-            val query = if (Build.VERSION.SDK_INT >= 29) {
-                mediaStore.queryAlbums(
-                    selection = "${MediaStore.Audio.Albums.ARTIST_ID} = ?",
-                    selectionArgs = listOf(artist.id)
-                )
-            } else {
-                val albumIds = getSongsByArtist(artist).mapNotNull { it.artist?.id }.distinct()
-
-                mediaStore.queryAlbums(
-                    selection = generateSequence { "${MediaStore.Audio.Albums.ALBUM_ID} = ?" }
-                        .take(albumIds.size)
-                        .joinToString(separator = " OR "),
-                    selectionArgs = albumIds
-                )
-            }
-
-            query.map {
-                MediaStoreMapper.toMediaCollection(
-                    it
-                ) { artist.id }
-            }
+            mediaStore.queryAlbums(
+                // noinspection inlinedapi
+                selection = "${MediaStore.Audio.Albums.ARTIST_ID} = ?",
+                selectionArgs = listOf(artist.id)
+            ).map { MediaStoreMapper.toMediaCollection(it) }
         }
     }
 
     public suspend fun getSongsByArtist(artist: MediaStoreArtist): List<MediaStoreSong> {
         return withContext(Dispatchers.IO) {
-            mediaStore.querySongs(
+            val songs = mediaStore.querySongs(
                 selection = "${MediaStore.Audio.Media.ARTIST_ID} = ?",
                 selectionArgs = listOf(artist.id)
-            ).map {
-                MediaStoreMapper.toMediaItem(
-                    it
-                )
-            }
-        }
-    }
+            )
 
-    private fun preApi29ArtistIdLookup(album: AlbumEntity): String? {
-        return if (Build.VERSION.SDK_INT < 29) {
-            val possibleIds = mediaStore.querySongs(
-                selection = "${MediaStore.Audio.Media.ALBUM_ID} = ?",
-                selectionArgs = listOf(album.id)
-            ).mapNotNull { it.artistId }
+            val allGenres = mediaStore.queryAllGenres()
 
-            possibleIds.distinct()
-                .associateWith { id -> possibleIds.count { id == it } }
-                .maxByOrNull { (_, count) -> count }
-                ?.key
-        } else {
-            // On API 29 and higher, we would've already determined the artist directly by looking
-            // at the artist ID column. If we get here, the album must not be associated with
-            // an artist.
-            null
+            val genreLookup = songs.asSequence()
+                .map { it.id.toString() }
+                .chunked(MediaStoreResolver.MAX_SELECTION_ARGS)
+                .flatMap { songIdsSubset ->
+                    allGenres.flatMap { genre ->
+                        mediaStore.queryGenreContents(
+                            genreId = genre.id,
+                            selection = songIdsSubset.asSequence()
+                                .map { "${MediaStore.Audio.Genres.Members.AUDIO_ID} = ?" }
+                                .joinToString(separator = " OR "),
+                            selectionArgs = songIdsSubset
+                        )
+                    }
+                }
+                .toList()
+
+            MediaStoreMapper.toMediaItems(
+                songEntities = songs,
+                genreEntities = allGenres,
+                genreContents = genreLookup
+            )
         }
     }
 

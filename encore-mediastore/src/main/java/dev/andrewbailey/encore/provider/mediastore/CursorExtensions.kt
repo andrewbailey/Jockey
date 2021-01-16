@@ -38,3 +38,13 @@ internal fun Cursor.getDouble(columnName: String): Double =
     getDouble(getColumnIndexOrThrow(columnName))
 internal fun Cursor.getString(columnName: String): String? =
     getString(getColumnIndexOrThrow(columnName))
+
+internal fun Cursor.getIntOrNull(columnName: String): Int? {
+    val columnIndex = getColumnIndexOrThrow(columnName)
+    return if (isNull(columnIndex)) null else getInt(columnIndex)
+}
+
+internal fun Cursor.getLongOrNull(columnName: String): Long? {
+    val columnIndex = getColumnIndexOrThrow(columnName)
+    return if (isNull(columnIndex)) null else getLong(columnIndex)
+}
