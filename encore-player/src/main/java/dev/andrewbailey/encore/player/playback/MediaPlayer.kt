@@ -77,7 +77,8 @@ internal class MediaPlayer<M : MediaObject>(
                         exoPlayer.playWhenReady = operation.isPlaying
                     }
                     is StopPlayback -> {
-                        exoPlayer.stop(true)
+                        exoPlayer.stop()
+                        exoPlayer.clearMediaItems()
                     }
                     is SetRepeatMode -> {
                         exoPlayer.repeatMode = when (operation.repeatMode) {
@@ -89,7 +90,9 @@ internal class MediaPlayer<M : MediaObject>(
                     is QueueModification -> {
                         queue.updateQueue(operation.updatedQueue).also {
                             if (!operation.isSeamless) {
-                                exoPlayer.prepare(queue.mediaSource)
+                                exoPlayer.clearMediaItems()
+                                exoPlayer.setMediaSource(queue.mediaSource)
+                                exoPlayer.prepare()
                             }
                         }
                     }

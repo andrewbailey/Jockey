@@ -21,7 +21,7 @@ buildscript {
             hilt : '2.31-alpha',
         ],
         exoplayer : [
-            core : '2.11.7',
+            core : '2.13.1',
         ],
         difference : '1.0.0',
         test : [
