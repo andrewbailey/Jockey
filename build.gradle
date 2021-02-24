@@ -3,18 +3,23 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib: '1.4.21',
+            stdlib: '1.4.30',
             coroutines: '1.3.9'
         ],
         androidx : [
             core : '1.5.0-beta01',
             annotation : '1.2.0-alpha01',
             appcompat : '1.3.0-alpha02',
-            compose : '1.0.0-alpha10',
             fragment : '1.3.0',
             lifecycle : '2.3.0',
             savedstate: '1.1.0',
             media: '1.2.1',
+        ],
+        compose : [
+            core : '1.0.0-alpha12',
+            activity : '1.3.0-alpha02',
+            viewmodel: '1.0.0-alpha01',
+            constraintlayout: '1.0.0-alpha02'
         ],
         dagger : [
             core : '2.32',
@@ -69,12 +74,15 @@ ext {
             media : "androidx.media:media:${versions.androidx.media}",
         ],
         compose : [
-            ui : "androidx.compose.ui:ui:${versions.androidx.compose}",
-            foundation : "androidx.compose.foundation:foundation:${versions.androidx.compose}",
-            material : "androidx.compose.material:material:${versions.androidx.compose}",
-            animation : "androidx.compose.animation:animation:${versions.androidx.compose}",
-            runtime : "androidx.compose.runtime:runtime:${versions.androidx.compose}",
-            livedata : "androidx.compose.runtime:runtime-livedata:${versions.androidx.compose}",
+            ui : "androidx.compose.ui:ui:${versions.compose.core}",
+            foundation : "androidx.compose.foundation:foundation:${versions.compose.core}",
+            material : "androidx.compose.material:material:${versions.compose.core}",
+            animation : "androidx.compose.animation:animation:${versions.compose.core}",
+            runtime : "androidx.compose.runtime:runtime:${versions.compose.core}",
+            activity : "androidx.activity:activity-compose:${versions.compose.activity}",
+            livedata : "androidx.compose.runtime:runtime-livedata:${versions.compose.core}",
+            viewmodel: "androidx.lifecycle:lifecycle-viewmodel-compose:${versions.compose.viewmodel}",
+            constraintlayout : "androidx.constraintlayout:constraintlayout-compose:${versions.compose.constraintlayout}",
         ],
         exoplayer : [
             core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",

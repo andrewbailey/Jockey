@@ -29,8 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion config.versions.kotlin.stdlib
-        kotlinCompilerExtensionVersion config.versions.androidx.compose
+        kotlinCompilerExtensionVersion config.versions.compose.core
     }
 
     compileOptions {
@@ -73,7 +72,10 @@ dependencies {
     implementation config.deps.compose.material
     implementation config.deps.compose.animation
     implementation config.deps.compose.runtime
+    implementation config.deps.compose.activity
+    implementation config.deps.compose.viewmodel
     implementation config.deps.compose.livedata
+    implementation config.deps.compose.constraintlayout
 
     // Dagger
     implementation config.deps.dagger.core

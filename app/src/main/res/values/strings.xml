@@ -15,4 +15,13 @@
     <string name="library_songs_empty_description">You can sync songs from your computer or download them from the Internet</string>
 
     <string name="media_browser_all_songs_section">All Songs</string>
+
+    <string name="content_description_album_art">Album artwork</string>
+    <string name="content_description_close_page">Close page</string>
+    <string name="content_description_play">Play</string>
+    <string name="content_description_pause">Pause</string>
+    <string name="content_description_skip_next">Next track</string>
+    <string name="content_description_skip_previous">Previous track</string>
+    <string name="content_description_enable_shuffle">Enable shuffle mode</string>
+    <string name="content_description_disable_shuffle">Disable shuffle mode</string>
 </resources>

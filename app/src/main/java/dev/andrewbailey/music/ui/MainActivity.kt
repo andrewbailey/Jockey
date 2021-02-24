@@ -1,6 +1,7 @@
 package dev.andrewbailey.music.ui
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -9,10 +10,9 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.setContent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.R
-import dev.andrewbailey.music.ui.navigation.AppNavigator
+import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.navigation.Navigator
 import dev.andrewbailey.music.ui.navigation.Navigator.Companion.rememberNavigator
 import dev.andrewbailey.music.ui.root.JockeyRoot
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
                 colors = colors()
             ) {
                 Providers(
-                    AppNavigator provides navigator
+                    LocalAppNavigator provides navigator
                 ) {
                     JockeyRoot()
                 }

@@ -8,7 +8,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -18,29 +19,29 @@ import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue
 import dev.andrewbailey.music.ui.layout.rememberCollapsingPageState
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
-import dev.andrewbailey.music.ui.navigation.AppNavigator
 import dev.andrewbailey.music.ui.navigation.LibraryPage
+import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.player.NowPlayingRoot
+import kotlinx.coroutines.launch
 
 @Composable
 fun LibraryRoot(
     modifier: Modifier = Modifier
 ) {
-    val isFullPlaybackControlsVisible = savedInstanceState { false }
-    val selectedPage = savedInstanceState { LibraryPage.Songs }
+    // TODO: Use `rememberSaveable` after this bug is resolved in Compose:
+    //  https://issuetracker.google.com/issues/180042685
+    val selectedPage = /*rememberSaveable { */mutableStateOf(LibraryPage.Songs)/* }*/
+    val coroutineScope = rememberCoroutineScope()
 
-    val bottomSheetState = rememberCollapsingPageState(
-        initialValue = if (isFullPlaybackControlsVisible.value) {
-            CollapsingPageValue.expanded
-        } else {
-            CollapsingPageValue.collapsed
-        }
-    )
+    val bottomSheetState = rememberCollapsingPageState(CollapsingPageValue.collapsed)
+    val visibilityPercentage = bottomSheetState.state.value.visibilityPercentage
 
-    AppNavigator.current.overridePopBehavior(
+    LocalAppNavigator.current.overridePopBehavior(
         navigateUp = {
             if (bottomSheetState.isFullyExpanded) {
-                bottomSheetState.collapse()
+                coroutineScope.launch {
+                    bottomSheetState.collapse()
+                }
                 true
             } else {
                 false
@@ -56,19 +57,15 @@ fun LibraryRoot(
                 page = selectedPage.value
             )
         },
-        onStateChanged = {
-            when (it) {
-                CollapsingPageValue.expanded -> isFullPlaybackControlsVisible.value = true
-                CollapsingPageValue.collapsed -> isFullPlaybackControlsVisible.value = false
-            }
-        },
         collapsedSheetLayout = {
             LibraryNavigation(
                 selectedPage = selectedPage.value,
                 modifier = Modifier
-                    .alpha((1 - 2 * bottomSheetState.expansionPercentage).coerceIn(0f..1f)),
+                    .alpha((1 - 2 * visibilityPercentage).coerceIn(0f..1f)),
                 showFullPlaybackControls = {
-                    bottomSheetState.expand()
+                    coroutineScope.launch {
+                        bottomSheetState.expand()
+                    }
                 },
                 selectTab = { newPage ->
                     selectedPage.value = newPage
@@ -77,7 +74,7 @@ fun LibraryRoot(
         },
         expandedSheetLayout = {
             NowPlayingRoot(
-                percentVisible = bottomSheetState.expansionPercentage
+                percentVisible = visibilityPercentage
             )
         }
     )

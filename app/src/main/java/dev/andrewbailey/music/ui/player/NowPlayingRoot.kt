@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ConstraintLayout
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,11 +18,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.AmbientContentColor
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ListItem
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Surface
@@ -42,11 +43,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.viewModel
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -54,7 +56,7 @@ import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
-import dev.andrewbailey.music.ui.navigation.AppNavigator
+import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.observe
 
@@ -85,6 +87,7 @@ fun NowPlayingRoot(
             (playbackState as? MediaPlayerState.Prepared)?.artwork?.let { albumArt ->
                 Image(
                     bitmap = albumArt.asImageBitmap(),
+                    contentDescription = stringResource(R.string.content_description_album_art),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                         .scrim()
@@ -117,7 +120,7 @@ private fun NowPlayingToolbar(
     playbackState: MediaPlayerState<MediaStoreSong>?,
     modifier: Modifier = Modifier
 ) {
-    val navigator = AppNavigator.current
+    val navigator = LocalAppNavigator.current
 
     TopAppBar(
         modifier = modifier
@@ -131,7 +134,8 @@ private fun NowPlayingToolbar(
                 onClick = { navigator.pop() }
             ) {
                 Icon(
-                    imageVector = vectorResource(id = R.drawable.ic_close_24)
+                    painter = painterResource(id = R.drawable.ic_close_24),
+                    contentDescription = stringResource(R.string.content_description_close_page)
                 )
             }
         },
@@ -146,8 +150,14 @@ private fun NowPlayingToolbar(
                     onClick = { playbackViewModel.setShuffleMode(toggledShuffleMode) }
                 ) {
                     Icon(
-                        imageVector = vectorResource(id = R.drawable.ic_shuffle),
-                        tint = AmbientContentColor.current.copy(
+                        painter = painterResource(id = R.drawable.ic_shuffle),
+                        contentDescription = stringResource(
+                            id = when (shuffleMode) {
+                                ShuffleMode.LINEAR -> R.string.content_description_disable_shuffle
+                                ShuffleMode.SHUFFLED -> R.string.content_description_enable_shuffle
+                            }
+                        ),
+                        tint = LocalContentColor.current.copy(
                             alpha = when (shuffleMode) {
                                 ShuffleMode.LINEAR -> 0.5f
                                 ShuffleMode.SHUFFLED -> 1.0f
@@ -244,7 +254,10 @@ private fun ActiveNowPlayingControls(
             ) {
                 IconButton(onClick = viewModel::skipPrevious) {
                     Icon(
-                        imageVector = vectorResource(id = R.drawable.ic_skip_previous),
+                        painter = painterResource(id = R.drawable.ic_skip_previous),
+                        contentDescription = stringResource(
+                            id = R.string.content_description_skip_previous
+                        ),
                         tint = MaterialTheme.colors.onBackground
                     )
                 }
@@ -257,14 +270,16 @@ private fun ActiveNowPlayingControls(
                 if (playbackState.transportState.status == PlaybackState.PLAYING) {
                     IconButton(onClick = viewModel::pause) {
                         Icon(
-                            imageVector = vectorResource(id = R.drawable.ic_pause),
+                            painter = painterResource(id = R.drawable.ic_pause),
+                            contentDescription = stringResource(R.string.content_description_pause),
                             tint = MaterialTheme.colors.onBackground
                         )
                     }
                 } else {
                     IconButton(onClick = viewModel::play) {
                         Icon(
-                            imageVector = vectorResource(id = R.drawable.ic_play),
+                            painter = painterResource(id = R.drawable.ic_play),
+                            contentDescription = stringResource(R.string.content_description_play),
                             tint = MaterialTheme.colors.onBackground
                         )
                     }
@@ -277,7 +292,8 @@ private fun ActiveNowPlayingControls(
             ) {
                 IconButton(onClick = viewModel::skipNext) {
                     Icon(
-                        imageVector = vectorResource(id = R.drawable.ic_skip_next),
+                        painter = painterResource(id = R.drawable.ic_skip_next),
+                        contentDescription = stringResource(R.string.content_description_skip_next),
                         tint = MaterialTheme.colors.onBackground
                     )
                 }
@@ -299,6 +315,7 @@ private fun InactiveNowPlayingControls(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun NowPlayingQueue(
     queue: List<QueueItem<MediaStoreSong>>,

@@ -1,13 +1,13 @@
 package dev.andrewbailey.music.ui.layout
 
 import androidx.annotation.FloatRange
-import androidx.compose.animation.asDisposableClock
-import androidx.compose.animation.core.AnimatedFloat
-import androidx.compose.animation.core.AnimationClockObservable
-import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationEndReason.Interrupted
+import androidx.compose.animation.core.AnimationResult
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
@@ -17,29 +17,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.Saver
-import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasuringIntrinsicsMeasureBlocks
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.AmbientAnimationClock
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.Body
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.BottomSheetContent
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.CollapsedContent
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
 fun BottomSheetScaffold(
     bodyContent: @Composable () -> Unit,
@@ -47,26 +44,30 @@ fun BottomSheetScaffold(
     expandedSheetLayout: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     state: CollapsingPageState = rememberCollapsingPageState(CollapsingPageValue.collapsed),
-    onStateChanged: ((CollapsingPageValue) -> Unit)? = null,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val collapsedSheetHeight = remember { mutableStateOf(0) }
     val layoutHeight = remember { mutableStateOf(0) }
 
     val shouldRenderBody = !state.isFullyExpanded
+    val expansionPercentage = state.state.value.visibilityPercentage
     val shouldRenderShim = state.isPartiallyExpanded
 
-    val savedState = rememberRestorableStateHolder<BottomSheetSaveStateKey>()
+    val savedState = rememberSaveableStateHolder()
 
     Layout(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .onSizeChanged {
                 layoutHeight.value = it.height
             },
         content = {
             if (shouldRenderBody) {
                 Box {
-                    savedState.apply(Body, bodyContent)()
+                    savedState.SaveableStateProvider(Body) {
+                        bodyContent()
+                    }
                 }
             } else {
                 Spacer(modifier = Modifier)
@@ -74,12 +75,13 @@ fun BottomSheetScaffold(
 
             if (shouldRenderShim) {
                 Canvas(
-                    modifier = Modifier.fillMaxSize()
-                        .tapGestureFilter {
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
                             // Do nothing -- just make sure tap events can't go through the shim
                         }
                 ) {
-                    drawRect(scrimColor, alpha = state.expansionPercentage)
+                    drawRect(scrimColor, alpha = expansionPercentage)
                 }
             } else {
                 Spacer(modifier = Modifier)
@@ -98,8 +100,10 @@ fun BottomSheetScaffold(
                             val distanceToExpandOver =
                                 layoutHeight.value - collapsedSheetHeight.value
                             val expansionChange = -dY / distanceToExpandOver
-                            val newExpansion = state.expansionPercentage + expansionChange
-                            state.snapTo(CollapsingPageValue(newExpansion.coerceIn(0.0f, 1.0f)))
+                            val newExpansion = expansionPercentage + expansionChange
+                            coroutineScope.launch {
+                                state.snapTo(CollapsingPageValue(newExpansion.coerceIn(0.0f, 1.0f)))
+                            }
                         },
                         onDragStopped = { velocity ->
                             // TODO: There's a small bug here where the velocity is sometimes zero.
@@ -107,20 +111,33 @@ fun BottomSheetScaffold(
                             //  regardless of the actual swipe speed. This might be fixed in a
                             //  future Compose release. Alternatively, there might be a performance
                             //  issue that's causing too many touch samples to be dropped.
-                            val completionAction = onStateChanged?.let { { it(state.value) } }
-                            when {
-                                velocity < 0 -> state.expand(completionAction)
-                                velocity > 0 -> state.collapse(completionAction)
-                                state.expansionPercentage > 0.5 -> state.expand(completionAction)
-                                else -> state.collapse(completionAction)
+                            coroutineScope.launch {
+                                when {
+                                    abs(velocity) < 0 -> state.expand()
+                                    velocity > 0 -> state.collapse()
+                                    expansionPercentage > 0.5 -> state.expand()
+                                    else -> state.collapse()
+                                }
                             }
                         }
                     )
             ) {
                 PartiallyCollapsedPageLayout(
-                    collapsedSheetLayout = savedState.apply(CollapsedContent, collapsedSheetLayout),
-                    expandedSheetLayout = savedState.apply(BottomSheetContent, expandedSheetLayout),
-                    percentExpanded = state.expansionPercentage,
+                    collapsedSheetLayout = {
+                        with(savedState) {
+                            SaveableStateProvider(CollapsedContent) {
+                                collapsedSheetLayout()
+                            }
+                        }
+                    },
+                    expandedSheetLayout = {
+                        with(savedState) {
+                            SaveableStateProvider(BottomSheetContent) {
+                                expandedSheetLayout()
+                            }
+                        }
+                    },
+                    percentExpanded = expansionPercentage,
                     onCollapsedSheetLayoutMeasured = { _, heightPx ->
                         collapsedSheetHeight.value = heightPx
                     }
@@ -240,94 +257,81 @@ inline class CollapsingPageValue(
 fun rememberCollapsingPageState(
     initialValue: CollapsingPageValue
 ): CollapsingPageState {
-    val clock = AmbientAnimationClock.current.asDisposableClock()
-    return rememberSavedInstanceState(
-        inputs = arrayOf(clock),
-        saver = CollapsingPageState.Saver(clock)
+    return rememberSaveable(
+        saver = CollapsingPageState.Saver()
     ) {
-        CollapsingPageState(initialValue, clock)
+        CollapsingPageState(initialValue)
     }
 }
 
 class CollapsingPageState(
-    initialValue: CollapsingPageValue,
-    clock: AnimationClockObservable
+    initialValue: CollapsingPageValue
 ) {
 
-    var value by mutableStateOf(initialValue)
-
-    private val animator: AnimatedFloat = object : AnimatedFloat(
-        clock = clock
-    ) {
-        override var value: Float = initialValue.visibilityPercentage
-            set(value) {
-                field = value
-                this@CollapsingPageState.value = CollapsingPageValue(value)
+    private val animator = Animatable(
+        initialValue = initialValue,
+        typeConverter = object : TwoWayConverter<CollapsingPageValue, AnimationVector1D> {
+            override val convertFromVector: (AnimationVector1D) -> CollapsingPageValue = {
+                CollapsingPageValue(it.value)
             }
+
+            override val convertToVector: (CollapsingPageValue) -> AnimationVector1D = {
+                AnimationVector1D(it.visibilityPercentage)
+            }
+        }
+    ).apply {
+        updateBounds(
+            lowerBound = CollapsingPageValue.collapsed,
+            upperBound = CollapsingPageValue.expanded
+        )
     }
 
-    val expansionPercentage: Float
-        get() = value.visibilityPercentage
+    val state = animator.asState()
+
+    val currentValue
+        get() = animator.asState().value
 
     val isFullyExpanded: Boolean
-        get() = value == CollapsingPageValue.expanded
+        get() = currentValue == CollapsingPageValue.expanded
 
     val isFullyCollapsed: Boolean
-        get() = value == CollapsingPageValue.collapsed
+        get() = currentValue == CollapsingPageValue.collapsed
 
     val isPartiallyExpanded: Boolean
         get() = !isFullyExpanded && !isFullyCollapsed
 
-    fun snapTo(targetValue: CollapsingPageValue) {
-        value = targetValue
-        animator.snapTo(targetValue.visibilityPercentage)
-    }
-
-    fun animateTo(
+    private suspend fun animateTo(
         targetValue: CollapsingPageValue,
-        anim: AnimationSpec<Float> = SpringSpec(
-            stiffness = 500f
-        ),
-        onEnd: ((AnimationEndReason, CollapsingPageValue) -> Unit)? = null
-    ) {
-        animator.animateTo(
-            targetValue = targetValue.visibilityPercentage,
-            anim = anim,
-            onEnd = { endReason, endValue ->
-                value = CollapsingPageValue(endValue)
-                onEnd?.invoke(endReason, value)
-            }
+        anim: AnimationSpec<CollapsingPageValue> = SpringSpec(
+            stiffness = 1000f
+        )
+    ): AnimationResult<CollapsingPageValue, AnimationVector1D> {
+        return animator.animateTo(
+            targetValue = targetValue,
+            animationSpec = anim
         )
     }
 
-    fun expand(onOpened: (() -> Unit)? = null) {
-        animateTo(
-            CollapsingPageValue.expanded,
-            onEnd = { endReason, endValue ->
-                if (endReason != Interrupted && endValue == CollapsingPageValue.expanded) {
-                    onOpened?.invoke()
-                }
-            }
-        )
+    suspend fun snapTo(targetValue: CollapsingPageValue) {
+        animator.snapTo(targetValue)
     }
 
-    fun collapse(onClosed: (() -> Unit)? = null) {
-        animateTo(
-            CollapsingPageValue.collapsed,
-            onEnd = { endReason, endValue ->
-                if (endReason != Interrupted && endValue == CollapsingPageValue.expanded) {
-                    onClosed?.invoke()
-                }
-            }
-        )
+    suspend fun expand(): Boolean {
+        val animationResult = animateTo(CollapsingPageValue.expanded)
+        return animationResult.endReason != Interrupted &&
+            animationResult.endState.value == CollapsingPageValue.expanded
+    }
+
+    suspend fun collapse(): Boolean {
+        val animationResult = animateTo(CollapsingPageValue.collapsed)
+        return animationResult.endReason != Interrupted &&
+            animationResult.endState.value == CollapsingPageValue.expanded
     }
 
     companion object {
-        fun Saver(
-            clock: AnimationClockObservable
-        ) = Saver<CollapsingPageState, Float>(
-            save = { it.value.visibilityPercentage },
-            restore = { CollapsingPageState(CollapsingPageValue(it), clock) }
+        fun Saver() = Saver<CollapsingPageState, Float>(
+            save = { it.currentValue.visibilityPercentage },
+            restore = { CollapsingPageState(CollapsingPageValue(it)) }
         )
     }
 }
@@ -336,12 +340,4 @@ private enum class BottomSheetSaveStateKey {
     Body,
     CollapsedContent,
     BottomSheetContent
-}
-
-@ExperimentalRestorableStateHolder
-private inline fun RestorableStateHolder<BottomSheetSaveStateKey>.apply(
-    key: BottomSheetSaveStateKey,
-    crossinline action: @Composable () -> Unit
-): @Composable () -> Unit {
-    return { RestorableStateProvider(key) { action() } }
 }

@@ -1,20 +1,16 @@
 package dev.andrewbailey.music.ui.library
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.transition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ChainStyle
-import androidx.compose.foundation.layout.ConstraintLayout
-import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -26,6 +22,7 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -33,12 +30,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.viewModel
+import androidx.constraintlayout.compose.ChainStyle
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
@@ -55,63 +56,47 @@ fun CollapsedPlayerControls(
     val playbackViewModel = viewModel<PlaybackViewModel>()
     val playbackState = observe(playbackViewModel.playbackState)
 
-    val contentOpacity = remember { FloatPropKey() }
-    val contentHeight = remember { DpPropKey() }
-
-    val visibilityTransition = remember {
-        transitionDefinition<Boolean> {
-            state(true) {
-                this[contentOpacity] = 1f
-                this[contentHeight] = controlBarHeight
-            }
-
-            state(false) {
-                this[contentOpacity] = 0f
-                this[contentHeight] = 0.dp
-            }
-
-            transition(false to true) {
-                contentOpacity using tween(
+    val visibilityTransition = updateTransition(playbackState is MediaPlayerState.Prepared)
+    val contentOpacity by visibilityTransition.animateFloat(
+        transitionSpec = {
+            if (targetState.isTransitioningTo(true)) {
+                tween(
                     easing = LinearOutSlowInEasing,
                     durationMillis = 175,
                     delayMillis = 75
                 )
-
-                contentHeight using tween(
-                    easing = LinearOutSlowInEasing,
-                    durationMillis = 250
-                )
-            }
-
-            transition(true to false) {
-                contentOpacity using tween(
+            } else {
+                tween(
                     easing = FastOutLinearInEasing,
                     durationMillis = 175
                 )
+            }
+        }
+    ) { controlsVisible ->
+        if (controlsVisible) 1f else 0f
+    }
 
-                contentHeight using tween(
+    val contentHeight by visibilityTransition.animateDp(
+        transitionSpec = {
+            if (targetState.isTransitioningTo(true)) {
+                tween(
+                    easing = LinearOutSlowInEasing,
+                    durationMillis = 250
+                )
+            } else {
+                tween(
                     easing = FastOutLinearInEasing,
                     durationMillis = 250
                 )
             }
         }
+    ) { controlsVisible ->
+        if (controlsVisible) controlBarHeight else 0.dp
     }
 
     val previousContent = remember { mutableStateOf(playbackState as? MediaPlayerState.Prepared) }
-    val previousVisibility = remember { mutableStateOf(playbackState is MediaPlayerState.Prepared) }
-    val transitionState = transition(
-        definition = visibilityTransition,
-        initState = previousVisibility.value,
-        toState = playbackState is MediaPlayerState.Prepared,
-        onStateChangeFinished = { isVisible ->
-            previousVisibility.value = isVisible
-            if (!isVisible) {
-                previousContent.value = null
-            }
-        }
-    )
 
-    Box(modifier = modifier.preferredHeight(transitionState[contentHeight])) {
+    Box(modifier = modifier.preferredHeight(contentHeight)) {
         if (playbackState is MediaPlayerState.Prepared) {
             previousContent.value = playbackState
         }
@@ -122,8 +107,8 @@ fun CollapsedPlayerControls(
                 playbackState = playbackStateToDisplay,
                 modifier = Modifier
                     .height(controlBarHeight)
-                    .offset(y = (controlBarHeight - transitionState[contentHeight]) / 2)
-                    .alpha(transitionState[contentOpacity])
+                    .offset(y = (controlBarHeight - contentHeight) / 2)
+                    .alpha(contentOpacity)
                     .fillMaxWidth(),
                 onPlayClicked = playbackViewModel::play,
                 onPauseClicked = playbackViewModel::pause,
@@ -156,25 +141,28 @@ private fun PopulatedCollapsedPlaybackControls(
         )
 
         Box(
-            modifier = Modifier.constrainAs(artwork) {
-                top.linkTo(parent.top, margin = 2.dp)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start, margin = 4.dp)
-                width = Dimension.value(40.dp)
-                height = Dimension.value(40.dp)
-            }.border(
-                width = 1.dp,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(size = 4.dp)
-            )
+            modifier = Modifier
+                .constrainAs(artwork) {
+                    top.linkTo(parent.top, margin = 2.dp)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start, margin = 4.dp)
+                    width = Dimension.value(40.dp)
+                    height = Dimension.value(40.dp)
+                }
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(size = 4.dp)
+                )
         ) {
             Crossfade(
-                current = playbackState.artwork,
-                animation = tween(easing = LinearEasing)
+                targetState = playbackState.artwork,
+                animationSpec = tween(easing = LinearEasing)
             ) { artwork ->
                 if (artwork != null) {
                     Image(
                         bitmap = artwork.asImageBitmap(),
+                        contentDescription = stringResource(R.string.content_description_album_art),
                         modifier = Modifier.clip(RoundedCornerShape(size = 4.dp))
                     )
                 }
@@ -222,13 +210,15 @@ private fun PopulatedCollapsedPlaybackControls(
                 percent.coerceIn(0f..1f)
             } ?: 0f,
             color = MaterialTheme.colors.secondary,
-            modifier = Modifier.constrainAs(seekBar) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-                height = Dimension.value(3.dp)
-            }.clipToBounds()
+            modifier = Modifier
+                .constrainAs(seekBar) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.value(3.dp)
+                }
+                .clipToBounds()
         )
 
         val isPlaying = playbackState.transportState.status == PlaybackState.PLAYING
@@ -244,11 +234,18 @@ private fun PopulatedCollapsedPlaybackControls(
             }
         ) {
             Icon(
-                imageVector = vectorResource(
+                painter = painterResource(
                     id = if (isPlaying) {
                         R.drawable.ic_pause
                     } else {
                         R.drawable.ic_play
+                    }
+                ),
+                contentDescription = stringResource(
+                    if (isPlaying) {
+                        R.string.content_description_pause
+                    } else {
+                        R.string.content_description_play
                     }
                 )
             )
@@ -263,7 +260,10 @@ private fun PopulatedCollapsedPlaybackControls(
             },
             onClick = onSkipNextClicked
         ) {
-            Icon(imageVector = vectorResource(id = R.drawable.ic_skip_next))
+            Icon(
+                painter = painterResource(id = R.drawable.ic_skip_next),
+                contentDescription = stringResource(R.string.content_description_skip_next)
+            )
         }
     }
 }

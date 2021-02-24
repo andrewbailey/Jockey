@@ -3,21 +3,19 @@ package dev.andrewbailey.music.ui.navigation
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.ambientOf
-import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.Saver
-import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
-import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import java.util.Stack
 import java.util.UUID
 import kotlinx.parcelize.Parcelize
 
-val AppNavigator = ambientOf<Navigator> { error("No navigator has been set") }
+val LocalAppNavigator = compositionLocalOf<Navigator> { error("No navigator has been set") }
 
-@OptIn(ExperimentalRestorableStateHolder::class)
 class Navigator private constructor(
-    private val restorableStateHolder: RestorableStateHolder<UUID>,
+    private val stateHolder: SaveableStateHolder,
     private val backStack: Stack<BackStackEntry>
 ) {
 
@@ -52,9 +50,9 @@ class Navigator private constructor(
     fun render(
         content: @Composable (Screen) -> Unit
     ) {
-        with(restorableStateHolder) {
+        with(stateHolder) {
             val backStackEntry = backStack.peek()
-            RestorableStateProvider(key = backStackEntry.uuid) {
+            SaveableStateProvider(key = backStackEntry.uuid) {
                 content(backStackEntry.screen)
             }
         }
@@ -64,40 +62,36 @@ class Navigator private constructor(
     fun overridePopBehavior(
         navigateUp: () -> Boolean
     ) {
-        DisposableEffect(
-            subject = navigateUp,
-            effect = {
-                popOverrides.push(navigateUp)
-                onDispose {
-                    popOverrides.remove(navigateUp)
-                }
+        DisposableEffect(navigateUp) {
+            popOverrides.push(navigateUp)
+            onDispose {
+                popOverrides.remove(navigateUp)
             }
-        )
+        }
     }
 
     companion object {
         @Composable
-        @OptIn(ExperimentalRestorableStateHolder::class)
         fun rememberNavigator(
             initialBackStack: Collection<Screen> = listOf(RootScreen)
         ): Navigator {
-            val restorableStateHolder = rememberRestorableStateHolder<UUID>()
-            return rememberSavedInstanceState(
+            val saveableStateHolder = rememberSaveableStateHolder()
+            return rememberSaveable(
                 init = {
                     Navigator(
-                        restorableStateHolder = restorableStateHolder,
+                        stateHolder = saveableStateHolder,
                         backStack = initialBackStack.map { BackStackEntry(it) }.toStack()
                     )
                 },
-                saver = Saver(restorableStateHolder)
+                saver = Saver(saveableStateHolder)
             )
         }
 
         fun Saver(
-            restorableStateHolder: RestorableStateHolder<UUID>
+            saveableStateHolder: SaveableStateHolder
         ) = Saver<Navigator, List<BackStackEntry>>(
             save = { it.backStack.toList() },
-            restore = { Navigator(restorableStateHolder, it.toStack()) }
+            restore = { Navigator(saveableStateHolder, it.toStack()) }
         ) as Saver<Navigator, *>
     }
 }

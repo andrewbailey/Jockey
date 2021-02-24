@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.viewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.library.LibraryViewModel
 import dev.andrewbailey.music.ui.library.common.SongList
