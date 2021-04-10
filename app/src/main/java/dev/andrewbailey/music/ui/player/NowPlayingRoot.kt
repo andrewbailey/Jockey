@@ -2,9 +2,10 @@ package dev.andrewbailey.music.ui.player
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,7 +90,8 @@ fun NowPlayingRoot(
                     bitmap = albumArt.asImageBitmap(),
                     contentDescription = stringResource(R.string.content_description_album_art),
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .scrim()
                 )
             }
@@ -223,14 +225,15 @@ private fun ActiveNowPlayingControls(
             modifier = Modifier.fillMaxWidth()
         )
 
-        val sliderInteractionState = remember { InteractionState() }
+        val sliderInteractionState = remember { MutableInteractionSource() }
         Slider(
             valueRange = 0f..(playbackState.durationMs?.toFloat() ?: 0f),
-            interactionState = sliderInteractionState,
-            value = userSeekPosition.value.takeIf { sliderInteractionState.value.isNotEmpty() }
+            interactionSource = sliderInteractionState,
+            value = userSeekPosition.value
+                .takeIf { sliderInteractionState.collectIsDraggedAsState().value }
                 ?: playbackState.transportState.seekPosition.seekPositionMillis.toFloat(),
             onValueChange = { userSeekPosition.value = it },
-            onValueChangeEnd = {
+            onValueChangeFinished = {
                 viewModel.seekTo(
                     checkNotNull(userSeekPosition.value) {
                         "Failed to finalize seek because the requested seek position is unknown."

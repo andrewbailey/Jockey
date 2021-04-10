@@ -6,8 +6,8 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,11 +69,11 @@ private fun LibraryNavigationOption(
     Column(
         modifier = modifier
             .clickable(
+                interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(
                     bounded = false,
                     color = MaterialTheme.colors.primary
                 ),
-                interactionState = remember { InteractionState() },
                 onClick = { onSelected(page) }
             ),
         horizontalAlignment = Alignment.CenterHorizontally

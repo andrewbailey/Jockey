@@ -2,14 +2,15 @@ package dev.andrewbailey.music.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationEndReason.Interrupted
 import androidx.compose.animation.core.AnimationResult
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,11 +25,10 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.MeasuringIntrinsicsMeasureBlocks
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.onSizeChanged
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.Body
 import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.BottomSheetContent
@@ -96,7 +96,7 @@ fun BottomSheetScaffold(
                     }
                     .draggable(
                         orientation = Orientation.Vertical,
-                        onDrag = { dY ->
+                        state = rememberDraggableState { dY ->
                             val distanceToExpandOver =
                                 layoutHeight.value - collapsedSheetHeight.value
                             val expansionChange = -dY / distanceToExpandOver
@@ -144,8 +144,8 @@ fun BottomSheetScaffold(
                 )
             }
         },
-        measureBlocks = remember(state) {
-            MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+        measurePolicy = remember(state) {
+            MeasurePolicy { measurables, constraints ->
                 val bodyLayout = measurables[0]
                 val scrimLayout = measurables[1]
                 val bottomSheet = measurables[2]
@@ -203,8 +203,8 @@ private fun PartiallyCollapsedPageLayout(
                 }
             }
         },
-        measureBlocks = remember(percentExpanded) {
-            MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+        measurePolicy = remember(percentExpanded) {
+            MeasurePolicy { measurables, constraints ->
                 val placeableExpandedLayout =
                     measurables.first().takeIf { shouldDrawExpandedLayout }
                         ?.measure(constraints)
@@ -318,14 +318,12 @@ class CollapsingPageState(
 
     suspend fun expand(): Boolean {
         val animationResult = animateTo(CollapsingPageValue.expanded)
-        return animationResult.endReason != Interrupted &&
-            animationResult.endState.value == CollapsingPageValue.expanded
+        return animationResult.endState.value == CollapsingPageValue.expanded
     }
 
     suspend fun collapse(): Boolean {
         val animationResult = animateTo(CollapsingPageValue.collapsed)
-        return animationResult.endReason != Interrupted &&
-            animationResult.endState.value == CollapsingPageValue.expanded
+        return animationResult.endState.value == CollapsingPageValue.expanded
     }
 
     companion object {

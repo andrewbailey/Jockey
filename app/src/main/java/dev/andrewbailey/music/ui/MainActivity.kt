@@ -8,7 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.R
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             MaterialTheme(
                 colors = colors()
             ) {
-                Providers(
+                CompositionLocalProvider(
                     LocalAppNavigator provides navigator
                 ) {
                     JockeyRoot()

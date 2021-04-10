@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -96,7 +96,7 @@ fun CollapsedPlayerControls(
 
     val previousContent = remember { mutableStateOf(playbackState as? MediaPlayerState.Prepared) }
 
-    Box(modifier = modifier.preferredHeight(contentHeight)) {
+    Box(modifier = modifier.requiredHeight(contentHeight)) {
         if (playbackState is MediaPlayerState.Prepared) {
             previousContent.value = playbackState
         }
