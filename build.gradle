@@ -22,8 +22,8 @@ buildscript {
             constraintlayout: '1.0.0-alpha05'
         ],
         dagger : [
-            core : '2.32',
-            hilt : '2.32-alpha',
+            core : '2.34',
+            hilt : '2.34-beta',
         ],
         exoplayer : [
             core : '2.13.1',
@@ -45,7 +45,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.0.0-alpha14'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.0.0"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}-alpha"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.hilt}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -91,8 +91,8 @@ ext {
         dagger : [
             core : "com.google.dagger:dagger:${versions.dagger.core}",
             compiler : "com.google.dagger:dagger-compiler:${versions.dagger.core}",
-            hilt : "com.google.dagger:hilt-android:${versions.dagger.core}-alpha",
-            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.core}-alpha",
+            hilt : "com.google.dagger:hilt-android:${versions.dagger.hilt}",
+            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.hilt}",
         ],
         difference : [
             multiplatform : "dev.andrewbailey.difference:difference:${versions.difference}"
