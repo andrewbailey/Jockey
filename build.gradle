@@ -3,7 +3,7 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib: '1.4.30',
+            stdlib: '1.4.32',
             coroutines: '1.3.9'
         ],
         androidx : [
@@ -42,7 +42,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha14'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha15'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.0.0"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.hilt}"
