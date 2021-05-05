@@ -22,8 +22,8 @@ buildscript {
             constraintlayout: '1.0.0-alpha05'
         ],
         dagger : [
-            core : '2.34',
-            hilt : '2.34-beta',
+            core : '2.35.1',
+            hilt : '2.35.1',
         ],
         exoplayer : [
             core : '2.13.3',
