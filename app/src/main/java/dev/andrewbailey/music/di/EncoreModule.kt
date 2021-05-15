@@ -8,6 +8,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
+import dev.andrewbailey.music.library.JockeyMediaRepository
+import dev.andrewbailey.music.library.MediaRepository
 import dev.andrewbailey.music.player.PlayerService
 import javax.inject.Singleton
 
@@ -17,9 +19,11 @@ class EncoreModule {
 
     @Provides
     @Singleton
-    fun provideMediaProvider(
+    fun provideMediaRepository(
         @ApplicationContext context: Context
-    ) = MediaStoreProvider(context)
+    ): MediaRepository = JockeyMediaRepository(
+        mediaStoreProvider = MediaStoreProvider(context)
+    )
 
     @Provides
     @Singleton

@@ -9,16 +9,16 @@ import androidx.compose.material.ListItem
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreAlbum
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreArtist
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
+import dev.andrewbailey.music.model.Album
+import dev.andrewbailey.music.model.Artist
+import dev.andrewbailey.music.model.Song
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SongList(
-    songs: List<MediaStoreSong>,
+    songs: List<Song>,
     modifier: Modifier = Modifier,
-    onClickSong: ((index: Int, song: MediaStoreSong) -> Unit)? = null
+    onClickSong: ((index: Int, song: Song) -> Unit)? = null
 ) {
     LazyColumn(
         modifier = modifier
@@ -51,5 +51,5 @@ fun SongList(
     }
 }
 
-private fun formattedAlbumArtist(album: MediaStoreAlbum?, artist: MediaStoreArtist?): String =
+private fun formattedAlbumArtist(album: Album?, artist: Artist?): String =
     listOfNotNull(album?.name, artist?.name).joinToString(" - ")

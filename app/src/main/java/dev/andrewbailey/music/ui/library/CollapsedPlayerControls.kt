@@ -42,8 +42,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.observe
 
@@ -120,7 +120,7 @@ fun CollapsedPlayerControls(
 
 @Composable
 private fun PopulatedCollapsedPlaybackControls(
-    playbackState: MediaPlayerState.Prepared<MediaStoreSong>,
+    playbackState: MediaPlayerState.Prepared<Song>,
     modifier: Modifier = Modifier,
     onPlayClicked: () -> Unit = {},
     onPauseClicked: () -> Unit = {},

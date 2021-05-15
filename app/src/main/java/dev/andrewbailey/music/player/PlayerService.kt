@@ -5,25 +5,25 @@ import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.browse.BrowserDirectory
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.provider.MediaProvider
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.library.MediaRepository
+import dev.andrewbailey.music.model.Song
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PlayerService : MediaPlayerService<MediaStoreSong>(
+class PlayerService : MediaPlayerService<Song>(
     tag = "Jockey",
     notificationId = 1,
     notificationProvider = PlayerNotifier()
 ) {
 
-    @Inject lateinit var mediaProvider: MediaStoreProvider
+    @Inject lateinit var mediaRepository: MediaRepository
 
-    override fun onCreateMediaProvider(): MediaProvider<MediaStoreSong> {
-        return mediaProvider
+    override fun onCreateMediaProvider(): MediaProvider<Song> {
+        return mediaRepository
     }
 
-    override fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<MediaStoreSong> {
+    override fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<Song> {
         return BrowserHierarchy {
             staticPath(
                 BrowserDirectory.BrowserPath(
@@ -31,7 +31,7 @@ class PlayerService : MediaPlayerService<MediaStoreSong>(
                     name = getString(R.string.media_browser_all_songs_section)
                 )
             ) {
-                mediaItems("song") { mediaProvider.getAllSongs() }
+                mediaItems("song") { mediaRepository.getAllSongs() }
             }
         }
     }

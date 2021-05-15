@@ -55,8 +55,8 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.observe
@@ -119,7 +119,7 @@ fun NowPlayingRoot(
 @Composable
 private fun NowPlayingToolbar(
     playbackViewModel: PlaybackViewModel,
-    playbackState: MediaPlayerState<MediaStoreSong>?,
+    playbackState: MediaPlayerState<Song>?,
     modifier: Modifier = Modifier
 ) {
     val navigator = LocalAppNavigator.current
@@ -175,7 +175,7 @@ private fun NowPlayingToolbar(
 
 @Composable
 private fun NowPlayingControls(
-    playbackState: MediaPlayerState<MediaStoreSong>?,
+    playbackState: MediaPlayerState<Song>?,
     modifier: Modifier = Modifier
 ) {
     if (playbackState is MediaPlayerState.Prepared) {
@@ -192,7 +192,7 @@ private fun NowPlayingControls(
 
 @Composable
 private fun ActiveNowPlayingControls(
-    playbackState: MediaPlayerState.Prepared<MediaStoreSong>,
+    playbackState: MediaPlayerState.Prepared<Song>,
     modifier: Modifier
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
@@ -321,7 +321,7 @@ private fun InactiveNowPlayingControls(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun NowPlayingQueue(
-    queue: List<QueueItem<MediaStoreSong>>,
+    queue: List<QueueItem<Song>>,
     modifier: Modifier = Modifier
 ) {
     val viewModel = viewModel<PlaybackViewModel>()
@@ -356,7 +356,7 @@ private fun NowPlayingQueue(
     }
 }
 
-private fun formattedAlbumArtist(item: MediaStoreSong): String =
+private fun formattedAlbumArtist(item: Song): String =
     listOfNotNull(item.album?.name, item.artist?.name).joinToString(" - ")
 
 private fun Modifier.scrim() = drawWithContent {

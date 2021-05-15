@@ -14,7 +14,7 @@ import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
+import dev.andrewbailey.music.model.Song
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class PlaybackViewModel @Inject constructor(
-    private val mediaController: EncoreController<MediaStoreSong>
+    private val mediaController: EncoreController<Song>
 ) : ViewModel() {
 
     private val token = mediaController.acquireToken()
@@ -60,7 +60,7 @@ class PlaybackViewModel @Inject constructor(
     }
 
     fun playFrom(
-        mediaList: List<MediaStoreSong>,
+        mediaList: List<Song>,
         startingAt: Int = 0
     ) {
         require(mediaList.isNotEmpty()) {

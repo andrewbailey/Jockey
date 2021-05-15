@@ -11,17 +11,17 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
-import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.MainActivity
 
-class PlayerNotifier : NotificationProvider<MediaStoreSong>(CHANNEL_ID) {
+class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
 
     companion object {
         const val CHANNEL_ID = "playback"
     }
 
-    override fun getNotificationIcon(playbackState: MediaPlayerState<MediaStoreSong>): Int {
+    override fun getNotificationIcon(playbackState: MediaPlayerState<Song>): Int {
         val state = playbackState.transportState
         return when {
             state is Active && state.status == PLAYING -> R.drawable.ic_notification_play
@@ -31,17 +31,17 @@ class PlayerNotifier : NotificationProvider<MediaStoreSong>(CHANNEL_ID) {
 
     override fun getNotificationColor(
         context: Context,
-        playbackState: MediaPlayerState<MediaStoreSong>
+        playbackState: MediaPlayerState<Song>
     ) = ContextCompat.getColor(context, R.color.colorPrimary)
 
     override fun getContentIntent(
         context: Context,
-        playbackState: MediaPlayerState<MediaStoreSong>
+        playbackState: MediaPlayerState<Song>
     ) = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), 0)
 
     override fun getActions(
-        playbackState: MediaPlayerState<MediaStoreSong>
-    ): List<NotificationAction<MediaStoreSong>> {
+        playbackState: MediaPlayerState<Song>
+    ): List<NotificationAction<Song>> {
         return when (val transportState = playbackState.transportState) {
             is Idle -> emptyList()
             is Active -> listOf(
