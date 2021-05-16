@@ -74,6 +74,7 @@ dependencies {
     implementation config.deps.compose.activity
     implementation config.deps.compose.viewmodel
     implementation config.deps.compose.livedata
+    implementation config.deps.accompanist.insets
 
     // Dagger
     implementation config.deps.dagger.core

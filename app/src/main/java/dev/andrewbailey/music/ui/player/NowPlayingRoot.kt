@@ -49,6 +49,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.statusBarsPadding
+import com.google.accompanist.insets.toPaddingValues
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -125,7 +128,8 @@ private fun NowPlayingToolbar(
 
     TopAppBar(
         modifier = modifier
-            .zIndex(1f),
+            .zIndex(1f)
+            .statusBarsPadding(),
         backgroundColor = Color.Transparent,
         title = { Text(stringResource(R.string.page_title_now_playing)) },
         elevation = 0.dp,
@@ -331,7 +335,9 @@ private fun NowPlayingQueue(
         color = MaterialTheme.colors.background,
         modifier = modifier
     ) {
-        LazyColumn {
+        LazyColumn(
+            contentPadding = LocalWindowInsets.current.navigationBars.toPaddingValues()
+        ) {
             itemsIndexed(
                 items = queue,
                 itemContent = { index, queueItem ->

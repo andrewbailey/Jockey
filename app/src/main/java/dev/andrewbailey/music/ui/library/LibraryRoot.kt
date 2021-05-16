@@ -1,9 +1,12 @@
 package dev.andrewbailey.music.ui.library
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -13,10 +16,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import com.google.accompanist.insets.LocalWindowInsets
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue
+import dev.andrewbailey.music.ui.layout.StatusBarBackground
 import dev.andrewbailey.music.ui.layout.rememberCollapsingPageState
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.LibraryPage
@@ -61,7 +68,14 @@ fun LibraryRoot(
             LibraryNavigation(
                 selectedPage = selectedPage.value,
                 modifier = Modifier
-                    .alpha((1 - 2 * visibilityPercentage).coerceIn(0f..1f)),
+                    .alpha((1 - 2 * visibilityPercentage).coerceIn(0f..1f))
+                    .background(MaterialTheme.colors.surface)
+                    .padding(
+                        bottom = with(LocalDensity.current) {
+                            LocalWindowInsets.current.navigationBars.bottom.toDp() *
+                                (1 - 6 * visibilityPercentage).coerceIn(0f..1f)
+                        }
+                    ),
                 showFullPlaybackControls = {
                     coroutineScope.launch {
                         bottomSheetState.expand()
@@ -88,6 +102,8 @@ private fun LibraryContent(
     Column(
         modifier = modifier
     ) {
+        StatusBarBackground()
+
         TopAppBar(
             title = { Text(stringResource(R.string.app_name)) }
         )
@@ -119,20 +135,23 @@ private fun LibraryNavigation(
     showFullPlaybackControls: () -> Unit = {},
     selectTab: (LibraryPage) -> Unit = {}
 ) {
-    Column(
+    Surface(
+        color = Color.Transparent,
         modifier = modifier
     ) {
-        Surface {
-            CollapsedPlayerControls(
-                modifier = Modifier.clickable(onClick = showFullPlaybackControls)
-            )
-        }
+        Column {
+            Surface(color = Color.Transparent) {
+                CollapsedPlayerControls(
+                    modifier = Modifier.clickable(onClick = showFullPlaybackControls)
+                )
+            }
 
-        Surface {
-            LibraryNavigationBar(
-                selectedPage = selectedPage,
-                onSelectLibraryPage = selectTab
-            )
+            Surface(color = Color.Transparent) {
+                LibraryNavigationBar(
+                    selectedPage = selectedPage,
+                    onSelectLibraryPage = selectTab
+                )
+            }
         }
     }
 }

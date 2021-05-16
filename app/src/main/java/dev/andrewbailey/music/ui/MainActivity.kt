@@ -10,6 +10,8 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
+import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
@@ -25,16 +27,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             navigator = rememberNavigator()
 
             MaterialTheme(
                 colors = colors()
             ) {
-                CompositionLocalProvider(
-                    LocalAppNavigator provides navigator
-                ) {
-                    JockeyRoot()
+                ProvideWindowInsets {
+                    CompositionLocalProvider(
+                        LocalAppNavigator provides navigator
+                    ) {
+                        JockeyRoot()
+                    }
                 }
             }
         }
@@ -50,13 +56,13 @@ class MainActivity : AppCompatActivity() {
     private fun colors() = if (isSystemInDarkTheme()) {
         darkColors(
             primary = Color.fromRes(this, R.color.colorPrimary),
-            primaryVariant = Color.fromRes(this, R.color.colorPrimary),
+            primaryVariant = Color.fromRes(this, R.color.colorPrimaryDark),
             secondary = Color.fromRes(this, R.color.colorAccent)
         )
     } else {
         lightColors(
             primary = Color.fromRes(this, R.color.colorPrimary),
-            primaryVariant = Color.fromRes(this, R.color.colorPrimary),
+            primaryVariant = Color.fromRes(this, R.color.colorPrimaryDark),
             secondary = Color.fromRes(this, R.color.colorAccent),
             secondaryVariant = Color.fromRes(this, R.color.colorAccentDark)
         )
