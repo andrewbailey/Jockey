@@ -48,7 +48,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -309,7 +308,8 @@ private fun ActiveNowPlayingControls(
 private fun InactiveNowPlayingControls(
     modifier: Modifier = Modifier
 ) {
-    ConstraintLayout(
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
     ) {
         Text(
