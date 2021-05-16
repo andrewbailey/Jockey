@@ -13,6 +13,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,6 +26,8 @@ import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
 import dev.andrewbailey.music.ui.layout.rememberCollapsingPageState
+import dev.andrewbailey.music.ui.library.albums.AllAlbumsRoot
+import dev.andrewbailey.music.ui.library.artists.AllArtistsRoot
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.LibraryPage
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
@@ -35,9 +38,7 @@ import kotlinx.coroutines.launch
 fun LibraryRoot(
     modifier: Modifier = Modifier
 ) {
-    // TODO: Use `rememberSaveable` after this bug is resolved in Compose:
-    //  https://issuetracker.google.com/issues/180042685
-    val selectedPage = /*rememberSaveable { */mutableStateOf(LibraryPage.Songs)/* }*/
+    val selectedPage = rememberSaveable { mutableStateOf(LibraryPage.Songs) }
     val coroutineScope = rememberCoroutineScope()
 
     val bottomSheetState = rememberCollapsingPageState(CollapsingPageValue.collapsed)
@@ -113,6 +114,12 @@ private fun LibraryContent(
 
             when (page) {
                 LibraryPage.Songs -> AllSongsRoot(
+                    modifier = contentModifier
+                )
+                LibraryPage.Albums -> AllAlbumsRoot(
+                    modifier = contentModifier
+                )
+                LibraryPage.Artists -> AllArtistsRoot(
                     modifier = contentModifier
                 )
                 else -> {
