@@ -24,8 +24,8 @@ buildscript {
         ],
         coil : '1.2.1',
         dagger : [
-            core : '2.35.1',
-            hilt : '2.35.1',
+            core : '2.36',
+            hilt : '2.36',
         ],
         exoplayer : [
             core : '2.13.3',
@@ -37,6 +37,12 @@ buildscript {
         ]
     ]
 
+    ext.options = [
+        encore : [
+            versionName : '0.1',
+        ],
+    ]
+
     repositories {
         google()
         mavenCentral()
@@ -44,7 +50,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-beta01'
+        classpath 'com.android.tools.build:gradle:7.0.0-beta03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.0.0"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.hilt}"

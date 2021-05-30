@@ -10,11 +10,10 @@ android {
     defaultConfig {
         minSdkVersion config.encoreMinSdkVersion
         targetSdkVersion config.targetSdkVersion
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-        buildConfigField "String", "VERSION_NAME", "\"$versionName\""
+        buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
     }
 
     buildTypes {
