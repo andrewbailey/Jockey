@@ -45,6 +45,9 @@ dependencies {
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
 
+    // (Optional) Coil dependency
+    compileOnly config.deps.coil.core
+
     // Testing
     testImplementation config.deps.test.junit
     androidTestImplementation config.deps.test.espresso

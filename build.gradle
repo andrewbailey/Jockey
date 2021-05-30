@@ -21,6 +21,7 @@ buildscript {
             viewmodel: '1.0.0-alpha04',
             accompanist: '0.9.1',
         ],
+        coil : '1.2.1',
         dagger : [
             core : '2.35.1',
             hilt : '2.35.1',
@@ -85,6 +86,10 @@ ext {
         ],
         accompanist : [
             insets: "com.google.accompanist:accompanist-insets:${versions.compose.accompanist}",
+        ],
+        coil : [
+            core: "io.coil-kt:coil:${versions.coil}",
+            compose: "com.google.accompanist:accompanist-coil:${versions.compose.accompanist}",
         ],
         exoplayer : [
             core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",
