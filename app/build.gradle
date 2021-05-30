@@ -64,6 +64,7 @@ dependencies {
     implementation config.deps.androidx.viewmodel
     implementation config.deps.androidx.livedata
     implementation config.deps.androidx.savedstate
+    implementation config.deps.androidx.palette
 
     // Compose
     implementation config.deps.compose.ui
