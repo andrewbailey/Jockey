@@ -15,10 +15,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.coil.rememberCoilPainter
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 
@@ -61,7 +61,10 @@ private fun AlbumCell(
         modifier = modifier
     ) {
         Image(
-            painter = ColorPainter(Color.Black),
+            painter = rememberCoilPainter(
+                request = album,
+                fadeIn = true
+            ),
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .background(Color.Black)

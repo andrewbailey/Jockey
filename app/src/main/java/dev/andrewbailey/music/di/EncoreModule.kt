@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
+import dev.andrewbailey.encore.provider.mediastore.artwork.MediaStoreArtworkProvider
 import dev.andrewbailey.music.library.JockeyMediaRepository
 import dev.andrewbailey.music.library.MediaRepository
 import dev.andrewbailey.music.player.PlayerService
@@ -30,5 +31,11 @@ class EncoreModule {
     fun provideEncoreController(
         @ApplicationContext context: Context
     ) = EncoreController.create(context, PlayerService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideMediaStoreArtworkProvider(
+        @ApplicationContext context: Context
+    ) = MediaStoreArtworkProvider(context)
 
 }

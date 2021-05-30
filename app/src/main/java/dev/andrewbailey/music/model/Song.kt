@@ -20,7 +20,7 @@ sealed class Song(
 
 @Parcelize
 data class LocalSong(
-    private val mediaStoreSong: MediaStoreSong
+    val mediaStoreSong: MediaStoreSong
 ) : Song(ORIGIN_ID, mediaStoreSong) {
 
     override val name: String
