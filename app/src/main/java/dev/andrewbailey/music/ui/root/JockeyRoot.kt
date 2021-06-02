@@ -2,6 +2,8 @@ package dev.andrewbailey.music.ui.root
 
 import androidx.compose.runtime.Composable
 import dev.andrewbailey.music.ui.library.LibraryRoot
+import dev.andrewbailey.music.ui.library.albums.AlbumPage
+import dev.andrewbailey.music.ui.navigation.AlbumScreen
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.navigation.NowPlayingScreen
 import dev.andrewbailey.music.ui.navigation.RootScreen
@@ -12,6 +14,7 @@ fun JockeyRoot() {
     LocalAppNavigator.current.render { currentScreen ->
         when (currentScreen) {
             is RootScreen -> LibraryRoot()
+            is AlbumScreen -> AlbumPage(currentScreen.album)
             is NowPlayingScreen -> NowPlayingRoot()
         }
     }

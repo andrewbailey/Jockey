@@ -14,10 +14,16 @@
     <string name="library_songs_empty_header">Couldn\'t find any songs</string>
     <string name="library_songs_empty_description">You can sync songs from your computer or download them from the Internet</string>
 
+    <string name="action_shuffle_all">Shuffle All</string>
+
+    <string name="duration_hr_min">%1$d hr %2$d min</string>
+    <string name="duration_min_sec">%1$d min %2$d sec</string>
+
     <string name="media_browser_all_songs_section">All Songs</string>
 
     <string name="content_description_album_art">Album artwork</string>
     <string name="content_description_close_page">Close page</string>
+    <string name="content_description_navigate_up">Navigate up</string>
     <string name="content_description_play">Play</string>
     <string name="content_description_pause">Pause</string>
     <string name="content_description_skip_next">Next track</string>

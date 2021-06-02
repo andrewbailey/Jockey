@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -19,7 +20,6 @@ import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SongList(
     songs: List<Song>,
@@ -29,40 +29,48 @@ fun SongList(
     LazyColumn(
         modifier = modifier
     ) {
-        itemsIndexed(
-            items = songs,
-            itemContent = { index, song ->
-                ListItem(
-                    icon = {
-                        Image(
-                            painter = rememberCoilPainter(request = song),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = song.name,
-                            maxLines = 1
-                        )
-                    },
-                    secondaryText = {
-                        Text(
-                            text = formattedAlbumArtist(song.album, song.artist),
-                            maxLines = 1
-                        )
-                    },
-                    modifier = if (onClickSong != null) {
-                        Modifier.clickable(onClick = { onClickSong(index, song) })
-                    } else {
-                        Modifier
-                    }
-                )
-                Divider()
-            }
-        )
+        songs(songs, onClickSong)
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun LazyListScope.songs(
+    songs: List<Song>,
+    onClickSong: ((index: Int, song: Song) -> Unit)? = null
+) {
+    itemsIndexed(
+        items = songs,
+        itemContent = { index, song ->
+            ListItem(
+                icon = {
+                    Image(
+                        painter = rememberCoilPainter(request = song),
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                },
+                text = {
+                    Text(
+                        text = song.name,
+                        maxLines = 1
+                    )
+                },
+                secondaryText = {
+                    Text(
+                        text = formattedAlbumArtist(song.album, song.artist),
+                        maxLines = 1
+                    )
+                },
+                modifier = if (onClickSong != null) {
+                    Modifier.clickable(onClick = { onClickSong(index, song) })
+                } else {
+                    Modifier
+                }
+            )
+            Divider()
+        }
+    )
 }
 
 private fun formattedAlbumArtist(album: Album?, artist: Artist?): String =

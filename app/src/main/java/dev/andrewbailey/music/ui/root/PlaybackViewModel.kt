@@ -85,6 +85,34 @@ class PlaybackViewModel @Inject constructor(
         )
     }
 
+    fun playShuffled(
+        mediaList: List<Song>
+    ) {
+        require(mediaList.isNotEmpty()) {
+            "Cannot play from an empty list"
+        }
+
+        val queueItems = mediaList.map {
+            QueueItem(
+                queueId = UUID.randomUUID(),
+                mediaItem = it
+            )
+        }
+
+        mediaController.setState(
+            TransportState.Active(
+                status = PlaybackState.PLAYING,
+                seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                queue = QueueState.Shuffled(
+                    linearQueue = queueItems,
+                    queue = queueItems.shuffled(),
+                    queueIndex = 0
+                ),
+                repeatMode = RepeatMode.REPEAT_NONE
+            )
+        )
+    }
+
     fun playAtQueueIndex(index: Int) {
         viewModelScope.launch {
             val currentState = mediaController.getState().transportState

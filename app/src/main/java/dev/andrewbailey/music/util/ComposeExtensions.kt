@@ -4,14 +4,17 @@ import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.PluralsRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -29,6 +32,20 @@ fun <T> observe(data: LiveData<T>): T? {
     }
 
     return result
+}
+
+@Composable
+@ReadOnlyComposable
+fun pluralsResource(@PluralsRes id: Int, quantity: Int): String {
+    val resources = LocalContext.current.resources
+    return resources.getQuantityString(id, quantity)
+}
+
+@Composable
+@ReadOnlyComposable
+fun pluralsResource(@PluralsRes id: Int, quantity: Int, vararg formatArgs: Any): String {
+    val resources = LocalContext.current.resources
+    return resources.getQuantityString(id, quantity, *formatArgs)
 }
 
 fun Color.Companion.fromRes(

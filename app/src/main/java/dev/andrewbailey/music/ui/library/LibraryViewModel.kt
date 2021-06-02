@@ -3,6 +3,7 @@ package dev.andrewbailey.music.ui.library
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.andrewbailey.music.library.MediaRepository
@@ -34,5 +35,11 @@ class LibraryViewModel @Inject constructor(
             value = mediaRepository.getAllArtists()
         }
     } as LiveData<List<Artist>>
+
+    fun getSongsInAlbum(album: Album): LiveData<List<Song>> {
+        return liveData {
+            emit(latestValue ?: mediaRepository.getSongsInAlbum(album))
+        }
+    }
 
 }
