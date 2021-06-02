@@ -4,10 +4,13 @@ import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import java.util.Stack
 import java.util.UUID
 import kotlinx.parcelize.Parcelize
@@ -27,8 +30,11 @@ class Navigator private constructor(
 
     private var popOverrides = Stack<() -> Boolean>()
 
+    private var currentScreen by mutableStateOf<BackStackEntry>(backStack.peek())
+
     fun push(screen: Screen) {
         backStack.push(BackStackEntry(screen))
+        currentScreen = backStack.peek()
     }
 
     fun pop(): Boolean {
@@ -40,6 +46,7 @@ class Navigator private constructor(
 
         if (backStack.size > 1) {
             backStack.pop()
+            currentScreen = backStack.peek()
             return true
         }
 
@@ -51,9 +58,8 @@ class Navigator private constructor(
         content: @Composable (Screen) -> Unit
     ) {
         with(stateHolder) {
-            val backStackEntry = backStack.peek()
-            SaveableStateProvider(key = backStackEntry.uuid) {
-                content(backStackEntry.screen)
+            SaveableStateProvider(key = currentScreen.uuid) {
+                content(currentScreen.screen)
             }
         }
     }
