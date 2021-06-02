@@ -46,7 +46,6 @@ internal class MediaStoreResolver(
             MediaStore.Audio.Albums._ID,
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.ARTIST,
-            MediaStore.Audio.Albums.ALBUM_ID,
             // noinspection inlinedapi
             MediaStore.Audio.Albums.ARTIST_ID
         )
