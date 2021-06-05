@@ -241,7 +241,8 @@ private fun PartiallyCollapsedPageLayout(
     )
 }
 
-inline class CollapsingPageValue(
+@JvmInline
+value class CollapsingPageValue(
     @FloatRange(from = 0.0, to = 1.0)
     val visibilityPercentage: Float
 ) {

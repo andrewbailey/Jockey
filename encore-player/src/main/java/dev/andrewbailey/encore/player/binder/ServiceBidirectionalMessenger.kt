@@ -5,7 +5,8 @@ import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.ipc.BidirectionalMessenger
 import dev.andrewbailey.ipc.bidirectionalMessenger
 
-internal inline class ServiceBidirectionalMessenger<M : MediaObject>(
+@JvmInline
+internal value class ServiceBidirectionalMessenger<M : MediaObject>(
     val messenger: BidirectionalMessenger<ServiceHostMessage<M>, ServiceClientMessage<M>>
 ) {
 
