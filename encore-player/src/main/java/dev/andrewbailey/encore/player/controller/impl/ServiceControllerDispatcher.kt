@@ -46,7 +46,7 @@ internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     }
 
     fun sendMessage(message: EncoreControllerCommand<M>) {
-        if (!messageQueue.offer(message)) {
+        if (!messageQueue.trySend(message).isSuccess) {
             throw RuntimeException("Failed to enqueue message to be dispatched.")
         }
     }

@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.statusBarsPadding
-import com.google.accompanist.insets.toPaddingValues
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
@@ -336,7 +336,7 @@ private fun NowPlayingQueue(
         modifier = modifier
     ) {
         LazyColumn(
-            contentPadding = LocalWindowInsets.current.navigationBars.toPaddingValues()
+            contentPadding = rememberInsetsPaddingValues(LocalWindowInsets.current.navigationBars)
         ) {
             itemsIndexed(
                 items = queue,

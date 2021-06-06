@@ -20,7 +20,7 @@ internal object ParcelSplitter {
     }
 
     fun <T : Parcelable> merge(chunks: List<ByteArray>, classLoader: ClassLoader): T? {
-        val mergedBytes = ByteArray(size = chunks.sumBy { it.size })
+        val mergedBytes = ByteArray(size = chunks.sumOf { it.size })
 
         var index = 0
         chunks.forEach { chunk ->
