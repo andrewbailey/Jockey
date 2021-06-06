@@ -14,6 +14,8 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
@@ -46,6 +48,17 @@ fun pluralsResource(@PluralsRes id: Int, quantity: Int): String {
 fun pluralsResource(@PluralsRes id: Int, quantity: Int, vararg formatArgs: Any): String {
     val resources = LocalContext.current.resources
     return resources.getQuantityString(id, quantity, *formatArgs)
+}
+
+fun SubcomposeMeasureScope.subcomposeSingle(
+    slotId: Any?,
+    content: @Composable () -> Unit
+): Measurable {
+    return subcompose(slotId, content).also {
+        require(it.size == 1) {
+            "The content block should have exactly one child."
+        }
+    }.first()
 }
 
 fun Color.Companion.fromRes(

@@ -18,22 +18,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.onSizeChanged
-import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.Body
-import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.BottomSheetContent
-import dev.andrewbailey.music.ui.layout.BottomSheetSaveStateKey.CollapsedContent
-import kotlin.math.abs
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -46,135 +44,139 @@ fun BottomSheetScaffold(
     state: CollapsingPageState = rememberCollapsingPageState(CollapsingPageValue.collapsed),
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val collapsedSheetHeight = remember { mutableStateOf(0) }
-    val layoutHeight = remember { mutableStateOf(0) }
+    SubcomposeLayout(modifier) { constraints ->
+        val wrapContentSizeConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
-    val shouldRenderBody = !state.isFullyExpanded
-    val expansionPercentage = state.state.value.visibilityPercentage
-    val shouldRenderShim = state.isPartiallyExpanded
+        val scrim = subcomposeSingle("scrim") {
+            Scrim(
+                state = state,
+                color = scrimColor,
+                modifier = Modifier.fillMaxSize()
+            )
+        }.measure(constraints)
 
-    val savedState = rememberSaveableStateHolder()
+        val collapsedSheetHeight = subcomposeSingle("collapsedSheetContents") {
+            collapsedSheetLayout()
+        }.measure(wrapContentSizeConstraints).height
 
-    Layout(
-        modifier = modifier
-            .fillMaxSize()
-            .onSizeChanged {
-                layoutHeight.value = it.height
-            },
-        content = {
-            if (shouldRenderBody) {
-                Box {
-                    savedState.SaveableStateProvider(Body) {
-                        bodyContent()
-                    }
-                }
-            } else {
-                Spacer(modifier = Modifier)
-            }
-
-            if (shouldRenderShim) {
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            // Do nothing -- just make sure tap events can't go through the shim
-                        }
-                ) {
-                    drawRect(scrimColor, alpha = expansionPercentage)
-                }
-            } else {
-                Spacer(modifier = Modifier)
-            }
-
-            Surface(
-                modifier = Modifier
-                    .onSizeChanged {
-                        if (state.isFullyCollapsed) {
-                            collapsedSheetHeight.value = it.height
-                        }
-                    }
-                    .draggable(
-                        orientation = Orientation.Vertical,
-                        state = rememberDraggableState { dY ->
-                            val distanceToExpandOver =
-                                layoutHeight.value - collapsedSheetHeight.value
-                            val expansionChange = -dY / distanceToExpandOver
-                            val newExpansion = expansionPercentage + expansionChange
-                            coroutineScope.launch {
-                                state.snapTo(CollapsingPageValue(newExpansion.coerceIn(0.0f, 1.0f)))
-                            }
-                        },
-                        onDragStopped = { velocity ->
-                            // TODO: There's a small bug here where the velocity is sometimes zero.
-                            //  This causes the bottom sheet to immediately return where it was,
-                            //  regardless of the actual swipe speed. This might be fixed in a
-                            //  future Compose release. Alternatively, there might be a performance
-                            //  issue that's causing too many touch samples to be dropped.
-                            coroutineScope.launch {
-                                when {
-                                    abs(velocity) < 0 -> state.expand()
-                                    velocity > 0 -> state.collapse()
-                                    expansionPercentage > 0.5 -> state.expand()
-                                    else -> state.collapse()
-                                }
-                            }
-                        }
-                    )
-            ) {
-                PartiallyCollapsedPageLayout(
-                    collapsedSheetLayout = {
-                        with(savedState) {
-                            SaveableStateProvider(CollapsedContent) {
-                                collapsedSheetLayout()
-                            }
-                        }
-                    },
-                    expandedSheetLayout = {
-                        with(savedState) {
-                            SaveableStateProvider(BottomSheetContent) {
-                                expandedSheetLayout()
-                            }
-                        }
-                    },
-                    percentExpanded = expansionPercentage,
-                    onCollapsedSheetLayoutMeasured = { _, heightPx ->
-                        collapsedSheetHeight.value = heightPx
-                    }
+        val layoutSize = IntSize(scrim.width, scrim.height)
+        layout(layoutSize.width, layoutSize.height) {
+            subcomposeSingle("body") {
+                BodyContent(
+                    bodyContent = bodyContent
                 )
-            }
-        },
-        measurePolicy = remember(state) {
-            MeasurePolicy { measurables, constraints ->
-                val bodyLayout = measurables[0]
-                val scrimLayout = measurables[1]
-                val bottomSheet = measurables[2]
+            }.measure(
+                constraints.copy(
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight - collapsedSheetHeight
+                )
+            ).place(0, 0)
 
-                val bodyPlaceable = bodyLayout.measure(
-                    constraints.copy(
-                        minHeight = constraints.minHeight - collapsedSheetHeight.value,
-                        maxHeight = constraints.maxHeight - collapsedSheetHeight.value
+            scrim.place(0, 0)
+
+            subcomposeSingle("sheet") {
+                CollapsableContent(
+                    state = state,
+                    collapsedContent = collapsedSheetLayout,
+                    expandedContent = expandedSheetLayout,
+                    modifier = Modifier.collapsible(
+                        state = state,
+                        distanceToExpandOver = constraints.maxHeight - collapsedSheetHeight
                     )
                 )
-
-                val scrimPlaceable = scrimLayout.measure(constraints)
-                val bottomSheetPlaceable = bottomSheet.measure(
-                    constraints.copy(
-                        minHeight = 0
-                    )
-                )
-
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    bodyPlaceable.place(0, 0)
-                    scrimPlaceable.place(0, 0)
-                    bottomSheetPlaceable.place(
-                        x = 0,
-                        y = constraints.maxHeight - bottomSheetPlaceable.height
-                    )
-                }
+            }.measure(wrapContentSizeConstraints).run {
+                place(0, layoutSize.height - height)
             }
         }
+    }
+}
+
+@Composable
+private fun Modifier.collapsible(
+    state: CollapsingPageState,
+    distanceToExpandOver: Int,
+    enabled: Boolean = true,
+    reverseDirection: Boolean = false,
+): Modifier {
+    val coroutineScope = rememberCoroutineScope()
+
+    return draggable(
+        orientation = Orientation.Vertical,
+        enabled = enabled,
+        reverseDirection = reverseDirection,
+        startDragImmediately = state.isAnimationRunning,
+        state = rememberDraggableState { dY ->
+            val expansionChange = -dY / distanceToExpandOver
+            val newExpansion = state.currentValue.visibilityPercentage + expansionChange
+            coroutineScope.launch {
+                state.snapTo(CollapsingPageValue(newExpansion.coerceIn(0.0f, 1.0f)))
+            }
+        },
+        onDragStopped = { velocity -> launch { state.performFling(velocity) } }
     )
+}
+
+@Composable
+private fun BodyContent(
+    modifier: Modifier = Modifier,
+    bodyContent: @Composable () -> Unit = {}
+) {
+    val shouldRenderBody = true // !state.isFullyExpanded
+    if (shouldRenderBody) {
+        Box(modifier = modifier) {
+            bodyContent()
+        }
+    } else {
+        Spacer(modifier = modifier)
+    }
+}
+
+@Composable
+private fun Scrim(
+    state: CollapsingPageState,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    val shouldRenderShim = state.isPartiallyExpanded
+    if (shouldRenderShim) {
+        Canvas(
+            modifier = modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    // Do nothing -- just make sure tap events can't go through the shim
+                }
+        ) {
+            drawRect(color, alpha = state.currentValue.visibilityPercentage)
+        }
+    } else {
+        Spacer(modifier = modifier)
+    }
+}
+
+@Composable
+private fun CollapsableContent(
+    state: CollapsingPageState,
+    modifier: Modifier = Modifier,
+    collapsedContent: @Composable () -> Unit = {},
+    expandedContent: @Composable () -> Unit = {}
+) {
+    val expansionPercentage = state.currentValue.visibilityPercentage
+
+    Surface(
+        modifier = modifier
+            .wrapContentHeight()
+            .shadow(elevation = 16.dp)
+    ) {
+        PartiallyCollapsedPageLayout(
+            collapsedSheetLayout = {
+                collapsedContent()
+            },
+            expandedSheetLayout = {
+                expandedContent()
+            },
+            percentExpanded = expansionPercentage
+        )
+    }
 }
 
 @Composable
@@ -182,11 +184,10 @@ private fun PartiallyCollapsedPageLayout(
     collapsedSheetLayout: @Composable () -> Unit,
     expandedSheetLayout: @Composable () -> Unit,
     percentExpanded: Float,
-    modifier: Modifier = Modifier,
-    onCollapsedSheetLayoutMeasured: (widthPx: Int, heightPx: Int) -> Unit = { _, _ -> }
+    modifier: Modifier = Modifier
 ) {
-    val shouldDrawExpandedLayout = percentExpanded > 0
-    val shouldDrawCollapsedLayout = percentExpanded < 1
+    val shouldDrawExpandedLayout = true
+    val shouldDrawCollapsedLayout = true
 
     Layout(
         modifier = modifier,
@@ -205,19 +206,10 @@ private fun PartiallyCollapsedPageLayout(
         },
         measurePolicy = remember(percentExpanded) {
             MeasurePolicy { measurables, constraints ->
-                val placeableExpandedLayout =
-                    measurables.first().takeIf { shouldDrawExpandedLayout }
-                        ?.measure(constraints)
+                val (expandedContent, collapsedContent) = measurables
+                    .map { it.measure(constraints) }
 
-                val placeableCollapsedLayout =
-                    measurables.last().takeIf { shouldDrawCollapsedLayout }
-                        ?.measure(constraints)
-
-                placeableCollapsedLayout?.let {
-                    onCollapsedSheetLayoutMeasured(it.width, it.height)
-                }
-
-                val collapsedHeight = placeableCollapsedLayout?.height ?: 0
+                val collapsedHeight = collapsedContent.height
                 val height: Int = when (percentExpanded) {
                     0f -> collapsedHeight
                     1f -> constraints.maxHeight
@@ -230,11 +222,11 @@ private fun PartiallyCollapsedPageLayout(
                             "percentExpanded must be within 0..1 (was $percentExpanded)"
                         )
                     }
-                }
+                }.coerceIn(constraints.minHeight, constraints.maxHeight)
 
                 layout(constraints.maxWidth, height) {
-                    placeableExpandedLayout?.place(0, 0)
-                    placeableCollapsedLayout?.place(0, 0)
+                    expandedContent.takeIf { shouldDrawExpandedLayout }?.place(0, 0)
+                    collapsedContent.takeIf { shouldDrawCollapsedLayout }?.place(0, 0)
                 }
             }
         }
@@ -287,6 +279,9 @@ class CollapsingPageState(
         )
     }
 
+    val isAnimationRunning: Boolean
+        get() = animator.isRunning
+
     val state = animator.asState()
 
     val currentValue
@@ -327,16 +322,21 @@ class CollapsingPageState(
         return animationResult.endState.value == CollapsingPageValue.expanded
     }
 
+    suspend fun performFling(velocity: Float) {
+        animateTo(
+            targetValue = when {
+                velocity < 0 -> CollapsingPageValue.expanded
+                velocity > 0 -> CollapsingPageValue.collapsed
+                state.value.visibilityPercentage < 0.5 -> CollapsingPageValue.expanded
+                else -> CollapsingPageValue.collapsed
+            }
+        )
+    }
+
     companion object {
         fun Saver() = Saver<CollapsingPageState, Float>(
             save = { it.currentValue.visibilityPercentage },
             restore = { CollapsingPageState(CollapsingPageValue(it)) }
         )
     }
-}
-
-private enum class BottomSheetSaveStateKey {
-    Body,
-    CollapsedContent,
-    BottomSheetContent
 }
