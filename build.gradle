@@ -7,13 +7,13 @@ buildscript {
             coroutines: '1.5.0-RC'
         ],
         androidx : [
-            core : '1.5.0-beta01',
+            core : '1.6.0-beta02',
             annotation : '1.3.0-alpha01',
-            appcompat : '1.3.0-rc01',
-            fragment : '1.3.3',
+            appcompat : '1.4.0-alpha02',
+            fragment : '1.4.0-alpha02',
             lifecycle : '2.4.0-alpha01',
             savedstate: '2.4.0-alpha01',
-            media: '1.3.0',
+            media: '1.4.0-alpha01',
             palette : '1.0.0',
         ],
         compose : [
@@ -22,7 +22,7 @@ buildscript {
             viewmodel: '1.0.0-alpha06',
             accompanist: '0.11.1',
         ],
-        coil : '1.2.1',
+        coil : '1.2.2',
         dagger : [
             core : '2.36',
             hilt : '2.36',
