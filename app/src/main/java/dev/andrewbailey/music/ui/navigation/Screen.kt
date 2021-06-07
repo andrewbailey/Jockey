@@ -11,6 +11,3 @@ object RootScreen : Screen()
 
 @Parcelize
 data class AlbumScreen(val album: Album) : Screen()
-
-@Parcelize
-object NowPlayingScreen : Screen()
