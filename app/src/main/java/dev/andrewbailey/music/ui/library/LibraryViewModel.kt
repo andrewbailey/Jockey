@@ -42,4 +42,16 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
+    fun getSongsByArtist(artist: Artist): LiveData<List<Song>> {
+        return liveData {
+            emit(latestValue ?: mediaRepository.getSongsByArtist(artist))
+        }
+    }
+
+    fun getAlbumsByArtist(artist: Artist): LiveData<List<Album>> {
+        return liveData {
+            emit(latestValue ?: mediaRepository.getAlbumsByArtist(artist))
+        }
+    }
+
 }

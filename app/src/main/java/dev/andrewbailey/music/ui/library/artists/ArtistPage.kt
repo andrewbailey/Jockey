@@ -11,14 +11,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
+import dev.andrewbailey.music.ui.library.LibraryViewModel
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
 @Composable
@@ -26,6 +28,11 @@ fun ArtistPage(
     artist: Artist,
     modifier: Modifier = Modifier
 ) {
+    val libraryViewModel = viewModel<LibraryViewModel>()
+
+    val songs by libraryViewModel.getSongsByArtist(artist).observeAsState()
+    val albums by libraryViewModel.getAlbumsByArtist(artist).observeAsState()
+
     LibraryPageLayout(
         modifier = modifier
     ) {
@@ -35,6 +42,12 @@ fun ArtistPage(
             Column {
                 StatusBarBackground()
                 ArtistTopAppBar(artist)
+
+                ArtistContent(
+                    artist = artist,
+                    songs = songs,
+                    albums = albums
+                )
             }
         }
     }
