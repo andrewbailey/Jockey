@@ -67,6 +67,10 @@ private fun ArtistContentList(
         modifier = modifier
     ) {
         item {
+            ArtistBio(artist = artist, songs = songs, albums = albums)
+        }
+
+        item {
             val paletteCache = rememberPaletteCache()
             LazyRow(
                 modifier = Modifier.height(180.dp),
