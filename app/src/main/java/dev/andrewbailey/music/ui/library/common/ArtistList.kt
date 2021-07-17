@@ -16,7 +16,7 @@ import dev.andrewbailey.music.model.Artist
 fun ArtistList(
     artists: List<Artist>,
     modifier: Modifier = Modifier,
-    onClickSong: ((index: Int, artists: Artist) -> Unit)? = null
+    onClickArtist: ((index: Int, artists: Artist) -> Unit)? = null
 ) {
     LazyColumn(
         modifier = modifier
@@ -31,8 +31,8 @@ fun ArtistList(
                             maxLines = 1
                         )
                     },
-                    modifier = if (onClickSong != null) {
-                        Modifier.clickable(onClick = { onClickSong(index, artists) })
+                    modifier = if (onClickArtist != null) {
+                        Modifier.clickable(onClick = { onClickArtist(index, artists) })
                     } else {
                         Modifier
                     }

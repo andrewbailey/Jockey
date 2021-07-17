@@ -17,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.library.LibraryViewModel
 import dev.andrewbailey.music.ui.library.common.ArtistList
+import dev.andrewbailey.music.ui.navigation.ArtistScreen
+import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.observe
 
 @Composable
@@ -24,6 +26,7 @@ fun AllArtistsRoot(
     modifier: Modifier = Modifier
 ) {
     val libraryViewModel = viewModel<LibraryViewModel>()
+    val navigator = LocalAppNavigator.current
 
     val artists = observe(libraryViewModel.artists)
     when {
@@ -31,7 +34,10 @@ fun AllArtistsRoot(
         artists.isEmpty() -> AllArtistsEmptyState(modifier)
         else -> ArtistList(
             artists = artists,
-            modifier = modifier
+            modifier = modifier,
+            onClickArtist = { _, artist ->
+                navigator.push(ArtistScreen(artist))
+            }
         )
     }
 }
