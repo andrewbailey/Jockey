@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyGridScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
@@ -53,21 +55,59 @@ fun AlbumList(
         contentPadding = PaddingValues(all = gridPadding / 2),
         modifier = modifier
     ) {
-        itemsIndexed(albums) { index, album ->
-            AlbumCell(
-                album = album,
-                paletteCache = paletteCache,
-                modifier = Modifier
-                    .padding(all = gridPadding / 2)
-                    .then(
-                        other = if (onClickAlbum != null) {
-                            Modifier.clickable(onClick = { onClickAlbum(index, album) })
-                        } else {
-                            Modifier
-                        }
-                    )
-            )
-        }
+        albums(
+            albums = albums,
+            paletteCache = paletteCache,
+            gridPadding = gridPadding,
+            onClickAlbum = onClickAlbum
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun LazyGridScope.albums(
+    albums: List<Album>,
+    paletteCache: PaletteCache,
+    gridPadding: Dp = 4.dp,
+    onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
+) {
+    itemsIndexed(albums) { index, album ->
+        AlbumCell(
+            album = album,
+            paletteCache = paletteCache,
+            modifier = Modifier
+                .padding(all = gridPadding / 2)
+                .then(
+                    other = if (onClickAlbum != null) {
+                        Modifier.clickable(onClick = { onClickAlbum(index, album) })
+                    } else {
+                        Modifier
+                    }
+                )
+        )
+    }
+}
+
+fun LazyListScope.albums(
+    albums: List<Album>,
+    paletteCache: PaletteCache,
+    gridPadding: Dp = 4.dp,
+    onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
+) {
+    itemsIndexed(albums) { index, album ->
+        AlbumCell(
+            album = album,
+            paletteCache = paletteCache,
+            modifier = Modifier
+                .padding(all = gridPadding / 2)
+                .then(
+                    other = if (onClickAlbum != null) {
+                        Modifier.clickable(onClick = { onClickAlbum(index, album) })
+                    } else {
+                        Modifier
+                    }
+                )
+        )
     }
 }
 
