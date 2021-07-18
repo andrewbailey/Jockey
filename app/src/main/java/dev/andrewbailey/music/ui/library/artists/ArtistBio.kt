@@ -22,12 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.util.pluralsResource
 import dev.andrewbailey.music.util.rememberLetterPainter
 
@@ -144,7 +143,7 @@ private fun ShuffleAllButton(
     modifier: Modifier = Modifier
 ) {
     if (songs?.isNotEmpty() == true) {
-        val playbackViewModel = viewModel<PlaybackViewModel>()
+        val playbackController = LocalPlaybackController.current
 
         OutlinedButton(
             colors = ButtonDefaults.outlinedButtonColors(
@@ -152,7 +151,7 @@ private fun ShuffleAllButton(
             ),
             modifier = modifier.padding(top = 8.dp),
             onClick = {
-                playbackViewModel.playShuffled(songs)
+                playbackController.playShuffled(songs)
             }
         ) {
             Icon(

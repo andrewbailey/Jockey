@@ -6,35 +6,16 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.neverEqualPolicy
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import kotlin.math.abs
 import kotlin.math.roundToInt
-
-@Composable
-fun <T> observe(data: LiveData<T>): T? {
-    var result by remember { mutableStateOf(data.value, neverEqualPolicy()) }
-    val observer = remember { Observer<T> { result = it } }
-
-    DisposableEffect(data) {
-        data.observeForever(observer)
-        onDispose { data.removeObserver(observer) }
-    }
-
-    return result
-}
 
 @Composable
 @ReadOnlyComposable

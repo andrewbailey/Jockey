@@ -8,32 +8,32 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
-import dev.andrewbailey.music.ui.library.LibraryViewModel
+import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.library.common.AlbumList
 import dev.andrewbailey.music.ui.navigation.AlbumScreen
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.util.observe
 
 @Composable
 fun AllAlbumsRoot(
     modifier: Modifier = Modifier
 ) {
-    val libraryViewModel = viewModel<LibraryViewModel>()
+    val mediaLibrary = LocalMediaLibrary.current
     val navigator = LocalAppNavigator.current
 
-    val albums = observe(libraryViewModel.albums)
+    val albums = mediaLibrary.albums.collectAsState().value
     when {
         albums == null -> AllAlbumsLoadingState(modifier)
-        albums.isEmpty() -> AllAlbumsEmptyState(modifier)
+        albums.isNullOrEmpty() -> AllAlbumsEmptyState(modifier)
         else -> AlbumList(
-            albums = albums,
+            albums = albums.orEmpty(),
             modifier = modifier,
             onClickAlbum = { _, album ->
                 navigator.push(AlbumScreen(album))

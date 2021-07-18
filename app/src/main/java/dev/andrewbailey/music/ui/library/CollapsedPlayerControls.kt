@@ -25,6 +25,7 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +41,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
-import dev.andrewbailey.music.util.observe
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
 
 private val controlBarHeight = 50.dp
 
@@ -54,8 +53,8 @@ private val controlBarHeight = 50.dp
 fun CollapsedPlayerControls(
     modifier: Modifier = Modifier
 ) {
-    val playbackViewModel = viewModel<PlaybackViewModel>()
-    val playbackState = observe(playbackViewModel.playbackState)
+    val playbackController = LocalPlaybackController.current
+    val playbackState by playbackController.playbackState.collectAsState()
 
     val visibilityTransition = updateTransition(playbackState is MediaPlayerState.Prepared)
     val contentOpacity by visibilityTransition.animateFloat(
@@ -100,8 +99,8 @@ fun CollapsedPlayerControls(
     val previousContent = remember { mutableStateOf(playbackState as? MediaPlayerState.Prepared) }
 
     Box(modifier = modifier.requiredHeight(contentHeight)) {
-        if (playbackState is MediaPlayerState.Prepared) {
-            previousContent.value = playbackState
+        (playbackState as? MediaPlayerState.Prepared<Song>)?.let {
+            previousContent.value = it
         }
 
         val playbackStateToDisplay = previousContent.value
@@ -113,9 +112,9 @@ fun CollapsedPlayerControls(
                     .offset(y = (controlBarHeight - contentHeight) / 2)
                     .alpha(contentOpacity)
                     .fillMaxWidth(),
-                onPlayClicked = playbackViewModel::play,
-                onPauseClicked = playbackViewModel::pause,
-                onSkipNextClicked = playbackViewModel::skipNext
+                onPlayClicked = playbackController::play,
+                onPauseClicked = playbackController::pause,
+                onSkipNextClicked = playbackController::skipNext
             )
         }
     }

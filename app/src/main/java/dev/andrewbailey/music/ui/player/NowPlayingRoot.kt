@@ -32,6 +32,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,7 +50,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.statusBarsPadding
@@ -59,9 +60,9 @@ import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
+import dev.andrewbailey.music.ui.data.PlaybackController
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
-import dev.andrewbailey.music.util.observe
 
 @Composable
 fun NowPlayingRoot(
@@ -69,8 +70,8 @@ fun NowPlayingRoot(
     @FloatRange(from = 0.0, to = 1.0)
     percentVisible: Float = 1.0f
 ) {
-    val viewModel = viewModel<PlaybackViewModel>()
-    val playbackState = observe(viewModel.playbackState)
+    val playbackController = LocalPlaybackController.current
+    val playbackState by playbackController.playbackState.collectAsState()
 
     Column(
         modifier = modifier.fillMaxHeight()
@@ -82,7 +83,7 @@ fun NowPlayingRoot(
                 .aspectRatio(1.0f)
         ) {
             NowPlayingToolbar(
-                playbackViewModel = viewModel,
+                playbackController = playbackController,
                 playbackState = playbackState,
                 modifier = Modifier.alpha((2 * percentVisible - 1).coerceIn(0f..1f))
             )
@@ -120,7 +121,7 @@ fun NowPlayingRoot(
 
 @Composable
 private fun NowPlayingToolbar(
-    playbackViewModel: PlaybackViewModel,
+    playbackController: PlaybackController,
     playbackState: MediaPlayerState<Song>?,
     modifier: Modifier = Modifier
 ) {
@@ -152,7 +153,7 @@ private fun NowPlayingToolbar(
                 }
 
                 IconButton(
-                    onClick = { playbackViewModel.setShuffleMode(toggledShuffleMode) }
+                    onClick = { playbackController.setShuffleMode(toggledShuffleMode) }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_shuffle),
@@ -198,7 +199,7 @@ private fun ActiveNowPlayingControls(
     playbackState: MediaPlayerState.Prepared<Song>,
     modifier: Modifier
 ) {
-    val viewModel = viewModel<PlaybackViewModel>()
+    val playbackController = LocalPlaybackController.current
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -237,7 +238,7 @@ private fun ActiveNowPlayingControls(
                 ?: playbackState.transportState.seekPosition.seekPositionMillis.toFloat(),
             onValueChange = { userSeekPosition.value = it },
             onValueChangeFinished = {
-                viewModel.seekTo(
+                playbackController.seekTo(
                     checkNotNull(userSeekPosition.value) {
                         "Failed to finalize seek because the requested seek position is unknown."
                     }.toLong()
@@ -258,7 +259,7 @@ private fun ActiveNowPlayingControls(
                 modifier = Modifier.weight(1.0f),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = viewModel::skipPrevious) {
+                IconButton(onClick = playbackController::skipPrevious) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_previous),
                         contentDescription = stringResource(
@@ -274,7 +275,7 @@ private fun ActiveNowPlayingControls(
                 contentAlignment = Alignment.Center
             ) {
                 if (playbackState.transportState.status == PlaybackState.PLAYING) {
-                    IconButton(onClick = viewModel::pause) {
+                    IconButton(onClick = playbackController::pause) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_pause),
                             contentDescription = stringResource(R.string.content_description_pause),
@@ -282,7 +283,7 @@ private fun ActiveNowPlayingControls(
                         )
                     }
                 } else {
-                    IconButton(onClick = viewModel::play) {
+                    IconButton(onClick = playbackController::play) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_play),
                             contentDescription = stringResource(R.string.content_description_play),
@@ -296,7 +297,7 @@ private fun ActiveNowPlayingControls(
                 modifier = Modifier.weight(1.0f),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = viewModel::skipNext) {
+                IconButton(onClick = playbackController::skipNext) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_next),
                         contentDescription = stringResource(R.string.content_description_skip_next),
@@ -328,7 +329,7 @@ private fun NowPlayingQueue(
     queue: List<QueueItem<Song>>,
     modifier: Modifier = Modifier
 ) {
-    val viewModel = viewModel<PlaybackViewModel>()
+    val playbackController = LocalPlaybackController.current
 
     Surface(
         elevation = 0.dp,
@@ -351,7 +352,7 @@ private fun NowPlayingQueue(
                         modifier = Modifier
                             .clickable(
                                 onClick = {
-                                    viewModel.playAtQueueIndex(index)
+                                    playbackController.playAtQueueIndex(index)
                                 }
                             )
                     )

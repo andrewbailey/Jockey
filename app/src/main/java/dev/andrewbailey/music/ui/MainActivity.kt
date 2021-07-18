@@ -16,14 +16,22 @@ import androidx.core.view.WindowCompat
 import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.R
+import dev.andrewbailey.music.ui.data.LocalMediaLibrary
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
+import dev.andrewbailey.music.ui.data.MediaLibrary
+import dev.andrewbailey.music.ui.data.PlaybackController
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.navigation.Navigator
 import dev.andrewbailey.music.ui.navigation.Navigator.Companion.rememberNavigator
 import dev.andrewbailey.music.ui.root.JockeyRoot
 import dev.andrewbailey.music.util.fromRes
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject lateinit var mediaLibrary: MediaLibrary
+    @Inject lateinit var playbackController: PlaybackController
 
     private lateinit var navigator: Navigator
 
@@ -39,7 +47,9 @@ class MainActivity : AppCompatActivity() {
             ) {
                 ProvideWindowInsets {
                     CompositionLocalProvider(
-                        LocalAppNavigator provides navigator
+                        LocalAppNavigator provides navigator,
+                        LocalMediaLibrary provides mediaLibrary,
+                        LocalPlaybackController provides playbackController
                     ) {
                         JockeyRoot(
                             modifier = Modifier.fillMaxSize()

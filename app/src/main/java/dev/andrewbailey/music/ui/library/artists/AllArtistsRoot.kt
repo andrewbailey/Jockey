@@ -8,27 +8,27 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.R
-import dev.andrewbailey.music.ui.library.LibraryViewModel
+import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.library.common.ArtistList
 import dev.andrewbailey.music.ui.navigation.ArtistScreen
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.util.observe
 
 @Composable
 fun AllArtistsRoot(
     modifier: Modifier = Modifier
 ) {
-    val libraryViewModel = viewModel<LibraryViewModel>()
+    val mediaLibrary = LocalMediaLibrary.current
     val navigator = LocalAppNavigator.current
 
-    val artists = observe(libraryViewModel.artists)
+    val artists = mediaLibrary.artists.collectAsState().value
     when {
         artists == null -> AllArtistsLoadingState(modifier)
         artists.isEmpty() -> AllArtistsEmptyState(modifier)

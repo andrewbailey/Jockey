@@ -59,10 +59,7 @@ dependencies {
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
     implementation config.deps.androidx.appcompat
-    implementation config.deps.androidx.fragment
     implementation config.deps.androidx.lifecycle
-    implementation config.deps.androidx.viewmodel
-    implementation config.deps.androidx.livedata
     implementation config.deps.androidx.savedstate
     implementation config.deps.androidx.palette
 
@@ -73,8 +70,6 @@ dependencies {
     implementation config.deps.compose.animation
     implementation config.deps.compose.runtime
     implementation config.deps.compose.activity
-    implementation config.deps.compose.viewmodel
-    implementation config.deps.compose.livedata
     implementation config.deps.accompanist.insets
     implementation config.deps.coil.core
     implementation config.deps.coil.compose

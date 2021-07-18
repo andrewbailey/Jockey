@@ -21,7 +21,8 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,18 +30,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.coil.rememberCoilPainter
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Song
+import dev.andrewbailey.music.ui.data.LocalMediaLibrary
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
-import dev.andrewbailey.music.ui.library.LibraryViewModel
 import dev.andrewbailey.music.ui.library.common.songs
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.pluralsResource
 
 @OptIn(ExperimentalAnimatedInsets::class)
@@ -49,9 +49,9 @@ fun AlbumPage(
     album: Album,
     modifier: Modifier = Modifier
 ) {
-    val libraryViewModel = viewModel<LibraryViewModel>()
-    val playbackViewModel = viewModel<PlaybackViewModel>()
-    val songs = libraryViewModel.getSongsInAlbum(album).observeAsState().value
+    val mediaLibrary = LocalMediaLibrary.current
+    val playbackController = LocalPlaybackController.current
+    val songs = remember { mediaLibrary.getSongsInAlbum(album) }.collectAsState().value
 
     LibraryPageLayout(
         modifier = modifier
@@ -83,7 +83,7 @@ fun AlbumPage(
                         songs(
                             songs = songs,
                             onClickSong = { index, _ ->
-                                playbackViewModel.playFrom(songs, index)
+                                playbackController.playFrom(songs, index)
                             }
                         )
                     }
@@ -179,7 +179,7 @@ private fun AlbumHeader(
             )
 
             if (songs?.isNotEmpty() == true) {
-                val playbackViewModel = viewModel<PlaybackViewModel>()
+                val playbackController = LocalPlaybackController.current
 
                 OutlinedButton(
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -189,7 +189,7 @@ private fun AlbumHeader(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     onClick = {
-                        playbackViewModel.playShuffled(songs)
+                        playbackController.playShuffled(songs)
                     }
                 ) {
                     Icon(

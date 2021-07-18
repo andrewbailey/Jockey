@@ -1,12 +1,12 @@
-package dev.andrewbailey.music.ui.root
+package dev.andrewbailey.music.ui.data
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.compose.runtime.compositionLocalOf
+import dagger.hilt.android.ActivityRetainedLifecycle
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
+import dev.andrewbailey.encore.player.controller.EncoreToken
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
@@ -18,20 +18,27 @@ import dev.andrewbailey.music.model.Song
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class PlaybackViewModel @Inject constructor(
-    private val mediaController: EncoreController<Song>
-) : ViewModel() {
+val LocalPlaybackController = compositionLocalOf<PlaybackController> {
+    error("No playback controller has been set")
+}
 
-    private val token = mediaController.acquireToken()
+@ActivityRetainedScoped
+class PlaybackController @Inject constructor(
+    lifecycle: ActivityRetainedLifecycle,
+    private val mediaController: EncoreController<Song>
+) : UiMediator(lifecycle) {
+
+    private var token: EncoreToken = mediaController.acquireToken()
 
     val playbackState = mediaController
         .observeState(seekUpdateFrequency = WhilePlayingEvery(100, TimeUnit.MILLISECONDS))
-        .asLiveData()
+        .stateIn(coroutineScope, WhileSubscribed(replayExpirationMillis = 0), null)
 
-    override fun onCleared() {
+    override fun onDestroy() {
         mediaController.releaseToken(token)
     }
 
@@ -114,22 +121,19 @@ class PlaybackViewModel @Inject constructor(
     }
 
     fun playAtQueueIndex(index: Int) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             val currentState = mediaController.getState().transportState
-            if (currentState is TransportState.Active) {
-                mediaController.setState(
-                    currentState.copy(
-                        status = PlaybackState.PLAYING,
-                        seekPosition = SeekPosition.AbsoluteSeekPosition(0L),
-                        queue = currentState.queue.copy(queueIndex = index)
-                    )
-                )
-            } else {
-                throw IllegalStateException(
-                    "Cannot change the seek position " +
-                        "because nothing is playing."
-                )
+            check(currentState is TransportState.Active) {
+                "Cannot change the seek position because nothing is playing."
             }
+
+            mediaController.setState(
+                currentState.copy(
+                    status = PlaybackState.PLAYING,
+                    seekPosition = SeekPosition.AbsoluteSeekPosition(0L),
+                    queue = currentState.queue.copy(queueIndex = index)
+                )
+            )
         }
     }
 

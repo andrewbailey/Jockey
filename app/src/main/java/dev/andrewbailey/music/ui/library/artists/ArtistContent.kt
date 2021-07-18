@@ -10,15 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.library.common.albums
 import dev.andrewbailey.music.ui.library.common.songs
 import dev.andrewbailey.music.ui.navigation.AlbumScreen
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.ui.root.PlaybackViewModel
 import dev.andrewbailey.music.util.rememberPaletteCache
 
 @Composable
@@ -60,7 +59,7 @@ private fun ArtistContentList(
     albums: List<Album>,
     modifier: Modifier = Modifier
 ) {
-    val playbackViewModel = viewModel<PlaybackViewModel>()
+    val playbackController = LocalPlaybackController.current
     val navigator = LocalAppNavigator.current
 
     LazyColumn(
@@ -90,7 +89,7 @@ private fun ArtistContentList(
         songs(
             songs = songs,
             onClickSong = { index, _ ->
-                playbackViewModel.playFrom(songs, index)
+                playbackController.playFrom(songs, index)
             }
         )
     }
