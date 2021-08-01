@@ -3,7 +3,6 @@ package dev.andrewbailey.encore.provider.mediastore.entity
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.core.database.getIntOrNull
 import dev.andrewbailey.encore.provider.mediastore.getIntOrNull
 import dev.andrewbailey.encore.provider.mediastore.getLong
 import dev.andrewbailey.encore.provider.mediastore.getLongOrNull

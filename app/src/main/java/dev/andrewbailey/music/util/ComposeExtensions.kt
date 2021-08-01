@@ -7,8 +7,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
@@ -97,9 +95,8 @@ val Color.saturation: Float
     get() {
         val chromaMax = maxOf(red, green, blue)
         val chromaMin = minOf(red, green, blue)
-        val chromaDelta = chromaMax - chromaMin
 
-        return when (chromaDelta) {
+        return when (val chromaDelta = chromaMax - chromaMin) {
             0f -> 0f
             else -> chromaDelta / (1 - abs(2 * luminance - 1))
         }

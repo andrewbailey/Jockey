@@ -14,19 +14,21 @@ import dev.andrewbailey.music.ui.navigation.RootScreen
 fun JockeyRoot(
     modifier: Modifier = Modifier
 ) {
-    LocalAppNavigator.current.render { currentScreen ->
-        when (currentScreen) {
-            is RootScreen -> LibraryRoot(
-                modifier = modifier
-            )
-            is AlbumScreen -> AlbumPage(
-                album = currentScreen.album,
-                modifier = modifier
-            )
-            is ArtistScreen -> ArtistPage(
-                artist = currentScreen.artist,
-                modifier = modifier
-            )
+    with(LocalAppNavigator.current) {
+        NavContent { currentScreen ->
+            when (currentScreen) {
+                is RootScreen -> LibraryRoot(
+                    modifier = modifier
+                )
+                is AlbumScreen -> AlbumPage(
+                    album = currentScreen.album,
+                    modifier = modifier
+                )
+                is ArtistScreen -> ArtistPage(
+                    artist = currentScreen.artist,
+                    modifier = modifier
+                )
+            }
         }
     }
 }

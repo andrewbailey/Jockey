@@ -39,5 +39,5 @@ fun HandlerThread.waitForIdleSync() {
             "called from the same thread and will instantly cause a permanent deadlock."
     }
 
-    runBlocking { Unit }
+    runBlocking { }
 }

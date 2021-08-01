@@ -38,18 +38,20 @@ fun LibraryPageLayout(
         LocalWindowInsets.current.navigationBars.bottom.toDp()
     }
 
-    LocalAppNavigator.current.overridePopBehavior(
-        navigateUp = {
-            if (bottomSheetState.isFullyExpanded) {
-                coroutineScope.launch {
-                    bottomSheetState.collapse()
+    with(LocalAppNavigator.current) {
+        PopBehavior(
+            navigateUp = {
+                if (bottomSheetState.isFullyExpanded) {
+                    coroutineScope.launch {
+                        bottomSheetState.collapse()
+                    }
+                    true
+                } else {
+                    false
                 }
-                true
-            } else {
-                false
             }
-        }
-    )
+        )
+    }
 
     BottomSheetScaffold(
         modifier = modifier,
@@ -94,7 +96,6 @@ fun LibraryPageLayout(
     )
 }
 
-@Composable
 private fun Modifier.topBorder(
     color: Color,
     strokeWidth: Dp = Dp.Hairline
@@ -108,7 +109,6 @@ private fun Modifier.topBorder(
     )
 }
 
-@Composable
 private fun Modifier.morphingBackground(
     color: Color,
     morphHeight: Dp,

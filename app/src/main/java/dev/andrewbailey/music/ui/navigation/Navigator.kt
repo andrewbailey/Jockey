@@ -54,7 +54,7 @@ class Navigator private constructor(
     }
 
     @Composable
-    fun render(
+    fun NavContent(
         content: @Composable (Screen) -> Unit
     ) {
         with(stateHolder) {
@@ -65,7 +65,7 @@ class Navigator private constructor(
     }
 
     @Composable
-    fun overridePopBehavior(
+    fun PopBehavior(
         navigateUp: () -> Boolean
     ) {
         DisposableEffect(navigateUp) {

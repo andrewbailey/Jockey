@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -91,16 +92,15 @@ fun BottomSheetScaffold(
     }
 }
 
-@Composable
 private fun Modifier.collapsible(
     state: CollapsingPageState,
     distanceToExpandOver: Int,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
-): Modifier {
+): Modifier = composed {
     val coroutineScope = rememberCoroutineScope()
 
-    return draggable(
+    draggable(
         orientation = Orientation.Vertical,
         enabled = enabled,
         reverseDirection = reverseDirection,

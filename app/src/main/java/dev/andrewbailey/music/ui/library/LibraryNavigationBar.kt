@@ -87,9 +87,13 @@ private fun LibraryNavigationOption(
             }
         )
 
-        val selectionStateTransition = updateTransition(targetState = isSelected)
+        val selectionStateTransition = updateTransition(
+            targetState = isSelected,
+            label = "IsSelectedTransition"
+        )
 
         val iconColor by selectionStateTransition.animateColor(
+            label = "IconColorTransition",
             transitionSpec = {
                 tween(
                     durationMillis = 200,
@@ -105,6 +109,7 @@ private fun LibraryNavigationOption(
         }
 
         val textColor by selectionStateTransition.animateColor(
+            label = "TextColorTransition",
             transitionSpec = {
                 tween(
                     durationMillis = 200,
@@ -120,6 +125,7 @@ private fun LibraryNavigationOption(
         }
 
         val iconTranslation by selectionStateTransition.animateDp(
+            label = "IconColorTransition",
             transitionSpec = {
                 tween(
                     durationMillis = 200,

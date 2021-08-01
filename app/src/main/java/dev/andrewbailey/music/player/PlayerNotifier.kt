@@ -1,6 +1,10 @@
 package dev.andrewbailey.music.player
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
@@ -34,10 +38,14 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
         playbackState: MediaPlayerState<Song>
     ) = ContextCompat.getColor(context, R.color.colorPrimary)
 
+    @SuppressLint("InlinedApi")
     override fun getContentIntent(
         context: Context,
         playbackState: MediaPlayerState<Song>
-    ) = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), 0)
+    ): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java)
+        return getActivity(context, 0, intent, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
+    }
 
     override fun getActions(
         playbackState: MediaPlayerState<Song>

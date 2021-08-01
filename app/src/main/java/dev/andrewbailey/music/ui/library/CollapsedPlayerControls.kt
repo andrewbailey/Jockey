@@ -56,7 +56,10 @@ fun CollapsedPlayerControls(
     val playbackController = LocalPlaybackController.current
     val playbackState by playbackController.playbackState.collectAsState()
 
-    val visibilityTransition = updateTransition(playbackState is MediaPlayerState.Prepared)
+    val visibilityTransition = updateTransition(
+        playbackState is MediaPlayerState.Prepared,
+        label = "ControlsVisibilityTransition"
+    )
     val contentOpacity by visibilityTransition.animateFloat(
         label = "ContentOpacityAnimation",
         transitionSpec = {
