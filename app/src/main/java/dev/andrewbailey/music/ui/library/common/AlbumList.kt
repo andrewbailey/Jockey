@@ -31,7 +31,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.palette.graphics.Target
 import androidx.palette.graphics.get
-import com.google.accompanist.coil.rememberCoilPainter
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.LocalImageLoader
+import coil.compose.rememberImagePainter
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.util.PaletteCache
@@ -111,6 +113,7 @@ fun LazyListScope.albums(
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun AlbumCell(
     album: Album,
@@ -145,10 +148,9 @@ private fun AlbumCell(
             .shadow(5.dp)
     ) {
         Image(
-            painter = rememberCoilPainter(
-                request = album,
-                fadeIn = true
-            ),
+            painter = rememberImagePainter(album, LocalImageLoader.current) {
+                crossfade(true)
+            },
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .background(Color.Black)

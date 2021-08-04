@@ -4,29 +4,28 @@ buildscript {
     ext.versions = [
         kotlin : [
             stdlib: '1.5.10',
-            coroutines: '1.5.0'
+            coroutines: '1.5.1'
         ],
         androidx : [
             core : '1.7.0-alpha01',
             annotation : '1.3.0-alpha01',
             appcompat : '1.4.0-alpha03',
-            lifecycle : '2.4.0-alpha02',
-            savedstate: '2.4.0-alpha02',
-            media: '1.4.0-rc01',
+            lifecycle : '2.3.1',
+            savedstate: '1.1.0',
+            media: '1.4.0',
             palette : '1.0.0',
         ],
         compose : [
-            core : '1.0.0-rc01',
-            activity : '1.3.0-rc01',
-            accompanist: '0.13.0',
+            core : '1.0.0',
+            activity : '1.3.0',
+            accompanist: '0.15.0',
         ],
-        coil : '1.2.2',
+        coil : '1.3.1',
         dagger : [
             core : '2.37',
-            hilt : '2.37',
         ],
         exoplayer : [
-            core : '2.13.3',
+            core : '2.14.2',
         ],
         difference : '1.0.0',
         test : [
@@ -51,7 +50,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.1.0-alpha02'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.1.0"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.hilt}"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -90,7 +89,7 @@ ext {
         ],
         coil : [
             core: "io.coil-kt:coil:${versions.coil}",
-            compose: "com.google.accompanist:accompanist-coil:${versions.compose.accompanist}",
+            compose: "io.coil-kt:coil-compose:${versions.coil}",
         ],
         exoplayer : [
             core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",
@@ -99,8 +98,8 @@ ext {
         dagger : [
             core : "com.google.dagger:dagger:${versions.dagger.core}",
             compiler : "com.google.dagger:dagger-compiler:${versions.dagger.core}",
-            hilt : "com.google.dagger:hilt-android:${versions.dagger.hilt}",
-            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.hilt}",
+            hilt : "com.google.dagger:hilt-android:${versions.dagger.core}",
+            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.core}",
         ],
         difference : [
             multiplatform : "dev.andrewbailey.difference:difference:${versions.difference}"

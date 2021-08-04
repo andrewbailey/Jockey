@@ -30,7 +30,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.coil.rememberCoilPainter
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.LocalImageLoader
+import coil.compose.rememberImagePainter
 import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
@@ -119,6 +121,7 @@ private fun AlbumTopAppBar(
     )
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun AlbumHeader(
     album: Album,
@@ -131,7 +134,7 @@ private fun AlbumHeader(
             .padding(16.dp)
     ) {
         Image(
-            painter = rememberCoilPainter(album),
+            painter = rememberImagePainter(album, LocalImageLoader.current),
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .align(Alignment.Top)

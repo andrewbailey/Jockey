@@ -15,7 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.coil.rememberCoilPainter
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.LocalImageLoader
+import coil.compose.rememberImagePainter
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
@@ -33,7 +35,7 @@ fun SongList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalCoilApi::class)
 fun LazyListScope.songs(
     songs: List<Song>,
     onClickSong: ((index: Int, song: Song) -> Unit)? = null
@@ -44,7 +46,7 @@ fun LazyListScope.songs(
             ListItem(
                 icon = {
                     Image(
-                        painter = rememberCoilPainter(request = song),
+                        painter = rememberImagePainter(song, LocalImageLoader.current),
                         contentDescription = null,
                         modifier = Modifier.size(40.dp)
                             .clip(RoundedCornerShape(4.dp))

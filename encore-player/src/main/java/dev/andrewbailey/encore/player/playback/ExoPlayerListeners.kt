@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 
 internal class ExoPlayerListeners(
     private val onExoPlayerEvent: () -> Unit
-) : Player.EventListener {
+) : Player.Listener {
 
     override fun onTimelineChanged(timeline: Timeline, reason: Int) {
         onExoPlayerEvent()
