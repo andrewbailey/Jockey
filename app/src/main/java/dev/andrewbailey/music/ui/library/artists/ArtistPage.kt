@@ -2,6 +2,7 @@ package dev.andrewbailey.music.ui.library.artists
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -23,6 +24,7 @@ import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ArtistPage(
     artist: Artist,

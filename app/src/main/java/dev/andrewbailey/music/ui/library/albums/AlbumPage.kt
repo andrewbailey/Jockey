@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -45,7 +46,7 @@ import dev.andrewbailey.music.ui.library.common.songs
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.pluralsResource
 
-@OptIn(ExperimentalAnimatedInsets::class)
+@OptIn(ExperimentalAnimatedInsets::class, ExperimentalMaterialApi::class)
 @Composable
 fun AlbumPage(
     album: Album,

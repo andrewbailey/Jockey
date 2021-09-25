@@ -4,8 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.SwipeableState
+import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -19,21 +22,22 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Companion.collapsed
+import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
+import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
 import dev.andrewbailey.music.ui.library.CollapsedPlayerControls
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.player.NowPlayingRoot
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun LibraryPageLayout(
     modifier: Modifier = Modifier,
-    bottomSheetState: CollapsingPageState = rememberCollapsingPageState(collapsed),
+    bottomSheetState: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
     bottomBar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val visibilityPercentage = bottomSheetState.state.value.visibilityPercentage
     val bottomInset = with(LocalDensity.current) {
         LocalWindowInsets.current.navigationBars.bottom.toDp()
     }
@@ -41,9 +45,9 @@ fun LibraryPageLayout(
     with(LocalAppNavigator.current) {
         PopBehavior(
             navigateUp = {
-                if (bottomSheetState.isFullyExpanded) {
+                if (bottomSheetState.currentValue == Expanded) {
                     coroutineScope.launch {
-                        bottomSheetState.collapse()
+                        bottomSheetState.animateTo(Collapsed)
                     }
                     true
                 } else {
@@ -56,16 +60,16 @@ fun LibraryPageLayout(
     BottomSheetScaffold(
         modifier = modifier,
         state = bottomSheetState,
-        bodyContent = content,
+        bodyContent = { content() },
         collapsedSheetLayout = {
             Box(
                 modifier = Modifier
-                    .alpha((1 - 2 * visibilityPercentage).coerceIn(0f..1f))
+                    .alpha((1 - 2 * percentExpanded).coerceIn(0f..1f))
                     .topBorder(MaterialTheme.colors.onSurface.copy(alpha = 0.15f), 1.dp)
                     .morphingBackground(
                         color = MaterialTheme.colors.surface,
                         morphHeight = bottomInset,
-                        percentVisible = (1 - 6 * visibilityPercentage).coerceIn(0f..1f)
+                        percentVisible = (1 - 6 * percentExpanded).coerceIn(0f..1f)
                     )
                     .padding(bottom = bottomInset)
             ) {
@@ -75,7 +79,7 @@ fun LibraryPageLayout(
                             modifier = Modifier.clickable(
                                 onClick = {
                                     coroutineScope.launch {
-                                        bottomSheetState.expand()
+                                        bottomSheetState.animateTo(Expanded)
                                     }
                                 }
                             )
@@ -90,7 +94,7 @@ fun LibraryPageLayout(
         },
         expandedSheetLayout = {
             NowPlayingRoot(
-                percentVisible = visibilityPercentage
+                percentVisible = percentExpanded
             )
         }
     )
