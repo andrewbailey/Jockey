@@ -60,7 +60,6 @@ dependencies {
     implementation config.deps.androidx.annotation
     implementation config.deps.androidx.appcompat
     implementation config.deps.androidx.lifecycle
-    implementation config.deps.androidx.savedstate
     implementation config.deps.androidx.palette
 
     // Compose

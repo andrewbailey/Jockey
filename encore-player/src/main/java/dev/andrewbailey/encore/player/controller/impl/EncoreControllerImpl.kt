@@ -21,7 +21,6 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -105,7 +104,6 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         clientBinder.unbind()
     }
 
-    @FlowPreview
     override fun observeState(
         seekUpdateFrequency: SeekUpdateFrequency
     ): Flow<MediaPlayerState<M>> {
@@ -127,7 +125,6 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         return playbackState.filterNotNull().first()
     }
 
-    @FlowPreview
     private fun resendEveryInterval(
         state: MediaPlayerState<M>,
         intervalMs: Long
