@@ -135,8 +135,10 @@ private fun BottomSheetScaffoldScope.CollapsableContent(
         Box(Modifier.wrapContentHeight()) {
             expandedContent()
         }
-        Box(Modifier.fillMaxHeight()) {
-            collapsedContent()
+        if (percentExpanded < 1) {
+            Box(Modifier.fillMaxHeight()) {
+                collapsedContent()
+            }
         }
     }
 }
