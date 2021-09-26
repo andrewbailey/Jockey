@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
+import dev.andrewbailey.music.util.ConsumeWindowInsets
 import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
 
@@ -60,7 +61,9 @@ fun BottomSheetScaffold(
 
             layout(layoutSize.width, layoutSize.height) {
                 subcomposeSingle("body") {
-                    bodyContent()
+                    ConsumeWindowInsets(bottomPx = collapsedSheetHeight) {
+                        bodyContent()
+                    }
                 }.measure(
                     constraints.copy(
                         minHeight = 0,

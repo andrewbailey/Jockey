@@ -1,9 +1,6 @@
 package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -18,6 +15,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,13 +32,10 @@ import kotlinx.coroutines.launch
 fun LibraryPageLayout(
     modifier: Modifier = Modifier,
     bottomSheetState: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val bottomInset = with(LocalDensity.current) {
-        LocalWindowInsets.current.navigationBars.bottom.toDp()
-    }
 
     with(LocalAppNavigator.current) {
         PopBehavior(
@@ -62,40 +57,77 @@ fun LibraryPageLayout(
         state = bottomSheetState,
         bodyContent = { content() },
         collapsedSheetLayout = {
-            Box(
-                modifier = Modifier
-                    .alpha((1 - 2 * percentExpanded).coerceIn(0f..1f))
-                    .topBorder(MaterialTheme.colors.onSurface.copy(alpha = 0.15f), 1.dp)
-                    .morphingBackground(
-                        color = MaterialTheme.colors.surface,
-                        morphHeight = bottomInset,
-                        percentVisible = (1 - 6 * percentExpanded).coerceIn(0f..1f)
-                    )
-                    .padding(bottom = bottomInset)
-            ) {
-                Column {
-                    Surface(color = Color.Transparent) {
-                        CollapsedPlayerControls(
-                            modifier = Modifier.clickable(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        bottomSheetState.animateTo(Expanded)
-                                    }
-                                }
-                            )
-                        )
-                    }
-
-                    Surface(color = Color.Transparent) {
-                        bottomBar()
+            CollapsedPlayerControls(
+                additionalContent = bottomBar,
+                onClickBar = {
+                    coroutineScope.launch {
+                        bottomSheetState.animateTo(Expanded)
                     }
                 }
-            }
+            )
         },
         expandedSheetLayout = {
             NowPlayingRoot(
                 percentVisible = percentExpanded
             )
+        }
+    )
+}
+
+@Composable
+private fun BottomSheetScaffoldScope.CollapsedPlayerControls(
+    modifier: Modifier = Modifier,
+    additionalContent: @Composable (() -> Unit)? = null,
+    onClickBar: () -> Unit
+) {
+    val bottomInsetPx = LocalWindowInsets.current.navigationBars.bottom
+
+    val bottomInsetDp = with(LocalDensity.current) { bottomInsetPx.toDp() }
+
+    Layout(
+        modifier = modifier
+            .alpha((1 - 2 * percentExpanded).coerceIn(0f..1f))
+            .topBorder(MaterialTheme.colors.onSurface.copy(alpha = 0.15f), 1.dp)
+            .morphingBackground(
+                color = MaterialTheme.colors.surface,
+                morphHeight = bottomInsetDp,
+                percentVisible = (1 - 6 * percentExpanded).coerceIn(0f..1f)
+            ),
+        content = {
+            Surface(color = Color.Transparent) {
+                CollapsedPlayerControls(
+                    modifier = Modifier.clickable(
+                        onClick = onClickBar
+                    )
+                )
+            }
+
+            if (additionalContent != null) {
+                Surface(color = Color.Transparent) {
+                    additionalContent()
+                }
+            }
+        },
+        measurePolicy = { measurables, constraints ->
+            val playbackControls = measurables[0].measure(constraints)
+            val additionalUi = measurables.getOrNull(1)
+                ?.measure(
+                    constraints.copy(
+                        maxHeight = constraints.maxHeight - playbackControls.measuredHeight
+                    )
+                )
+
+            val contentHeight = playbackControls.measuredHeight +
+                (additionalUi?.measuredHeight ?: 0)
+
+            if (contentHeight == 0) {
+                layout(0, 0) {}
+            } else {
+                layout(constraints.maxWidth, contentHeight + bottomInsetPx) {
+                    playbackControls.place(0, 0)
+                    additionalUi?.place(0, playbackControls.measuredHeight)
+                }
+            }
         }
     )
 }

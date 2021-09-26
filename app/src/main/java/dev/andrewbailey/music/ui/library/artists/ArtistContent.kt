@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.rememberInsetsPaddingValues
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
@@ -63,7 +65,8 @@ private fun ArtistContentList(
     val navigator = LocalAppNavigator.current
 
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        contentPadding = rememberInsetsPaddingValues(LocalWindowInsets.current.navigationBars)
     ) {
         item {
             ArtistBio(artist = artist, songs = songs, albums = albums)
