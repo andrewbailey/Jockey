@@ -34,6 +34,7 @@ fun BottomSheetScaffold(
     expandedSheetLayout: @Composable BottomSheetScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     state: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
     with(
@@ -88,6 +89,7 @@ fun BottomSheetScaffold(
                                 0f to Collapsed,
                                 -distanceToExpandOver.toFloat() to Expanded
                             ),
+                            enabled = expandable || state.currentValue == Expanded,
                             orientation = Vertical,
                             resistance = null
                         )

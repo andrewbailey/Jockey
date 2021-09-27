@@ -7,6 +7,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.SwipeableState
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -20,6 +21,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
+import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
 import dev.andrewbailey.music.ui.library.CollapsedPlayerControls
@@ -36,6 +39,8 @@ fun LibraryPageLayout(
     content: @Composable () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val playbackController = LocalPlaybackController.current
+    val isMediaPlaying = playbackController.playbackState.collectAsState().value is Prepared
 
     with(LocalAppNavigator.current) {
         PopBehavior(
@@ -55,6 +60,7 @@ fun LibraryPageLayout(
     BottomSheetScaffold(
         modifier = modifier,
         state = bottomSheetState,
+        expandable = isMediaPlaying,
         bodyContent = { content() },
         collapsedSheetLayout = {
             CollapsedPlayerControls(
@@ -81,7 +87,6 @@ private fun BottomSheetScaffoldScope.CollapsedPlayerControls(
     onClickBar: () -> Unit
 ) {
     val bottomInsetPx = LocalWindowInsets.current.navigationBars.bottom
-
     val bottomInsetDp = with(LocalDensity.current) { bottomInsetPx.toDp() }
 
     Layout(
