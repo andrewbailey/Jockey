@@ -250,4 +250,11 @@ public class MediaStoreProvider(
         }
     }
 
+    public suspend fun getAllPlaylists(): List<MediaStorePlaylist> {
+        return withContext(Dispatchers.IO) {
+            mediaStore.queryAllPlaylists()
+                .map { MediaStoreMapper.toMediaStorePlaylist(it) }
+        }
+    }
+
 }

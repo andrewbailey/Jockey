@@ -4,6 +4,7 @@ import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.ArtistEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.GenreContentsEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.GenreEntity
+import dev.andrewbailey.encore.provider.mediastore.entity.PlaylistEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.SongEntity
 
 internal object MediaStoreMapper {
@@ -117,6 +118,15 @@ internal object MediaStoreMapper {
     fun toMediaStoreGenre(genreEntity: GenreEntity) = MediaStoreGenre(
         id = genreEntity.id.toString(),
         name = genreEntity.name.orEmpty()
+    )
+
+    fun toMediaStorePlaylist(playlistEntity: PlaylistEntity) = MediaStorePlaylist(
+        id = playlistEntity.id.toString(),
+        name = playlistEntity.name.orEmpty(),
+        path = playlistEntity.data.orEmpty(),
+        contentsUri = playlistEntity.contentUri.buildUpon()
+            .appendEncodedPath(playlistEntity.id.toString())
+            .build()
     )
 
 }

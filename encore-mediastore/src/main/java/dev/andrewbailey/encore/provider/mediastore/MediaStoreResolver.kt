@@ -7,6 +7,7 @@ import dev.andrewbailey.encore.provider.mediastore.entity.AlbumEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.ArtistEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.GenreContentsEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.GenreEntity
+import dev.andrewbailey.encore.provider.mediastore.entity.PlaylistEntity
 import dev.andrewbailey.encore.provider.mediastore.entity.SongEntity
 
 internal class MediaStoreResolver(
@@ -36,7 +37,6 @@ internal class MediaStoreResolver(
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.ARTIST_ID,
             MediaStore.Audio.Media.ARTIST,
-            // noinspection inlinedapi
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.TRACK,
@@ -63,6 +63,13 @@ internal class MediaStoreResolver(
         private val genreContentsProjection = listOf(
             MediaStore.Audio.Genres.Members.GENRE_ID,
             MediaStore.Audio.Genres.Members.AUDIO_ID
+        )
+
+        @Suppress("DEPRECATION")
+        private val playlistProjection = listOf(
+            MediaStore.Audio.Playlists._ID,
+            MediaStore.Audio.Playlists.NAME,
+            MediaStore.Audio.Playlists.DATA
         )
     }
 
@@ -210,6 +217,36 @@ internal class MediaStoreResolver(
         )
 
         return query?.use { cursor -> cursor.toList { GenreContentsEntity.fromCursor(cursor) } }
+            .orEmpty()
+    }
+
+    @Suppress("DEPRECATION")
+    fun queryAllPlaylists(
+        uri: Uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+    ): List<PlaylistEntity> {
+        val query = context.query(
+            uri = uri,
+            projection = playlistProjection
+        )
+
+        return query?.use { cursor -> cursor.toList { PlaylistEntity.fromCursor(uri, it) } }
+            .orEmpty()
+    }
+
+    @Suppress("DEPRECATION")
+    fun queryPlaylists(
+        uri: Uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+        selection: String,
+        selectionArgs: List<String> = emptyList()
+    ): List<PlaylistEntity> {
+        val query = context.query(
+            uri = uri,
+            projection = playlistProjection,
+            selection = selection,
+            selectionArgs = selectionArgs.takeIf { it.isNotEmpty() }?.toTypedArray()
+        )
+
+        return query?.use { cursor -> cursor.toList { PlaylistEntity.fromCursor(uri, it) } }
             .orEmpty()
     }
 
