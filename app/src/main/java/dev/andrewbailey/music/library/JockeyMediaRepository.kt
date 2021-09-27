@@ -2,6 +2,7 @@ package dev.andrewbailey.music.library
 
 import dev.andrewbailey.encore.provider.MergedMediaProvider
 import dev.andrewbailey.encore.provider.WrappedMediaProvider
+import dev.andrewbailey.encore.provider.mediastore.MediaStorePlaylist
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreProvider
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
@@ -21,6 +22,10 @@ class JockeyMediaRepository(
         )
     )
 ) {
+
+    override suspend fun getAllPlaylists(): List<MediaStorePlaylist> {
+        return mediaStoreProvider.getAllPlaylists()
+    }
 
     override suspend fun getAllSongs(): List<Song> {
         return query<MediaStoreProvider> { it.getAllSongs() }

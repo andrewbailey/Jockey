@@ -18,6 +18,7 @@ import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
 import dev.andrewbailey.music.ui.library.albums.AllAlbumsRoot
 import dev.andrewbailey.music.ui.library.artists.AllArtistsRoot
+import dev.andrewbailey.music.ui.library.playlists.AllPlaylistsRoot
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.LibraryPage
 
@@ -60,6 +61,9 @@ private fun LibraryContent(
             val contentModifier = Modifier.fillMaxSize()
 
             when (page) {
+                LibraryPage.Playlists -> AllPlaylistsRoot(
+                    modifier = contentModifier
+                )
                 LibraryPage.Songs -> AllSongsRoot(
                     modifier = contentModifier
                 )

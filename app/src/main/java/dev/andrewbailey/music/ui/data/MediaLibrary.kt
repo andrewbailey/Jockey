@@ -3,6 +3,7 @@ package dev.andrewbailey.music.ui.data
 import androidx.compose.runtime.compositionLocalOf
 import dagger.hilt.android.ActivityRetainedLifecycle
 import dagger.hilt.android.scopes.ActivityRetainedScoped
+import dev.andrewbailey.encore.provider.mediastore.MediaStorePlaylist
 import dev.andrewbailey.music.library.MediaRepository
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
@@ -24,6 +25,12 @@ class MediaLibrary @Inject constructor(
     lifecycle: ActivityRetainedLifecycle,
     private val mediaRepository: MediaRepository
 ) : UiMediator(lifecycle) {
+
+    val playlists: StateFlow<List<MediaStorePlaylist>?> by lazy {
+        flowOfLibraryData {
+            emit(mediaRepository.getAllPlaylists())
+        }
+    }
 
     val songs: StateFlow<List<Song>?> by lazy {
         flowOfLibraryData {

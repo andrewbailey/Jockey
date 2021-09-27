@@ -1,11 +1,14 @@
 package dev.andrewbailey.music.library
 
 import dev.andrewbailey.encore.provider.MediaProvider
+import dev.andrewbailey.encore.provider.mediastore.MediaStorePlaylist
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
 
 interface MediaRepository : MediaProvider<Song> {
+
+    suspend fun getAllPlaylists(): List<MediaStorePlaylist>
 
     suspend fun getAllSongs(): List<Song>
 

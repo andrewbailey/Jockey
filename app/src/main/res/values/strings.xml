@@ -14,6 +14,9 @@
     <string name="library_songs_empty_header">Couldn\'t find any songs</string>
     <string name="library_songs_empty_description">You can sync songs from your computer or download them from the Internet</string>
 
+    <string name="library_playlists_empty_header">You don\'t have any playlists</string>
+    <string name="library_playlists_empty_description">You can make a new one by pressing the &#8220;+&#8221; button</string>
+
     <string name="action_shuffle_all">Shuffle All</string>
 
     <string name="duration_hr_min">%1$d hr %2$d min</string>
@@ -30,4 +33,5 @@
     <string name="content_description_skip_previous">Previous track</string>
     <string name="content_description_enable_shuffle">Enable shuffle mode</string>
     <string name="content_description_disable_shuffle">Disable shuffle mode</string>
+    <string name="content_description_new_playlist">Create new playlist</string>
 </resources>
