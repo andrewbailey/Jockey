@@ -35,7 +35,7 @@ class JockeyApplication : Application() {
     }
 
     private fun imageLoader() = ImageLoader.Builder(this)
-        .componentRegistry {
+        .components {
             install(artworkProvider)
         }
         .build()

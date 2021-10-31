@@ -19,7 +19,7 @@ buildscript {
             activity : '1.4.0',
             accompanist: '0.21.0-beta',
         ],
-        coil : '1.3.2',
+        coil : '2.0.0-alpha02',
         dagger : [
             core : '2.40',
         ],

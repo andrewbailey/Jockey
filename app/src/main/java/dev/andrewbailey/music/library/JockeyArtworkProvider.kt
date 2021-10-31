@@ -17,13 +17,9 @@ class JockeyArtworkProvider @Inject constructor(
     override fun ComponentRegistry.Builder.install() {
         installMediaStoreFetchers(mediaStoreArtworkProvider)
 
-        add(object : Mapper<LocalSong, MediaStoreSong> {
-            override fun map(data: LocalSong): MediaStoreSong = data.mediaStoreSong
-        })
+        add(Mapper<LocalSong, MediaStoreSong> { data, _ -> data.mediaStoreSong })
 
-        add(object : Mapper<LocalAlbum, MediaStoreAlbum> {
-            override fun map(data: LocalAlbum) = data.mediaStoreAlbum
-        })
+        add(Mapper<LocalAlbum, MediaStoreAlbum> { data, _ -> data.mediaStoreAlbum })
     }
 
 }
