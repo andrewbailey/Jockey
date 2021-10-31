@@ -40,7 +40,7 @@ fun LibraryPageLayout(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val playbackController = LocalPlaybackController.current
-    val isMediaPlaying = playbackController.playbackState.collectAsState().value is Prepared
+    val isMediaPlaying = playbackController.playbackState.collectAsState(null).value is Prepared
 
     with(LocalAppNavigator.current) {
         PopBehavior(

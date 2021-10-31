@@ -32,7 +32,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +62,7 @@ import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.data.PlaybackController
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
+import dev.andrewbailey.music.util.collectAsNonUniqueState
 
 @Composable
 fun NowPlayingRoot(
@@ -71,7 +71,7 @@ fun NowPlayingRoot(
     percentVisible: Float = 1.0f
 ) {
     val playbackController = LocalPlaybackController.current
-    val playbackState by playbackController.playbackState.collectAsState()
+    val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
 
     Column(
         modifier = modifier.fillMaxHeight()

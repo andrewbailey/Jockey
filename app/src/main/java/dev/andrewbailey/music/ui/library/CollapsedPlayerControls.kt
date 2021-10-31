@@ -25,7 +25,6 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +45,7 @@ import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
+import dev.andrewbailey.music.util.collectAsNonUniqueState
 
 private val controlBarHeight = 50.dp
 
@@ -54,7 +54,7 @@ fun CollapsedPlayerControls(
     modifier: Modifier = Modifier
 ) {
     val playbackController = LocalPlaybackController.current
-    val playbackState by playbackController.playbackState.collectAsState()
+    val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
 
     val visibilityTransition = updateTransition(
         playbackState is MediaPlayerState.Prepared,

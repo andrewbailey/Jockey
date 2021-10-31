@@ -19,7 +19,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 val LocalPlaybackController = compositionLocalOf<PlaybackController> {
@@ -36,7 +36,7 @@ class PlaybackController @Inject constructor(
 
     val playbackState = mediaController
         .observeState(seekUpdateFrequency = WhilePlayingEvery(100, TimeUnit.MILLISECONDS))
-        .stateIn(coroutineScope, WhileSubscribed(replayExpirationMillis = 0), null)
+        .shareIn(coroutineScope, WhileSubscribed(replayExpirationMillis = 0), replay = 1)
 
     override fun onDestroy() {
         mediaController.releaseToken(token)

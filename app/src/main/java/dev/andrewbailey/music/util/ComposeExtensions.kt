@@ -1,5 +1,6 @@
 package dev.andrewbailey.music.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.FloatRange
@@ -7,7 +8,12 @@ import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
@@ -17,6 +23,27 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.WindowInsets
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+
+/**
+ * [androidx.compose.runtime.collectAsState] uses a structural equality snapshot policy, meaning
+ * that if a Flow emits the same value twice, the resulting state will ignore the second emission.
+ * This extension behaves the same, but indicates the [neverEqualPolicy], meaning that duplicate
+ * emissions will propagate into the resulting UI state.
+ *
+ * Make sure you do not combine this with [kotlinx.coroutines.flow.StateFlow], since StateFlow will
+ * _also_ ignore duplicate emissions.
+ */
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+fun <T : R, R> Flow<T>.collectAsNonUniqueState(initialValue: R): State<R> {
+    val result = remember { mutableStateOf(initialValue, neverEqualPolicy()) }
+    LaunchedEffect(this) {
+        collect { result.value = it }
+    }
+    return result
+}
 
 @Composable
 @ReadOnlyComposable
