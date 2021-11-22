@@ -3,6 +3,7 @@ package dev.andrewbailey.encore.player.controller.impl
 import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
+import android.content.Context.BIND_WAIVE_PRIORITY
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
@@ -24,7 +25,9 @@ internal class ServiceClientBinder<M : MediaObject>(
         get() = _serviceBinder
 
     fun bind() {
-        context.bindService(Intent(context, serviceClass), serviceConnection, BIND_AUTO_CREATE)
+        val intent = Intent(context, serviceClass)
+        context.bindService(intent, serviceConnection, BIND_AUTO_CREATE or BIND_WAIVE_PRIORITY)
+        context.startService(intent)
     }
 
     fun unbind() {

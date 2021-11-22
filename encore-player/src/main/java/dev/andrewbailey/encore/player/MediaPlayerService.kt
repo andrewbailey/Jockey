@@ -38,7 +38,6 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
     private val notificationProvider: NotificationProvider<M>
 ) : MediaBrowserServiceCompat() {
 
-    private var isBound = false
     private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
     private lateinit var playbackStateFactory: PlaybackStateFactory<M>
@@ -108,17 +107,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         return if (intent?.action == "android.media.browse.MediaBrowserService") {
             super.onBind(intent)
         } else {
-            isBound = true
             binder.messenger.binder
-        }
-    }
-
-    final override fun onUnbind(intent: Intent?): Boolean {
-        return if (intent?.action == "android.media.browse.MediaBrowserService") {
-            super.onUnbind(intent)
-        } else {
-            isBound = false
-            return false
         }
     }
 
@@ -150,6 +139,10 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        val playerState = mediaPlayer.getState() as? MediaPlayerState.Prepared
+        if (playerState?.transportState?.status != PlaybackState.PLAYING) {
+            quit()
+        }
     }
 
     override fun onDestroy() {
@@ -167,7 +160,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
 
             If nothing is binding to this service, we can kill it immediately.
          */
-        if (isBound) {
+        if (binder.hasClients()) {
             (mediaPlayer.getState() as? MediaPlayerState.Prepared)
                 ?.transportState
                 ?.takeIf { it.status == PlaybackState.PLAYING }

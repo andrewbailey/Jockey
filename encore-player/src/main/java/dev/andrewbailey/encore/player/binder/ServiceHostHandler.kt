@@ -44,6 +44,10 @@ internal class ServiceHostHandler<M : MediaObject>(
         }
     )
 
+    fun hasClients(): Boolean {
+        return subscribers.any { it.isAlive }
+    }
+
     override fun onPlaybackStateChanged(newState: MediaPlayerState<M>) {
         val deadSubscribers = mutableListOf<ClientBidirectionalMessenger<M>>()
 
