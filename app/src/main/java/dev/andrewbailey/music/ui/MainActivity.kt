@@ -1,8 +1,8 @@
 package dev.andrewbailey.music.ui
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -28,7 +28,7 @@ import dev.andrewbailey.music.util.fromRes
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     @Inject lateinit var mediaLibrary: MediaLibrary
     @Inject lateinit var playbackController: PlaybackController

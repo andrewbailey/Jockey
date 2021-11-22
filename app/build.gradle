@@ -59,7 +59,6 @@ dependencies {
     // Androidx
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
-    implementation config.deps.androidx.appcompat
     implementation config.deps.androidx.lifecycle
     implementation config.deps.androidx.palette
 
