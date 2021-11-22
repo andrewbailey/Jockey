@@ -1,6 +1,7 @@
 package dev.andrewbailey.encore.player.playback
 
 import android.content.Context
+import android.os.Parcelable
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
@@ -10,6 +11,7 @@ import dev.andrewbailey.diff.DiffResult
 import dev.andrewbailey.diff.differenceOf
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
+import kotlinx.parcelize.Parcelize
 
 internal class MediaQueue<M : MediaObject>(
     context: Context,
@@ -96,13 +98,15 @@ internal class MediaQueue<M : MediaObject>(
 
 }
 
-internal sealed class MediaQueueItems<M : MediaObject> {
+internal sealed class MediaQueueItems<M : MediaObject> : Parcelable {
     abstract val queue: List<QueueItem<M>>
 
+    @Parcelize
     data class LinearQueueItems<M : MediaObject>(
         override val queue: List<QueueItem<M>>
     ) : MediaQueueItems<M>()
 
+    @Parcelize
     data class ShuffledQueueItems<M : MediaObject>(
         override val queue: List<QueueItem<M>>,
         val linearQueue: List<QueueItem<M>>

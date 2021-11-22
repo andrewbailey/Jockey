@@ -21,6 +21,7 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
 
     private val playbackState = MutableStateFlow<MediaPlayerState<M>?>(null)
     private val mediaController = MutableStateFlow<MediaControllerCompat?>(null)
+    private val stateDiffer = MediaPlayerStateDiffer<M>()
 
     private val clientHandler: ServiceClientHandler<M>
     private val dispatcher: ServiceControllerDispatcher<M>
@@ -62,7 +64,19 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
                     }
                 )
             },
-            onSetMediaPlayerState = { playbackState.value = it }
+            onSetMediaPlayerState = { playbackState.value = it },
+            onApplyMediaStateDiff = { diff ->
+                val currentState = checkNotNull(playbackState.value) {
+                    "Cannot apply a state diff, because no pre-existing state is available locally"
+                }
+
+                check(currentState is MediaPlayerState.Prepared) {
+                    "Cannot apply a state diff, because the previous value wasn't in the " +
+                        "Prepared state."
+                }
+
+                playbackState.value = stateDiffer.applyDiff(currentState, diff)
+            }
         )
 
         dispatcher = ServiceControllerDispatcher(
