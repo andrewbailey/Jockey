@@ -57,7 +57,7 @@ buildscript {
 ext {
     targetSdkVersion = 31
     compileSdkVersion = 31
-    encoreMinSdkVersion = 16
+    encoreMinSdkVersion = 21
     jockeyMinSdkVersion = 21
 
     deps = [
