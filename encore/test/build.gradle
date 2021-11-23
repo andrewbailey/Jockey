@@ -34,7 +34,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':encore-core')
+    api project(':encore:core')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib

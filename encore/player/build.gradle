@@ -13,11 +13,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
     }
 
     buildTypes {
@@ -29,8 +25,8 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
         freeCompilerArgs += "-Xexplicit-api=strict"
-        freeCompilerArgs += "-Xjvm-default=enable"
         sourceSets {
             test {
                 freeCompilerArgs -= "-Xexplicit-api=strict"
@@ -41,7 +37,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':encore-core')
+    api project(':encore:core')
+    implementation project(':misc:ipc')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib
@@ -50,11 +47,20 @@ dependencies {
     // Androidx
     implementation config.deps.androidx.core
     implementation config.deps.androidx.annotation
+    api config.deps.androidx.media
 
-    // (Optional) Coil dependency
-    compileOnly config.deps.coil.core
+    // ExoPlayer
+    implementation config.deps.exoplayer.core
+    implementation config.deps.exoplayer.mediasession
+
+    // Difference
+    implementation config.deps.difference.multiplatform
 
     // Testing
+    testImplementation project(':encore:test')
     testImplementation config.deps.test.junit
+    testImplementation config.deps.test.kotlinTest
+    testImplementation config.deps.test.kotlinJunit
+    testImplementation config.deps.test.coroutinesTest
     androidTestImplementation config.deps.test.espresso
 }
