@@ -15,8 +15,9 @@ internal object ParcelSplitter {
         }
 
         return bytes
-            .toList()
+            .asSequence()
             .chunked(chunkSizeInBytes) { it.toByteArray() }
+            .toList()
     }
 
     fun <T : Parcelable> merge(chunks: List<ByteArray>, classLoader: ClassLoader): T? {
