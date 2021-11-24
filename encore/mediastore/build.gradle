@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
+apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
 def config = rootProject.extensions.getByName("ext")
 
@@ -29,13 +30,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += "-Xexplicit-api=strict"
         freeCompilerArgs += "-Xjvm-default=enable"
-        sourceSets {
-            test {
-                freeCompilerArgs -= "-Xexplicit-api=strict"
-            }
-        }
     }
 }
 
