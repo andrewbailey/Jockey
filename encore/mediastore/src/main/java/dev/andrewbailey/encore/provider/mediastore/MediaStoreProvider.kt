@@ -132,7 +132,7 @@ public class MediaStoreProvider(
                     .flatMap { genreId ->
                         mediaStore.queryAllGenreContents(genreId = genreId)
                     }
-            )
+            ).sortedByTitle()
         }
     }
 
@@ -140,6 +140,7 @@ public class MediaStoreProvider(
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllAlbums()
                 .map { MediaStoreMapper.toMediaCollection(it) }
+                .sortedByName()
         }
     }
 
@@ -189,7 +190,9 @@ public class MediaStoreProvider(
 
     public suspend fun getAllArtists(): List<MediaStoreArtist> {
         return withContext(Dispatchers.IO) {
-            mediaStore.queryAllArtists().map { MediaStoreMapper.toMediaAuthor(it) }
+            mediaStore.queryAllArtists()
+                .map { MediaStoreMapper.toMediaAuthor(it) }
+                .sortedByName()
         }
     }
 
@@ -254,6 +257,7 @@ public class MediaStoreProvider(
         return withContext(Dispatchers.IO) {
             mediaStore.queryAllPlaylists()
                 .map { MediaStoreMapper.toMediaStorePlaylist(it) }
+                .sortedByName()
         }
     }
 
