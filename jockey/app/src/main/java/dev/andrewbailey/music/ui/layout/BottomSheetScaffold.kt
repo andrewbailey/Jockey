@@ -37,38 +37,60 @@ fun BottomSheetScaffold(
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
-    with(
-        BottomSheetScaffoldScope(
-            percentExpanded = with(state.progress) {
-                if (from == to) when (from) {
-                    Expanded -> 1f
-                    Collapsed -> 0f
-                } else when (from) {
-                    Expanded -> 1 - fraction
-                    Collapsed -> fraction
-                }
+    SubcomposeLayout(modifier) { constraints ->
+        val layoutSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+        val wrapContentSizeConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+
+        val collapsedSheetHeight = subcomposeSingle("collapsedSheetContents") {
+            with(BottomSheetScaffoldScope(state)) {
+                collapsedSheetLayout()
             }
-        )
-    ) {
+        }.measure(wrapContentSizeConstraints).height
+
+        layout(layoutSize.width, layoutSize.height) {
+            subcomposeSingle("collapsingPage") {
+                BottomSheetScaffold(
+                    bodyContent = bodyContent,
+                    sheetContent = {
+                        CollapsableContent(
+                            collapsedContent = collapsedSheetLayout,
+                            expandedContent = expandedSheetLayout
+                        )
+                    },
+                    collapsedSheetHeightPx = collapsedSheetHeight,
+                    state = state,
+                    expandable = expandable,
+                    scrimColor = scrimColor
+                )
+            }.measure(wrapContentSizeConstraints).place(0, 0)
+        }
+    }
+}
+
+@Composable
+fun BottomSheetScaffold(
+    bodyContent: @Composable BottomSheetScaffoldScope.() -> Unit,
+    sheetContent: @Composable BottomSheetScaffoldScope.() -> Unit,
+    collapsedSheetHeightPx: Int,
+    modifier: Modifier = Modifier,
+    state: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    expandable: Boolean = true,
+    scrimColor: Color = Color.Black.copy(alpha = 0.6f)
+) {
+    with(BottomSheetScaffoldScope(state)) {
         SubcomposeLayout(modifier) { constraints ->
             val layoutSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-            val wrapContentSizeConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-
-            val collapsedSheetHeight = subcomposeSingle("collapsedSheetContents") {
-                collapsedSheetLayout()
-            }.measure(wrapContentSizeConstraints).height
-
-            val distanceToExpandOver = layoutSize.height - collapsedSheetHeight
+            val distanceToExpandOver = layoutSize.height - collapsedSheetHeightPx
 
             layout(layoutSize.width, layoutSize.height) {
                 subcomposeSingle("body") {
-                    ConsumeWindowInsets(bottomPx = collapsedSheetHeight) {
+                    ConsumeWindowInsets(bottomPx = collapsedSheetHeightPx) {
                         bodyContent()
                     }
                 }.measure(
                     constraints.copy(
                         minHeight = 0,
-                        maxHeight = constraints.maxHeight - collapsedSheetHeight
+                        maxHeight = constraints.maxHeight - collapsedSheetHeightPx
                     )
                 ).place(0, 0)
 
@@ -80,9 +102,7 @@ fun BottomSheetScaffold(
                 }.measure(constraints).place(0, 0)
 
                 subcomposeSingle("sheet") {
-                    CollapsableContent(
-                        collapsedContent = collapsedSheetLayout,
-                        expandedContent = expandedSheetLayout,
+                    Box(
                         modifier = Modifier.swipeable(
                             state = state,
                             anchors = mapOf(
@@ -93,7 +113,9 @@ fun BottomSheetScaffold(
                             orientation = Vertical,
                             resistance = null
                         )
-                    )
+                    ) {
+                        sheetContent()
+                    }
                 }.measure(constraints).place(
                     x = 0,
                     y = (distanceToExpandOver * (1 - percentExpanded)).roundToInt()
@@ -148,7 +170,21 @@ private fun BottomSheetScaffoldScope.CollapsableContent(
 @JvmInline
 value class BottomSheetScaffoldScope(
     val percentExpanded: Float
-)
+) {
+    constructor(
+        state: SwipeableState<CollapsingPageValue>
+    ) : this(
+        percentExpanded = with(state.progress) {
+            if (from == to) when (from) {
+                Expanded -> 1f
+                Collapsed -> 0f
+            } else when (from) {
+                Expanded -> 1 - fraction
+                Collapsed -> fraction
+            }
+        }
+    )
+}
 
 enum class CollapsingPageValue {
     Expanded,
