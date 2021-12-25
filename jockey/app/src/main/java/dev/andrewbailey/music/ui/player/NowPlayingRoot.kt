@@ -3,7 +3,6 @@ package dev.andrewbailey.music.ui.player
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -13,37 +12,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ListItem
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.insets.statusBarsPadding
-import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
@@ -86,6 +78,7 @@ fun NowPlayingRoot(
                     modifier = Modifier
                         .fillMaxSize()
                         .scrim()
+                        .insetBottomShadow()
                 )
             }
         }
@@ -95,17 +88,16 @@ fun NowPlayingRoot(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .shadow(elevation = 4.dp)
-                .zIndex(4f)
                 .background(color = MaterialTheme.colors.surface)
                 .padding(16.dp)
         )
 
-        NowPlayingQueue(
-            queue = (playbackState?.transportState as? TransportState.Active)
-                ?.queue?.queue.orEmpty(),
-            modifier = Modifier.fillMaxHeight()
-        )
+        (playbackState?.transportState as? TransportState.Active)?.queue?.let { queue ->
+            NowPlayingBottomSheet(
+                queue = queue,
+                modifier = Modifier.fillMaxHeight()
+            )
+        }
     }
 }
 
@@ -167,49 +159,6 @@ private fun NowPlayingToolbar(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun NowPlayingQueue(
-    queue: List<QueueItem<Song>>,
-    modifier: Modifier = Modifier
-) {
-    val playbackController = LocalPlaybackController.current
-
-    Surface(
-        elevation = 0.dp,
-        color = MaterialTheme.colors.background,
-        modifier = modifier
-    ) {
-        LazyColumn(
-            contentPadding = rememberInsetsPaddingValues(LocalWindowInsets.current.navigationBars)
-        ) {
-            itemsIndexed(
-                items = queue,
-                itemContent = { index, queueItem ->
-                    ListItem(
-                        text = {
-                            Text(queueItem.mediaItem.name)
-                        },
-                        secondaryText = {
-                            Text(formattedAlbumArtist(queueItem.mediaItem))
-                        },
-                        modifier = Modifier
-                            .clickable(
-                                onClick = {
-                                    playbackController.playAtQueueIndex(index)
-                                }
-                            )
-                    )
-                    Divider()
-                }
-            )
-        }
-    }
-}
-
-private fun formattedAlbumArtist(item: Song): String =
-    listOfNotNull(item.album?.name, item.artist?.name).joinToString(" - ")
-
 private fun Modifier.scrim() = drawWithContent {
     drawContent()
     drawRect(
@@ -223,4 +172,24 @@ private fun Modifier.scrim() = drawWithContent {
             end = Offset(0f, size.height)
         )
     )
+}
+
+private fun Modifier.insetBottomShadow(
+    shadowHeight: Dp = 8.dp
+): Modifier = composed {
+    val heightPx = with(LocalDensity.current) { shadowHeight.toPx() }
+    drawWithContent {
+        drawContent()
+        drawRect(
+            brush = Brush.linearGradient(
+                colorStops = arrayOf(
+                    0.0f to Color.Black.copy(alpha = 0.00f),
+                    0.5f to Color.Black.copy(alpha = 0.04f),
+                    1.0f to Color.Black.copy(alpha = 0.12f)
+                ),
+                start = Offset(0f, size.height - heightPx),
+                end = Offset(0f, size.height)
+            )
+        )
+    }
 }
