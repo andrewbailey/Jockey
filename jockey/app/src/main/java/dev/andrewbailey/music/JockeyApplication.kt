@@ -35,6 +35,7 @@ class JockeyApplication : Application() {
     }
 
     private fun imageLoader() = ImageLoader.Builder(this)
+        .crossfade(true)
         .components {
             install(artworkProvider)
         }

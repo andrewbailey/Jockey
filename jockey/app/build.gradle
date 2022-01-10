@@ -33,7 +33,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion config.versions.compose.core
+        kotlinCompilerExtensionVersion config.versions.compose.compiler
     }
 
     compileOptions {

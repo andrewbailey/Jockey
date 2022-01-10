@@ -3,8 +3,8 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib: '1.5.31',
-            coroutines: '1.5.2'
+            stdlib: '1.6.10',
+            coroutines: '1.6.0'
         ],
         androidx : [
             core : '1.7.0',
@@ -14,13 +14,14 @@ buildscript {
             palette : '1.0.0',
         ],
         compose : [
-            core : '1.1.0-beta03',
+            core : '1.1.0-rc01',
+            compiler : '1.1.0-rc02',
             activity : '1.4.0',
-            accompanist: '0.21.3-beta',
+            accompanist: '0.22.0-rc',
         ],
-        coil : '2.0.0-alpha03',
+        coil : '2.0.0-alpha06',
         dagger : [
-            core : '2.40.1',
+            core : '2.40.5',
         ],
         exoplayer : [
             core : '2.16.1',

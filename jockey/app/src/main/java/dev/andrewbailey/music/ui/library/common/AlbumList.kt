@@ -33,7 +33,7 @@ import androidx.palette.graphics.Target
 import androidx.palette.graphics.get
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.LocalImageLoader
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.util.PaletteCache
@@ -148,9 +148,7 @@ private fun AlbumCell(
             .shadow(5.dp)
     ) {
         Image(
-            painter = rememberImagePainter(album, LocalImageLoader.current) {
-                crossfade(true)
-            },
+            painter = rememberAsyncImagePainter(album, LocalImageLoader.current),
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .background(Color.Black)

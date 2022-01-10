@@ -7,8 +7,7 @@ import coil.decode.DataSource
 import coil.fetch.DrawableResult
 import coil.fetch.Fetcher
 import coil.request.Options
-import coil.size.OriginalSize
-import coil.size.PixelSize
+import coil.size.pxOrElse
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreAlbum
 import dev.andrewbailey.encore.provider.mediastore.MediaStoreSong
 import java.io.IOException
@@ -34,14 +33,8 @@ private class MediaStoreCoilAlbumFetcher(
                 options.context.resources,
                 mediaStoreArtworkProvider.getAlbumArtwork(
                     album = data,
-                    widthPx = when (val size = options.size) {
-                        OriginalSize -> null
-                        is PixelSize -> size.width
-                    },
-                    heightPx = when (val size = options.size) {
-                        OriginalSize -> null
-                        is PixelSize -> size.height
-                    }
+                    widthPx = options.size.width.pxOrElse { 0 }.takeIf { it > 0 },
+                    heightPx = options.size.height.pxOrElse { 0 }.takeIf { it > 0 }
                 )
             ),
             isSampled = true,
@@ -65,14 +58,8 @@ private class MediaStoreCoilSongFetcher(
                 options.context.resources,
                 mediaStoreArtworkProvider.getEmbeddedArtwork(
                     song = data,
-                    widthPx = when (val size = options.size) {
-                        OriginalSize -> null
-                        is PixelSize -> size.width
-                    },
-                    heightPx = when (val size = options.size) {
-                        OriginalSize -> null
-                        is PixelSize -> size.height
-                    }
+                    widthPx = options.size.width.pxOrElse { 0 }.takeIf { it > 0 },
+                    heightPx = options.size.height.pxOrElse { 0 }.takeIf { it > 0 }
                 ) ?: throw IOException("${data.playbackUri} does not have embedded artwork")
             ),
             isSampled = true,
