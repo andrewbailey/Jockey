@@ -6,7 +6,8 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultDataSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import dev.andrewbailey.diff.DiffResult
 import dev.andrewbailey.diff.differenceOf
 import dev.andrewbailey.encore.model.MediaObject
@@ -26,7 +27,12 @@ internal class MediaQueue<M : MediaObject>(
     val mediaSource = ConcatenatingMediaSource()
 
     init {
-        val dataSourceFactory = DefaultDataSourceFactory(context, userAgent)
+
+        val dataSourceFactory = DefaultDataSource.Factory(
+            context,
+            DefaultHttpDataSource.Factory()
+                .setUserAgent(userAgent)
+        )
         mediaSourceFactory = ProgressiveMediaSource.Factory(dataSourceFactory)
     }
 

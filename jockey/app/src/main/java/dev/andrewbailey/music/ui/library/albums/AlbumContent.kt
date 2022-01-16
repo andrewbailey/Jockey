@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.LocalImageLoader
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import dev.andrewbailey.music.R
@@ -85,7 +85,7 @@ private fun AlbumHeader(
             .padding(16.dp)
     ) {
         Image(
-            painter = rememberImagePainter(album, LocalImageLoader.current),
+            painter = rememberAsyncImagePainter(album, LocalImageLoader.current),
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .align(Alignment.Top)

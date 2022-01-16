@@ -2,8 +2,8 @@ package dev.andrewbailey.encore.player.playback
 
 import android.content.Context
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.BuildConfig
@@ -26,7 +26,7 @@ internal class MediaPlayer<M : MediaObject>(
     private val observers: List<PlaybackObserver<M>>
 ) {
 
-    private val exoPlayer = SimpleExoPlayer.Builder(context).build()
+    private val exoPlayer = ExoPlayer.Builder(context).build()
     private val queue = MediaQueue<M>(context, userAgent)
 
     private val stateLock = Any()

@@ -10,8 +10,6 @@ import com.google.android.exoplayer2.Player.REPEAT_MODE_ONE
 import com.google.android.exoplayer2.Player.STATE_BUFFERING
 import com.google.android.exoplayer2.Player.STATE_ENDED
 import com.google.android.exoplayer2.Player.STATE_READY
-import com.google.android.exoplayer2.metadata.flac.PictureFrame
-import com.google.android.exoplayer2.metadata.id3.ApicFrame
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
@@ -29,9 +27,6 @@ import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.util.getEntries
-import dev.andrewbailey.encore.player.util.getFormats
-import dev.andrewbailey.encore.player.util.toList
 
 internal class PlaybackStateCreator<M : MediaObject>(
     private val exoPlayer: ExoPlayer,
@@ -84,11 +79,11 @@ internal class PlaybackStateCreator<M : MediaObject>(
                 queue = when (queueItems) {
                     is LinearQueueItems -> Linear(
                         queue = queueItems.queue,
-                        queueIndex = exoPlayer.currentWindowIndex
+                        queueIndex = exoPlayer.currentMediaItemIndex
                     )
                     is ShuffledQueueItems -> Shuffled(
                         queue = queueItems.queue,
-                        queueIndex = exoPlayer.currentWindowIndex,
+                        queueIndex = exoPlayer.currentMediaItemIndex,
                         linearQueue = queueItems.linearQueue
                     )
                 },
@@ -98,23 +93,7 @@ internal class PlaybackStateCreator<M : MediaObject>(
     }
 
     private fun getArtwork(): Bitmap? {
-        return exoPlayer.currentTrackSelections.toList()
-            .flatMap { it.getFormats() }
-            .mapNotNull { it.metadata }
-            .flatMap { it.getEntries() }
-            .asSequence()
-            .mapNotNull { metadataEntry ->
-                when (metadataEntry) {
-                    is ApicFrame -> {
-                        metadataEntry.pictureData
-                    }
-                    is PictureFrame -> {
-                        metadataEntry.pictureData
-                    }
-                    else -> null
-                }
-            }
-            .firstOrNull()
+        return exoPlayer.mediaMetadata.artworkData
             ?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
     }
 
