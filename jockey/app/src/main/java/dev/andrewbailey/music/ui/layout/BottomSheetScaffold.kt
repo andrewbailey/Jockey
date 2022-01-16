@@ -3,6 +3,8 @@ package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation.Vertical
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,18 +16,24 @@ import androidx.compose.material.SwipeableState
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
 import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
 import dev.andrewbailey.music.util.ConsumeWindowInsets
 import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun BottomSheetScaffold(
@@ -74,13 +82,22 @@ fun BottomSheetScaffold(
     collapsedSheetHeightPx: Int,
     modifier: Modifier = Modifier,
     state: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    maximumExpandedHeight: Dp = Dp.Unspecified,
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
     with(BottomSheetScaffoldScope(state)) {
+        val localDensity = LocalDensity.current
+        val coroutineScope = rememberCoroutineScope()
+
         SubcomposeLayout(modifier) { constraints ->
             val layoutSize = IntSize(constraints.maxWidth, constraints.maxHeight)
-            val distanceToExpandOver = layoutSize.height - collapsedSheetHeightPx
+
+            val maximumExpandedHeightPx = with(localDensity) {
+                maximumExpandedHeight.takeIf { it.isSpecified }?.roundToPx()
+            }?.coerceIn(0..layoutSize.height) ?: layoutSize.height
+            val expandedTopMargin = layoutSize.height - maximumExpandedHeightPx
+            val distanceToExpandOver = maximumExpandedHeightPx - collapsedSheetHeightPx
 
             layout(layoutSize.width, layoutSize.height) {
                 subcomposeSingle("body") {
@@ -97,6 +114,12 @@ fun BottomSheetScaffold(
                 subcomposeSingle("scrim") {
                     Scrim(
                         color = scrimColor,
+                        showWhenExpanded = expandedTopMargin > 0,
+                        onDismissSheet = {
+                            coroutineScope.launch {
+                                state.animateTo(Collapsed)
+                            }
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }.measure(constraints).place(0, 0)
@@ -116,9 +139,15 @@ fun BottomSheetScaffold(
                     ) {
                         sheetContent()
                     }
-                }.measure(constraints).place(
+                }.measure(
+                    constraints.copy(
+                        minHeight = 0,
+                        maxHeight = maximumExpandedHeightPx
+                    )
+                ).place(
                     x = 0,
-                    y = (distanceToExpandOver * (1 - percentExpanded)).roundToInt()
+                    y = (distanceToExpandOver * (1 - percentExpanded) + expandedTopMargin)
+                        .roundToInt()
                 )
             }
         }
@@ -128,15 +157,35 @@ fun BottomSheetScaffold(
 @Composable
 private fun BottomSheetScaffoldScope.Scrim(
     color: Color,
+    showWhenExpanded: Boolean,
+    onDismissSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shouldRenderShim = percentExpanded > 0 && percentExpanded < 1
-    if (shouldRenderShim) {
+    val partiallyExpanded = percentExpanded > 0 && percentExpanded < 1
+    val fullyExpanded = percentExpanded == 1f
+    if (partiallyExpanded || (showWhenExpanded && fullyExpanded)) {
         Canvas(
             modifier = modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
-                    // Do nothing -- just make sure tap events can't go through the shim
+                .pointerInput(fullyExpanded) {
+                    // If we're not fully expanded, do nothing. This ensures that tap events
+                    // can't go through the shim. If we are expanded, use any interactions on the
+                    // shim to collapse the bottom sheet.
+                    if (fullyExpanded) {
+                        coroutineScope {
+                            launch {
+                                detectDragGestures { _, _ ->
+                                    onDismissSheet()
+                                }
+                            }
+
+                            launch {
+                                detectTapGestures {
+                                    onDismissSheet()
+                                }
+                            }
+                        }
+                    }
                 }
         ) {
             drawRect(color, alpha = percentExpanded)
