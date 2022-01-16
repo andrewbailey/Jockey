@@ -6,15 +6,19 @@ import androidx.annotation.ColorRes
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
+import androidx.annotation.Px
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +61,22 @@ fun pluralsResource(@PluralsRes id: Int, quantity: Int): String {
 fun pluralsResource(@PluralsRes id: Int, quantity: Int, vararg formatArgs: Any): String {
     val resources = LocalContext.current.resources
     return resources.getQuantityString(id, quantity, *formatArgs)
+}
+
+@Px
+@Composable
+fun heightOf(content: @Composable () -> Unit): Int {
+    var height by remember { mutableStateOf(0) }
+    Layout(
+        content = {
+            content()
+        },
+        measurePolicy = { measurables, constraints ->
+            height = measurables.first().measure(constraints).height
+            layout(0, 0) {}
+        }
+    )
+    return height
 }
 
 fun SubcomposeMeasureScope.subcomposeSingle(

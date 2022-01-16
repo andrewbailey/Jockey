@@ -84,13 +84,15 @@ private fun NowPlayingControls(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround,
         modifier = modifier
     ) {
         SongMetadata(
             songTitle = songTitle,
             albumName = albumName,
             artistName = artistName,
-            enabled = enabled
+            enabled = enabled,
+            modifier = Modifier.weight(1f, fill = false)
         )
 
         SeekSlider(
@@ -102,6 +104,7 @@ private fun NowPlayingControls(
                 .fillMaxWidth()
                 .offset(y = 4.dp)
                 .height(36.dp)
+                .weight(1f, fill = false)
         )
 
         TransportControls(
@@ -112,6 +115,7 @@ private fun NowPlayingControls(
             onPause = onPause,
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(0.85f)
+                .weight(1f, fill = false)
         )
     }
 }

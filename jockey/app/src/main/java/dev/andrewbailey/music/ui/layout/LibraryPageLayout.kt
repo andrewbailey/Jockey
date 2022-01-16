@@ -1,6 +1,7 @@
 package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -74,7 +75,8 @@ fun LibraryPageLayout(
         },
         expandedSheetLayout = {
             NowPlayingRoot(
-                percentVisible = percentExpanded
+                percentVisible = percentExpanded,
+                modifier = Modifier.fillMaxSize()
             )
         }
     )

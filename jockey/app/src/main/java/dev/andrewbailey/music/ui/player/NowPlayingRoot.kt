@@ -6,20 +6,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
@@ -29,12 +30,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
@@ -43,9 +46,13 @@ import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.data.PlaybackController
+import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
+import dev.andrewbailey.music.ui.layout.CollapsingPageValue
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.collectAsNonUniqueState
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NowPlayingRoot(
     modifier: Modifier = Modifier,
@@ -55,9 +62,72 @@ fun NowPlayingRoot(
     val playbackController = LocalPlaybackController.current
     val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
 
-    Column(
-        modifier = modifier.fillMaxHeight()
-    ) {
+    val bottomSheetState = rememberSwipeableState(CollapsingPageValue.Collapsed)
+    val coroutineScope = rememberCoroutineScope()
+
+    with(LocalAppNavigator.current) {
+        PopBehavior {
+            if (bottomSheetState.currentValue != CollapsingPageValue.Collapsed) {
+                coroutineScope.launch {
+                    bottomSheetState.animateTo(CollapsingPageValue.Collapsed)
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    BottomSheetScaffold(
+        bodyContent = {
+            NowPlayingContent(
+                playbackState = playbackState,
+                percentVisible = percentVisible,
+                modifier = Modifier.fillMaxSize()
+            )
+        },
+        sheetContent = {
+            (playbackState?.transportState as? TransportState.Active)?.queue?.let { queue ->
+                Surface(
+                    elevation = 16.dp,
+                    modifier = Modifier.topBorder()
+                ) {
+                    NowPlayingQueue(
+                        queue = queue,
+                        modifier = Modifier.fillMaxSize(),
+                        percentExpanded = percentExpanded,
+                        expandQueue = {
+                            coroutineScope.launch {
+                                bottomSheetState.animateTo(CollapsingPageValue.Expanded)
+                            }
+                        },
+                        collapseQueue = {
+                            coroutineScope.launch {
+                                bottomSheetState.animateTo(CollapsingPageValue.Collapsed)
+                            }
+                        }
+                    )
+                }
+            }
+        },
+        state = bottomSheetState,
+        collapsedSheetHeightPx = nowPlayingQueueCollapsedHeightPx() +
+            LocalWindowInsets.current.systemBars.bottom,
+        maximumExpandedHeight = LocalConfiguration.current.screenHeightDp.dp - 128.dp,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun NowPlayingContent(
+    playbackState: MediaPlayerState<Song>?,
+    modifier: Modifier = Modifier,
+    @FloatRange(from = 0.0, to = 1.0)
+    percentVisible: Float = 1.0f
+) {
+    val playbackController = LocalPlaybackController.current
+
+    Column(modifier = modifier) {
         Box(
             modifier = Modifier
                 .background(Color.Black)
@@ -87,17 +157,10 @@ fun NowPlayingRoot(
             playbackState = playbackState,
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .weight(1f)
                 .background(color = MaterialTheme.colors.surface)
-                .padding(16.dp)
+                .padding(32.dp)
         )
-
-        (playbackState?.transportState as? TransportState.Active)?.queue?.let { queue ->
-            NowPlayingBottomSheet(
-                queue = queue,
-                modifier = Modifier.fillMaxHeight()
-            )
-        }
     }
 }
 
@@ -190,6 +253,18 @@ private fun Modifier.insetBottomShadow(
                 start = Offset(0f, size.height - heightPx),
                 end = Offset(0f, size.height)
             )
+        )
+    }
+}
+
+private fun Modifier.topBorder() = composed {
+    val color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)
+    drawWithContent {
+        drawContent()
+        drawLine(
+            color = color,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f)
         )
     }
 }
