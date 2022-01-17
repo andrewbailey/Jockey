@@ -6,6 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -68,10 +69,13 @@ class Navigator private constructor(
     fun PopBehavior(
         navigateUp: () -> Boolean
     ) {
-        DisposableEffect(navigateUp) {
-            popOverrides.push(navigateUp)
+        val currentNavigateUp = rememberUpdatedState(navigateUp)
+        DisposableEffect(Unit) {
+            val handler = popOverrides.push {
+                currentNavigateUp.value()
+            }
             onDispose {
-                popOverrides.remove(navigateUp)
+                popOverrides.remove(handler)
             }
         }
     }
