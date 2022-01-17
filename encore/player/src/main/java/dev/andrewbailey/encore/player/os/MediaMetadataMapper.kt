@@ -6,8 +6,10 @@ import android.support.v4.media.MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM
+import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_ART
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI
+import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ART
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ART_URI
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_AUTHOR
@@ -57,6 +59,11 @@ internal class MediaMetadataMapper {
 
         putString(METADATA_KEY_TITLE, metadata.title)
         putLong(METADATA_KEY_DURATION, playbackState.durationMs ?: -1)
+
+        playbackState.artwork?.let {
+            putBitmap(METADATA_KEY_ART, it)
+            putBitmap(METADATA_KEY_ALBUM_ART, it)
+        }
 
         metadata.artistName?.let { putString(METADATA_KEY_ARTIST, it) }
         metadata.albumName?.let { putString(METADATA_KEY_ALBUM, it) }
