@@ -17,7 +17,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +47,7 @@ import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.data.PlaybackController
 import dev.andrewbailey.music.ui.layout.ModalScaffold
 import dev.andrewbailey.music.ui.layout.ModalStateValue
+import dev.andrewbailey.music.ui.layout.rememberModalState
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.collectAsNonUniqueState
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ fun NowPlayingRoot(
     val playbackController = LocalPlaybackController.current
     val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
 
-    val nowPlayingModalState = rememberSwipeableState(ModalStateValue.Collapsed)
+    val nowPlayingModalState = rememberModalState(ModalStateValue.Collapsed)
     val coroutineScope = rememberCoroutineScope()
 
     with(LocalAppNavigator.current) {
@@ -95,7 +95,7 @@ fun NowPlayingRoot(
                     NowPlayingQueue(
                         queue = queue,
                         modifier = Modifier.fillMaxSize(),
-                        percentExpanded = percentExpanded,
+                        percentExpanded = nowPlayingModalState.percentExpanded,
                         expandQueue = {
                             coroutineScope.launch {
                                 nowPlayingModalState.animateTo(ModalStateValue.Expanded)

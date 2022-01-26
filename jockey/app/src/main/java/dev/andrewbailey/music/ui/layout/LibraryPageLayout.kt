@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.SwipeableState
-import androidx.compose.material.rememberSwipeableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,7 +33,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LibraryPageLayout(
     modifier: Modifier = Modifier,
-    nowPlayingModalState: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
+    nowPlayingModalState: ModalState = rememberModalState(Collapsed),
     bottomBar: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -65,6 +63,7 @@ fun LibraryPageLayout(
         bodyContent = { content() },
         collapsedSheetLayout = {
             CollapsedPlayerControls(
+                nowPlayingModalState = nowPlayingModalState,
                 additionalContent = bottomBar,
                 onClickBar = {
                     coroutineScope.launch {
@@ -75,7 +74,7 @@ fun LibraryPageLayout(
         },
         expandedSheetLayout = {
             NowPlayingRoot(
-                percentVisible = percentExpanded,
+                percentVisible = nowPlayingModalState.percentExpanded,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -83,7 +82,8 @@ fun LibraryPageLayout(
 }
 
 @Composable
-private fun ModalScaffoldScope.CollapsedPlayerControls(
+private fun CollapsedPlayerControls(
+    nowPlayingModalState: ModalState,
     modifier: Modifier = Modifier,
     additionalContent: @Composable (() -> Unit)? = null,
     onClickBar: () -> Unit
@@ -93,12 +93,12 @@ private fun ModalScaffoldScope.CollapsedPlayerControls(
 
     Layout(
         modifier = modifier
-            .alpha((1 - 2 * percentExpanded).coerceIn(0f..1f))
+            .alpha((1 - 2 * nowPlayingModalState.percentExpanded).coerceIn(0f..1f))
             .topBorder(MaterialTheme.colors.onSurface.copy(alpha = 0.15f), 1.dp)
             .morphingBackground(
                 color = MaterialTheme.colors.surface,
                 morphHeight = bottomInsetDp,
-                percentVisible = (1 - 6 * percentExpanded).coerceIn(0f..1f)
+                percentVisible = (1 - 6 * nowPlayingModalState.percentExpanded).coerceIn(0f..1f)
             ),
         content = {
             Surface(color = Color.Transparent) {

@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterialApi::class)
 package dev.andrewbailey.music.ui.layout
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -12,11 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
+import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.SwipeableState
-import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -35,13 +38,70 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+enum class ModalStateValue {
+    Expanded,
+    Collapsed
+}
+
+class ModalState(
+    initialValue: ModalStateValue,
+    animationSpec: AnimationSpec<Float>,
+    confirmStateChange: (newValue: ModalStateValue) -> Boolean
+) : SwipeableState<ModalStateValue>(
+    initialValue = initialValue,
+    animationSpec = animationSpec,
+    confirmStateChange = confirmStateChange
+) {
+
+    val percentExpanded: Float
+        get() = with(progress) {
+            if (from == to) when (from) {
+                Expanded -> 1f
+                Collapsed -> 0f
+            } else when (from) {
+                Expanded -> 1 - fraction
+                Collapsed -> fraction
+            }
+        }
+
+    companion object {
+        fun Saver(
+            animationSpec: AnimationSpec<Float>,
+            confirmStateChange: (ModalStateValue) -> Boolean
+        ) = Saver<ModalState, ModalStateValue>(
+            save = { it.currentValue },
+            restore = { ModalState(it, animationSpec, confirmStateChange) }
+        )
+    }
+}
+
+@Composable
+fun rememberModalState(
+    initialValue: ModalStateValue,
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    confirmStateChange: (newValue: ModalStateValue) -> Boolean = { true }
+): ModalState {
+    return rememberSaveable(
+        saver = ModalState.Saver(
+            animationSpec = animationSpec,
+            confirmStateChange = confirmStateChange
+        )
+    ) {
+        ModalState(
+            initialValue = initialValue,
+            animationSpec = animationSpec,
+            confirmStateChange = confirmStateChange
+        )
+    }
+}
+
 @Composable
 fun ModalScaffold(
-    bodyContent: @Composable ModalScaffoldScope.() -> Unit,
-    collapsedSheetLayout: @Composable ModalScaffoldScope.() -> Unit,
-    expandedSheetLayout: @Composable ModalScaffoldScope.() -> Unit,
+    bodyContent: @Composable () -> Unit,
+    collapsedSheetLayout: @Composable () -> Unit,
+    expandedSheetLayout: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    state: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
+    state: ModalState = rememberModalState(Collapsed),
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
@@ -50,9 +110,7 @@ fun ModalScaffold(
         val wrapContentSizeConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         val collapsedSheetHeight = subcomposeSingle("collapsedSheetContents") {
-            with(ModalScaffoldScope(state)) {
-                collapsedSheetLayout()
-            }
+            collapsedSheetLayout()
         }.measure(wrapContentSizeConstraints).height
 
         layout(layoutSize.width, layoutSize.height) {
@@ -61,6 +119,7 @@ fun ModalScaffold(
                     bodyContent = bodyContent,
                     sheetContent = {
                         CollapsableContent(
+                            state = state,
                             collapsedContent = collapsedSheetLayout,
                             expandedContent = expandedSheetLayout
                         )
@@ -77,92 +136,92 @@ fun ModalScaffold(
 
 @Composable
 fun ModalScaffold(
-    bodyContent: @Composable ModalScaffoldScope.() -> Unit,
-    sheetContent: @Composable ModalScaffoldScope.() -> Unit,
+    bodyContent: @Composable () -> Unit,
+    sheetContent: @Composable () -> Unit,
     collapsedSheetHeightPx: Int,
     modifier: Modifier = Modifier,
-    state: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
+    state: ModalState = rememberModalState(Collapsed),
     maximumExpandedHeight: Dp = Dp.Unspecified,
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
-    with(ModalScaffoldScope(state)) {
-        val localDensity = LocalDensity.current
-        val coroutineScope = rememberCoroutineScope()
+    val localDensity = LocalDensity.current
+    val coroutineScope = rememberCoroutineScope()
 
-        SubcomposeLayout(modifier) { constraints ->
-            val layoutSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+    SubcomposeLayout(modifier) { constraints ->
+        val layoutSize = IntSize(constraints.maxWidth, constraints.maxHeight)
 
-            val maximumExpandedHeightPx = with(localDensity) {
-                maximumExpandedHeight.takeIf { it.isSpecified }?.roundToPx()
-            }?.coerceIn(0..layoutSize.height) ?: layoutSize.height
-            val expandedTopMargin = layoutSize.height - maximumExpandedHeightPx
-            val distanceToExpandOver = maximumExpandedHeightPx - collapsedSheetHeightPx
+        val maximumExpandedHeightPx = with(localDensity) {
+            maximumExpandedHeight.takeIf { it.isSpecified }?.roundToPx()
+        }?.coerceIn(0..layoutSize.height) ?: layoutSize.height
+        val expandedTopMargin = layoutSize.height - maximumExpandedHeightPx
+        val distanceToExpandOver = maximumExpandedHeightPx - collapsedSheetHeightPx
 
-            layout(layoutSize.width, layoutSize.height) {
-                subcomposeSingle("body") {
-                    ConsumeWindowInsets(bottomPx = collapsedSheetHeightPx) {
-                        bodyContent()
-                    }
-                }.measure(
-                    constraints.copy(
-                        minHeight = 0,
-                        maxHeight = constraints.maxHeight - collapsedSheetHeightPx
-                    )
-                ).place(0, 0)
-
-                subcomposeSingle("scrim") {
-                    Scrim(
-                        color = scrimColor,
-                        showWhenExpanded = expandedTopMargin > 0,
-                        onDismissSheet = {
-                            coroutineScope.launch {
-                                state.animateTo(Collapsed)
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }.measure(constraints).place(0, 0)
-
-                subcomposeSingle("sheet") {
-                    Box(
-                        modifier = Modifier.swipeable(
-                            state = state,
-                            anchors = mapOf(
-                                0f to Collapsed,
-                                -distanceToExpandOver.toFloat() to Expanded
-                            ),
-                            enabled = expandable || state.currentValue == Expanded,
-                            orientation = Vertical,
-                            resistance = null
-                        )
-                    ) {
-                        sheetContent()
-                    }
-                }.measure(
-                    constraints.copy(
-                        minHeight = 0,
-                        maxHeight = maximumExpandedHeightPx
-                    )
-                ).place(
-                    x = 0,
-                    y = (distanceToExpandOver * (1 - percentExpanded) + expandedTopMargin)
-                        .roundToInt()
+        layout(layoutSize.width, layoutSize.height) {
+            subcomposeSingle("body") {
+                ConsumeWindowInsets(bottomPx = collapsedSheetHeightPx) {
+                    bodyContent()
+                }
+            }.measure(
+                constraints.copy(
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight - collapsedSheetHeightPx
                 )
-            }
+            ).place(0, 0)
+
+            subcomposeSingle("scrim") {
+                Scrim(
+                    state = state,
+                    color = scrimColor,
+                    showWhenExpanded = expandedTopMargin > 0,
+                    onDismissSheet = {
+                        coroutineScope.launch {
+                            state.animateTo(Collapsed)
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }.measure(constraints).place(0, 0)
+
+            subcomposeSingle("sheet") {
+                Box(
+                    modifier = Modifier.swipeable(
+                        state = state,
+                        anchors = mapOf(
+                            0f to Collapsed,
+                            -distanceToExpandOver.toFloat() to Expanded
+                        ),
+                        enabled = expandable || state.currentValue == Expanded,
+                        orientation = Vertical,
+                        resistance = null
+                    )
+                ) {
+                    sheetContent()
+                }
+            }.measure(
+                constraints.copy(
+                    minHeight = 0,
+                    maxHeight = maximumExpandedHeightPx
+                )
+            ).place(
+                x = 0,
+                y = (distanceToExpandOver * (1 - state.percentExpanded) + expandedTopMargin)
+                    .roundToInt()
+            )
         }
     }
 }
 
 @Composable
-private fun ModalScaffoldScope.Scrim(
+private fun Scrim(
+    state: ModalState,
     color: Color,
     showWhenExpanded: Boolean,
     onDismissSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val partiallyExpanded = percentExpanded > 0 && percentExpanded < 1
-    val fullyExpanded = percentExpanded == 1f
+    val partiallyExpanded = state.percentExpanded > 0 && state.percentExpanded < 1
+    val fullyExpanded = state.percentExpanded == 1f
     if (partiallyExpanded || (showWhenExpanded && fullyExpanded)) {
         Canvas(
             modifier = modifier
@@ -188,7 +247,7 @@ private fun ModalScaffoldScope.Scrim(
                     }
                 }
         ) {
-            drawRect(color, alpha = percentExpanded)
+            drawRect(color, alpha = state.percentExpanded)
         }
     } else {
         Spacer(modifier = modifier)
@@ -196,10 +255,11 @@ private fun ModalScaffoldScope.Scrim(
 }
 
 @Composable
-private fun ModalScaffoldScope.CollapsableContent(
+private fun CollapsableContent(
+    state: ModalState,
     modifier: Modifier = Modifier,
-    collapsedContent: @Composable ModalScaffoldScope.() -> Unit = {},
-    expandedContent: @Composable ModalScaffoldScope.() -> Unit = {}
+    collapsedContent: @Composable () -> Unit = {},
+    expandedContent: @Composable () -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -208,34 +268,10 @@ private fun ModalScaffoldScope.CollapsableContent(
         Box(Modifier.wrapContentHeight()) {
             expandedContent()
         }
-        if (percentExpanded < 1) {
+        if (state.percentExpanded < 1) {
             Box(Modifier.fillMaxHeight()) {
                 collapsedContent()
             }
         }
     }
-}
-
-@JvmInline
-value class ModalScaffoldScope(
-    val percentExpanded: Float
-) {
-    constructor(
-        state: SwipeableState<ModalStateValue>
-    ) : this(
-        percentExpanded = with(state.progress) {
-            if (from == to) when (from) {
-                Expanded -> 1f
-                Collapsed -> 0f
-            } else when (from) {
-                Expanded -> 1 - fraction
-                Collapsed -> fraction
-            }
-        }
-    )
-}
-
-enum class ModalStateValue {
-    Expanded,
-    Collapsed
 }
