@@ -46,8 +46,8 @@ import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.data.PlaybackController
-import dev.andrewbailey.music.ui.layout.BottomSheetScaffold
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue
+import dev.andrewbailey.music.ui.layout.ModalScaffold
+import dev.andrewbailey.music.ui.layout.ModalStateValue
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.collectAsNonUniqueState
 import kotlinx.coroutines.launch
@@ -62,14 +62,14 @@ fun NowPlayingRoot(
     val playbackController = LocalPlaybackController.current
     val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
 
-    val bottomSheetState = rememberSwipeableState(CollapsingPageValue.Collapsed)
+    val nowPlayingModalState = rememberSwipeableState(ModalStateValue.Collapsed)
     val coroutineScope = rememberCoroutineScope()
 
     with(LocalAppNavigator.current) {
         PopBehavior {
-            if (bottomSheetState.currentValue != CollapsingPageValue.Collapsed) {
+            if (nowPlayingModalState.currentValue != ModalStateValue.Collapsed) {
                 coroutineScope.launch {
-                    bottomSheetState.animateTo(CollapsingPageValue.Collapsed)
+                    nowPlayingModalState.animateTo(ModalStateValue.Collapsed)
                 }
                 true
             } else {
@@ -78,7 +78,7 @@ fun NowPlayingRoot(
         }
     }
 
-    BottomSheetScaffold(
+    ModalScaffold(
         bodyContent = {
             NowPlayingContent(
                 playbackState = playbackState,
@@ -98,19 +98,19 @@ fun NowPlayingRoot(
                         percentExpanded = percentExpanded,
                         expandQueue = {
                             coroutineScope.launch {
-                                bottomSheetState.animateTo(CollapsingPageValue.Expanded)
+                                nowPlayingModalState.animateTo(ModalStateValue.Expanded)
                             }
                         },
                         collapseQueue = {
                             coroutineScope.launch {
-                                bottomSheetState.animateTo(CollapsingPageValue.Collapsed)
+                                nowPlayingModalState.animateTo(ModalStateValue.Collapsed)
                             }
                         }
                     )
                 }
             }
         },
-        state = bottomSheetState,
+        state = nowPlayingModalState,
         collapsedSheetHeightPx = nowPlayingQueueCollapsedHeightPx() +
             LocalWindowInsets.current.systemBars.bottom,
         maximumExpandedHeight = LocalConfiguration.current.screenHeightDp.dp - 128.dp,

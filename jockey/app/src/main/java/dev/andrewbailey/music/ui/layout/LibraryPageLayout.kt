@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
 import dev.andrewbailey.music.ui.library.CollapsedPlayerControls
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.player.NowPlayingRoot
@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LibraryPageLayout(
     modifier: Modifier = Modifier,
-    bottomSheetState: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    nowPlayingModalState: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
     bottomBar: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -46,9 +46,9 @@ fun LibraryPageLayout(
     with(LocalAppNavigator.current) {
         PopBehavior(
             navigateUp = {
-                if (bottomSheetState.currentValue == Expanded) {
+                if (nowPlayingModalState.currentValue == Expanded) {
                     coroutineScope.launch {
-                        bottomSheetState.animateTo(Collapsed)
+                        nowPlayingModalState.animateTo(Collapsed)
                     }
                     true
                 } else {
@@ -58,9 +58,9 @@ fun LibraryPageLayout(
         )
     }
 
-    BottomSheetScaffold(
+    ModalScaffold(
         modifier = modifier,
-        state = bottomSheetState,
+        state = nowPlayingModalState,
         expandable = isMediaPlaying,
         bodyContent = { content() },
         collapsedSheetLayout = {
@@ -68,7 +68,7 @@ fun LibraryPageLayout(
                 additionalContent = bottomBar,
                 onClickBar = {
                     coroutineScope.launch {
-                        bottomSheetState.animateTo(Expanded)
+                        nowPlayingModalState.animateTo(Expanded)
                     }
                 }
             )
@@ -83,7 +83,7 @@ fun LibraryPageLayout(
 }
 
 @Composable
-private fun BottomSheetScaffoldScope.CollapsedPlayerControls(
+private fun ModalScaffoldScope.CollapsedPlayerControls(
     modifier: Modifier = Modifier,
     additionalContent: @Composable (() -> Unit)? = null,
     onClickBar: () -> Unit

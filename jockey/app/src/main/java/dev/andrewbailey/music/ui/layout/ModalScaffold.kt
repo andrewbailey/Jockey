@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Collapsed
-import dev.andrewbailey.music.ui.layout.CollapsingPageValue.Expanded
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
 import dev.andrewbailey.music.util.ConsumeWindowInsets
 import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
@@ -36,12 +36,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun BottomSheetScaffold(
-    bodyContent: @Composable BottomSheetScaffoldScope.() -> Unit,
-    collapsedSheetLayout: @Composable BottomSheetScaffoldScope.() -> Unit,
-    expandedSheetLayout: @Composable BottomSheetScaffoldScope.() -> Unit,
+fun ModalScaffold(
+    bodyContent: @Composable ModalScaffoldScope.() -> Unit,
+    collapsedSheetLayout: @Composable ModalScaffoldScope.() -> Unit,
+    expandedSheetLayout: @Composable ModalScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
-    state: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    state: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
@@ -50,14 +50,14 @@ fun BottomSheetScaffold(
         val wrapContentSizeConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         val collapsedSheetHeight = subcomposeSingle("collapsedSheetContents") {
-            with(BottomSheetScaffoldScope(state)) {
+            with(ModalScaffoldScope(state)) {
                 collapsedSheetLayout()
             }
         }.measure(wrapContentSizeConstraints).height
 
         layout(layoutSize.width, layoutSize.height) {
             subcomposeSingle("collapsingPage") {
-                BottomSheetScaffold(
+                ModalScaffold(
                     bodyContent = bodyContent,
                     sheetContent = {
                         CollapsableContent(
@@ -76,17 +76,17 @@ fun BottomSheetScaffold(
 }
 
 @Composable
-fun BottomSheetScaffold(
-    bodyContent: @Composable BottomSheetScaffoldScope.() -> Unit,
-    sheetContent: @Composable BottomSheetScaffoldScope.() -> Unit,
+fun ModalScaffold(
+    bodyContent: @Composable ModalScaffoldScope.() -> Unit,
+    sheetContent: @Composable ModalScaffoldScope.() -> Unit,
     collapsedSheetHeightPx: Int,
     modifier: Modifier = Modifier,
-    state: SwipeableState<CollapsingPageValue> = rememberSwipeableState(Collapsed),
+    state: SwipeableState<ModalStateValue> = rememberSwipeableState(Collapsed),
     maximumExpandedHeight: Dp = Dp.Unspecified,
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
 ) {
-    with(BottomSheetScaffoldScope(state)) {
+    with(ModalScaffoldScope(state)) {
         val localDensity = LocalDensity.current
         val coroutineScope = rememberCoroutineScope()
 
@@ -155,7 +155,7 @@ fun BottomSheetScaffold(
 }
 
 @Composable
-private fun BottomSheetScaffoldScope.Scrim(
+private fun ModalScaffoldScope.Scrim(
     color: Color,
     showWhenExpanded: Boolean,
     onDismissSheet: () -> Unit,
@@ -196,10 +196,10 @@ private fun BottomSheetScaffoldScope.Scrim(
 }
 
 @Composable
-private fun BottomSheetScaffoldScope.CollapsableContent(
+private fun ModalScaffoldScope.CollapsableContent(
     modifier: Modifier = Modifier,
-    collapsedContent: @Composable BottomSheetScaffoldScope.() -> Unit = {},
-    expandedContent: @Composable BottomSheetScaffoldScope.() -> Unit = {}
+    collapsedContent: @Composable ModalScaffoldScope.() -> Unit = {},
+    expandedContent: @Composable ModalScaffoldScope.() -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -217,11 +217,11 @@ private fun BottomSheetScaffoldScope.CollapsableContent(
 }
 
 @JvmInline
-value class BottomSheetScaffoldScope(
+value class ModalScaffoldScope(
     val percentExpanded: Float
 ) {
     constructor(
-        state: SwipeableState<CollapsingPageValue>
+        state: SwipeableState<ModalStateValue>
     ) : this(
         percentExpanded = with(state.progress) {
             if (from == to) when (from) {
@@ -235,7 +235,7 @@ value class BottomSheetScaffoldScope(
     )
 }
 
-enum class CollapsingPageValue {
+enum class ModalStateValue {
     Expanded,
     Collapsed
 }
