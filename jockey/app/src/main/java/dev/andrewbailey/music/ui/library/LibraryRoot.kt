@@ -3,7 +3,6 @@ package dev.andrewbailey.music.ui.library
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -22,7 +21,6 @@ import dev.andrewbailey.music.ui.library.playlists.AllPlaylistsRoot
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.LibraryPage
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LibraryRoot(
     modifier: Modifier = Modifier

@@ -2,7 +2,6 @@ package dev.andrewbailey.music.ui.library.albums
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -22,10 +21,9 @@ import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.layout.StatusBarBackground
-import dev.andrewbailey.music.ui.library.common.songs
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
-@OptIn(ExperimentalAnimatedInsets::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun AlbumPage(
     album: Album,
