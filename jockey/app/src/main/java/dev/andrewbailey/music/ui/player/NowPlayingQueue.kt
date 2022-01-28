@@ -1,6 +1,7 @@
 package dev.andrewbailey.music.ui.player
 
 import androidx.annotation.FloatRange
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,11 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
@@ -33,16 +39,18 @@ import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
+import dev.andrewbailey.music.ui.layout.ModalState
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
+import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
 import dev.andrewbailey.music.util.heightOf
 
 @Composable
-fun NowPlayingQueue(
+fun CollapsibleNowPlayingQueue(
     queue: QueueState<Song>,
+    modalState: ModalState,
     modifier: Modifier = Modifier,
     expandQueue: () -> Unit = {},
     collapseQueue: () -> Unit = {},
-    @FloatRange(from = 0.0, to = 1.0)
-    percentExpanded: Float = 1f
 ) {
     Column(
         modifier = modifier
@@ -50,9 +58,9 @@ fun NowPlayingQueue(
         NowPlayingToolbar(
             expandQueue = expandQueue,
             collapseQueue = collapseQueue,
-            percentExpanded = percentExpanded,
+            percentExpanded = modalState.percentExpanded,
             elevation = AppBarDefaults.TopAppBarElevation *
-                (percentExpanded * 2).coerceIn(0f..1f)
+                (modalState.percentExpanded * 2).coerceIn(0f..1f)
         )
 
         val nextPlayingIndex = (queue.queueIndex + 1).coerceAtMost(queue.queue.size - 1)
@@ -60,15 +68,56 @@ fun NowPlayingQueue(
             initialFirstVisibleItemIndex = nextPlayingIndex
         )
 
-        NowPlayingQueueItems(
-            queue = queue,
-            scrollable = percentExpanded == 1f,
-            selectable = percentExpanded == 1f,
-            state = scrollState,
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.navigationBars
-            )
-        )
+        // The effective state is the state the modal has settled in. This accounts primarily for
+        // delays that happen when the modal is collapsing.
+        var effectiveModalState by remember { mutableStateOf(modalState.targetValue) }
+
+        // When the sheet collapses, reset the scroll position of the list
+        LaunchedEffect(modalState.confirmedState) {
+            if (modalState.confirmedState == Collapsed) {
+                scrollState.animateScrollToItem(nextPlayingIndex)
+                effectiveModalState = modalState.currentValue
+            }
+        }
+
+        // Keep the scroll state in sync with the next track while the modal is collapsed
+        if (effectiveModalState == Collapsed) {
+            LaunchedEffect(nextPlayingIndex) {
+                scrollState.scrollToItem(nextPlayingIndex)
+            }
+        }
+
+        // Show the full list of songs as soon as the modal becomes partially expanded
+        if (modalState.currentValue == Collapsed) {
+            effectiveModalState = if (modalState.percentExpanded > 0) {
+                Expanded
+            } else {
+                Collapsed
+            }
+        }
+
+        Crossfade(targetState = effectiveModalState == Expanded) { showFullList ->
+            if (showFullList) {
+                NowPlayingQueueItems(
+                    queue = queue,
+                    scrollable = modalState.percentExpanded == 1f,
+                    selectable = modalState.percentExpanded == 1f,
+                    state = scrollState,
+                    contentPadding = rememberInsetsPaddingValues(
+                        insets = LocalWindowInsets.current.navigationBars
+                    )
+                )
+            } else {
+                Crossfade(targetState = queue.queue[nextPlayingIndex]) { song ->
+                    NowPlayingQueueItem(
+                        songName = song.mediaItem.name,
+                        albumName = song.mediaItem.album?.name,
+                        artistName = song.mediaItem.artist?.name,
+                        isPlaying = false
+                    )
+                }
+            }
+        }
     }
 }
 

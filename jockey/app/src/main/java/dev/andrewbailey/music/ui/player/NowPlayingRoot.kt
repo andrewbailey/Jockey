@@ -90,10 +90,10 @@ fun NowPlayingRoot(
                     elevation = 16.dp,
                     modifier = Modifier.topBorder()
                 ) {
-                    NowPlayingQueue(
+                    CollapsibleNowPlayingQueue(
                         queue = queue,
                         modifier = Modifier.fillMaxSize(),
-                        percentExpanded = nowPlayingModalState.percentExpanded,
+                        modalState = nowPlayingModalState,
                         expandQueue = {
                             coroutineScope.launch {
                                 nowPlayingModalState.expand()
