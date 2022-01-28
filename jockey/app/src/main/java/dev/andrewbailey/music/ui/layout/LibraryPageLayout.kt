@@ -2,7 +2,6 @@ package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -29,7 +28,6 @@ import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.player.NowPlayingRoot
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
 @Composable
 fun LibraryPageLayout(
     modifier: Modifier = Modifier,
@@ -46,7 +44,7 @@ fun LibraryPageLayout(
             navigateUp = {
                 if (nowPlayingModalState.currentValue == Expanded) {
                     coroutineScope.launch {
-                        nowPlayingModalState.animateTo(Collapsed)
+                        nowPlayingModalState.collapse()
                     }
                     true
                 } else {
@@ -67,7 +65,7 @@ fun LibraryPageLayout(
                 additionalContent = bottomBar,
                 onClickBar = {
                     coroutineScope.launch {
-                        nowPlayingModalState.animateTo(Expanded)
+                        nowPlayingModalState.expand()
                     }
                 }
             )

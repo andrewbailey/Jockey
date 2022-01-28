@@ -17,9 +17,12 @@ import androidx.compose.material.SwipeableDefaults
 import androidx.compose.material.SwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
+import dev.andrewbailey.music.ui.layout.ModalState.Companion.modalSheet
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
 import dev.andrewbailey.music.util.ConsumeWindowInsets
@@ -47,14 +51,32 @@ class ModalState(
     initialValue: ModalStateValue,
     animationSpec: AnimationSpec<Float>,
     confirmStateChange: (newValue: ModalStateValue) -> Boolean
-) : SwipeableState<ModalStateValue>(
-    initialValue = initialValue,
-    animationSpec = animationSpec,
-    confirmStateChange = confirmStateChange
 ) {
 
+    var confirmedState by mutableStateOf(initialValue)
+        private set
+
+    private val swipeableState = SwipeableState(
+        initialValue = initialValue,
+        animationSpec = animationSpec,
+        confirmStateChange = {
+            if (confirmStateChange(it)) {
+                confirmedState = it
+                true
+            } else {
+                false
+            }
+        }
+    )
+
+    val currentValue: ModalStateValue get() =
+        swipeableState.currentValue
+
+    val targetValue: ModalStateValue get() =
+        swipeableState.targetValue
+
     val percentExpanded: Float
-        get() = with(progress) {
+        get() = with(swipeableState.progress) {
             if (from == to) when (from) {
                 Expanded -> 1f
                 Collapsed -> 0f
@@ -64,6 +86,16 @@ class ModalState(
             }
         }
 
+    suspend fun expand() {
+        confirmedState = Expanded
+        swipeableState.animateTo(Expanded)
+    }
+
+    suspend fun collapse() {
+        confirmedState = Collapsed
+        swipeableState.animateTo(Collapsed)
+    }
+
     companion object {
         fun Saver(
             animationSpec: AnimationSpec<Float>,
@@ -71,6 +103,21 @@ class ModalState(
         ) = Saver<ModalState, ModalStateValue>(
             save = { it.currentValue },
             restore = { ModalState(it, animationSpec, confirmStateChange) }
+        )
+
+        fun Modifier.modalSheet(
+            state: ModalState,
+            distanceToExpandOver: Float,
+            enabled: Boolean = true
+        ): Modifier = swipeable(
+            state = state.swipeableState,
+            anchors = mapOf(
+                0f to Collapsed,
+                -distanceToExpandOver to Expanded
+            ),
+            enabled = enabled,
+            orientation = Vertical,
+            resistance = null
         )
     }
 }
@@ -176,7 +223,7 @@ fun ModalScaffold(
                     showWhenExpanded = expandedTopMargin > 0,
                     onDismissSheet = {
                         coroutineScope.launch {
-                            state.animateTo(Collapsed)
+                            state.collapse()
                         }
                     },
                     modifier = Modifier.fillMaxSize()
@@ -185,15 +232,10 @@ fun ModalScaffold(
 
             subcomposeSingle("sheet") {
                 Box(
-                    modifier = Modifier.swipeable(
+                    modifier = Modifier.modalSheet(
                         state = state,
-                        anchors = mapOf(
-                            0f to Collapsed,
-                            -distanceToExpandOver.toFloat() to Expanded
-                        ),
+                        distanceToExpandOver = distanceToExpandOver.toFloat(),
                         enabled = expandable || state.currentValue == Expanded,
-                        orientation = Vertical,
-                        resistance = null
                     )
                 ) {
                     sheetContent()

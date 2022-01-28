@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
@@ -52,7 +51,6 @@ import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.util.collectAsNonUniqueState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NowPlayingRoot(
     modifier: Modifier = Modifier,
@@ -69,7 +67,7 @@ fun NowPlayingRoot(
         PopBehavior {
             if (nowPlayingModalState.currentValue != ModalStateValue.Collapsed) {
                 coroutineScope.launch {
-                    nowPlayingModalState.animateTo(ModalStateValue.Collapsed)
+                    nowPlayingModalState.collapse()
                 }
                 true
             } else {
@@ -98,12 +96,12 @@ fun NowPlayingRoot(
                         percentExpanded = nowPlayingModalState.percentExpanded,
                         expandQueue = {
                             coroutineScope.launch {
-                                nowPlayingModalState.animateTo(ModalStateValue.Expanded)
+                                nowPlayingModalState.expand()
                             }
                         },
                         collapseQueue = {
                             coroutineScope.launch {
-                                nowPlayingModalState.animateTo(ModalStateValue.Collapsed)
+                                nowPlayingModalState.collapse()
                             }
                         }
                     )
