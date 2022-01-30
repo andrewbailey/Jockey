@@ -7,6 +7,8 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +24,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.core.content.ContextCompat
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.WindowInsets
@@ -154,6 +157,18 @@ val Color.saturation: Float
 
 val Color.luminance: Float
     get() = (maxOf(red, green, blue) + minOf(red, green, blue)) / 2
+
+@Composable
+operator fun PaddingValues.plus(other: PaddingValues) = PaddingValues(
+    start = this.calculateStartPadding(LocalLayoutDirection.current) +
+        other.calculateStartPadding(LocalLayoutDirection.current),
+    top = this.calculateTopPadding() +
+        other.calculateTopPadding(),
+    end = this.calculateStartPadding(LocalLayoutDirection.current) +
+        other.calculateStartPadding(LocalLayoutDirection.current),
+    bottom = this.calculateBottomPadding() +
+        other.calculateBottomPadding(),
+)
 
 @Composable
 fun ConsumeWindowInsets(
