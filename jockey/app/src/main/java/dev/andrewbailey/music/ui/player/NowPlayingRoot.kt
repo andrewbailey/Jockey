@@ -58,7 +58,7 @@ fun NowPlayingRoot(
     percentVisible: Float = 1.0f
 ) {
     val playbackController = LocalPlaybackController.current
-    val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
+    val playbackState by playbackController.playbackState.collectAsNonUniqueState()
 
     val nowPlayingModalState = rememberModalState(ModalStateValue.Collapsed)
     val coroutineScope = rememberCoroutineScope()

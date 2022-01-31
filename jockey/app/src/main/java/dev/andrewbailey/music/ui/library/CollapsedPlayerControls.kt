@@ -54,7 +54,7 @@ fun CollapsedPlayerControls(
     modifier: Modifier = Modifier
 ) {
     val playbackController = LocalPlaybackController.current
-    val playbackState by playbackController.playbackState.collectAsNonUniqueState(null)
+    val playbackState by playbackController.playbackState.collectAsNonUniqueState()
 
     val visibilityTransition = updateTransition(
         playbackState is MediaPlayerState.Prepared,

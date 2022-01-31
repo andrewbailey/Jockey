@@ -36,7 +36,14 @@ class PlaybackController @Inject constructor(
 
     val playbackState = mediaController
         .observeState(seekUpdateFrequency = WhilePlayingEvery(100, TimeUnit.MILLISECONDS))
-        .shareIn(coroutineScope, WhileSubscribed(replayExpirationMillis = 0), replay = 1)
+        .shareIn(
+            scope = coroutineScope,
+            started = WhileSubscribed(
+                stopTimeoutMillis = 500,
+                replayExpirationMillis = 0
+            ),
+            replay = 1
+        )
 
     override fun onDestroy() {
         mediaController.releaseToken(token)

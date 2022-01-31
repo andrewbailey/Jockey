@@ -26,6 +26,7 @@ import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
 import dev.andrewbailey.music.ui.library.CollapsedPlayerControls
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 import dev.andrewbailey.music.ui.player.NowPlayingRoot
+import dev.andrewbailey.music.util.collectAsState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,7 +38,7 @@ fun LibraryPageLayout(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val playbackController = LocalPlaybackController.current
-    val isMediaPlaying = playbackController.playbackState.collectAsState(null).value is Prepared
+    val isMediaPlaying = playbackController.playbackState.collectAsState().value is Prepared
 
     with(LocalAppNavigator.current) {
         PopBehavior(

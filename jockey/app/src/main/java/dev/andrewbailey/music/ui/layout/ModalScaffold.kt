@@ -8,9 +8,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.SwipeableDefaults
@@ -307,11 +305,11 @@ private fun CollapsableContent(
         modifier = modifier
             .shadow(elevation = 16.dp)
     ) {
-        Box(Modifier.wrapContentHeight()) {
+        Box {
             expandedContent()
         }
         if (state.percentExpanded < 1) {
-            Box(Modifier.fillMaxHeight()) {
+            Box {
                 collapsedContent()
             }
         }

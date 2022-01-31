@@ -1,6 +1,5 @@
 package dev.andrewbailey.music.util
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.FloatRange
@@ -14,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -31,6 +31,7 @@ import com.google.accompanist.insets.WindowInsets
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 
 /**
@@ -42,7 +43,6 @@ import kotlinx.coroutines.flow.collect
  * Make sure you do not combine this with [kotlinx.coroutines.flow.StateFlow], since StateFlow will
  * _also_ ignore duplicate emissions.
  */
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun <T : R, R> Flow<T>.collectAsNonUniqueState(initialValue: R): State<R> {
     val result = remember { mutableStateOf(initialValue, neverEqualPolicy()) }
@@ -50,6 +50,16 @@ fun <T : R, R> Flow<T>.collectAsNonUniqueState(initialValue: R): State<R> {
         collect { result.value = it }
     }
     return result
+}
+
+@Composable
+fun <T> SharedFlow<T>.collectAsNonUniqueState(): State<T?> {
+    return collectAsNonUniqueState(initialValue = replayCache.firstOrNull())
+}
+
+@Composable
+fun <T> SharedFlow<T>.collectAsState(): State<T?> {
+    return collectAsState(initial = replayCache.firstOrNull())
 }
 
 @Composable
