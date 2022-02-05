@@ -27,23 +27,22 @@ public class MediaStoreArtworkProvider(
         widthPx: Int?,
         heightPx: Int?
     ): Bitmap? = withContext(Dispatchers.IO) {
+        val retriever = MediaMetadataRetriever()
         try {
-            MediaMetadataRetriever().use { retriever ->
-                retriever.setDataSource(context, Uri.parse(song.playbackUri))
-                retriever.embeddedPicture?.let { picture ->
-                    BitmapFactory.decodeByteArray(
-                        picture,
-                        0,
-                        picture.size,
-                        BitmapFactory.Options().apply {
-                            inSampleSize = determineScaleFactor(
-                                bytes = picture,
-                                widthPx = widthPx,
-                                heightPx = heightPx
-                            )
-                        }
-                    )
-                }
+            retriever.setDataSource(context, Uri.parse(song.playbackUri))
+            retriever.embeddedPicture?.let { picture ->
+                BitmapFactory.decodeByteArray(
+                    picture,
+                    0,
+                    picture.size,
+                    BitmapFactory.Options().apply {
+                        inSampleSize = determineScaleFactor(
+                            bytes = picture,
+                            widthPx = widthPx,
+                            heightPx = heightPx
+                        )
+                    }
+                )
             }
         } catch (e: RuntimeException) {
             Log.e(TAG, "Failed to load full song artwork", e)
@@ -51,6 +50,8 @@ public class MediaStoreArtworkProvider(
         } catch (e: OutOfMemoryError) {
             Log.e(TAG, "Unable to allocate space on the heap for full song artwork", e)
             null
+        } finally {
+            retriever.release()
         }
     }
 
