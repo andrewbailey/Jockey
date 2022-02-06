@@ -18,6 +18,7 @@ import dev.andrewbailey.music.ui.library.artists.AllArtistsRoot
 import dev.andrewbailey.music.ui.library.playlists.AllPlaylistsRoot
 import dev.andrewbailey.music.ui.library.songs.AllSongsRoot
 import dev.andrewbailey.music.ui.navigation.LibraryPage
+import dev.andrewbailey.music.ui.navigation.PageTransition
 
 @Composable
 fun LibraryRoot(
@@ -52,27 +53,22 @@ private fun LibraryContent(
         )
 
         Surface(Modifier.weight(1f)) {
-            val contentModifier = Modifier.fillMaxSize()
-
-            when (page) {
-                LibraryPage.Playlists -> AllPlaylistsRoot(
-                    modifier = contentModifier
-                )
-                LibraryPage.Songs -> AllSongsRoot(
-                    modifier = contentModifier
-                )
-                LibraryPage.Albums -> AllAlbumsRoot(
-                    modifier = contentModifier
-                )
-                LibraryPage.Artists -> AllArtistsRoot(
-                    modifier = contentModifier
-                )
-                else -> {
-                    Box(
-                        modifier = contentModifier,
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Not yet implemented.")
+            PageTransition(
+                targetState = page,
+                slidePercentage = 0.04f,
+                modifier = Modifier.fillMaxSize()
+            ) { targetPage ->
+                when (targetPage) {
+                    LibraryPage.Playlists -> AllPlaylistsRoot()
+                    LibraryPage.Songs -> AllSongsRoot()
+                    LibraryPage.Albums -> AllAlbumsRoot()
+                    LibraryPage.Artists -> AllArtistsRoot()
+                    else -> {
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Not yet implemented.")
+                        }
                     }
                 }
             }

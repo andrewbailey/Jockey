@@ -59,8 +59,16 @@ class Navigator private constructor(
         content: @Composable (Screen) -> Unit
     ) {
         with(stateHolder) {
-            SaveableStateProvider(key = currentScreen.uuid) {
-                content(currentScreen.screen)
+            val currentScreen = currentScreen
+            PageTransition(
+                targetState = currentScreen,
+                reverseAnimation = { initialState, targetState ->
+                    !backStack.contains(initialState)
+                }
+            ) { screen ->
+                SaveableStateProvider(key = screen.uuid) {
+                    content(screen.screen)
+                }
             }
         }
     }
