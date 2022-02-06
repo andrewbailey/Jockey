@@ -7,7 +7,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -21,7 +20,7 @@ import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
-import dev.andrewbailey.music.ui.layout.StatusBarBackground
+import dev.andrewbailey.music.ui.library.LibraryAppBar
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -42,7 +41,6 @@ fun ArtistPage(
             modifier = Modifier.fillMaxSize()
         ) {
             Column {
-                StatusBarBackground()
                 ArtistTopAppBar(artist)
 
                 ArtistContent(
@@ -62,7 +60,7 @@ private fun ArtistTopAppBar(
 ) {
     val navigator = LocalAppNavigator.current
 
-    TopAppBar(
+    LibraryAppBar(
         modifier = modifier,
         title = {
             Text(

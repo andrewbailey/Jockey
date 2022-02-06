@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,7 +44,6 @@ fun AllPlaylistsRoot(
         val context = LocalContext.current
         Box(modifier) {
             FloatingActionButton(
-                contentColor = Color.White,
                 modifier = Modifier.align(Alignment.BottomEnd).offset(x = (-16).dp, y = (-16).dp),
                 onClick = {
                     Toast.makeText(context, "Not implemented", Toast.LENGTH_SHORT).show()

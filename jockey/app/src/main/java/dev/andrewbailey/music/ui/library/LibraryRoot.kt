@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -14,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
-import dev.andrewbailey.music.ui.layout.StatusBarBackground
 import dev.andrewbailey.music.ui.library.albums.AllAlbumsRoot
 import dev.andrewbailey.music.ui.library.artists.AllArtistsRoot
 import dev.andrewbailey.music.ui.library.playlists.AllPlaylistsRoot
@@ -49,9 +47,7 @@ private fun LibraryContent(
     Column(
         modifier = modifier
     ) {
-        StatusBarBackground()
-
-        TopAppBar(
+        LibraryAppBar(
             title = { Text(stringResource(R.string.app_name)) }
         )
 

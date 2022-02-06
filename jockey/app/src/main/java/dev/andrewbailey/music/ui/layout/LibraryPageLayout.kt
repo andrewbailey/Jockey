@@ -1,14 +1,16 @@
 package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
@@ -52,6 +55,22 @@ fun LibraryPageLayout(
                     false
                 }
             }
+        )
+    }
+
+    val systemUiController = rememberSystemUiController()
+    val isLightTheme = MaterialTheme.colors.isLight
+    val isNowPlayingCollapsed = nowPlayingModalState.percentExpanded < 0.5f
+
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            color = Color.Transparent,
+            darkIcons = isLightTheme && isNowPlayingCollapsed
+        )
+
+        systemUiController.setNavigationBarColor(
+            color = Color.Transparent,
+            darkIcons = isLightTheme
         )
     }
 
@@ -90,17 +109,22 @@ private fun CollapsedPlayerControls(
     val bottomInsetPx = LocalWindowInsets.current.navigationBars.bottom
     val bottomInsetDp = with(LocalDensity.current) { bottomInsetPx.toDp() }
 
+    val surfaceColor = LocalElevationOverlay.current?.apply(
+        color = MaterialTheme.colors.surface,
+        elevation = 4.dp
+    ) ?: MaterialTheme.colors.surface
+
     Layout(
         modifier = modifier
             .alpha((1 - 2 * nowPlayingModalState.percentExpanded).coerceIn(0f..1f))
             .topBorder(MaterialTheme.colors.onSurface.copy(alpha = 0.15f), 1.dp)
             .morphingBackground(
-                color = MaterialTheme.colors.surface,
+                color = surfaceColor,
                 morphHeight = bottomInsetDp,
                 percentVisible = (1 - 6 * nowPlayingModalState.percentExpanded).coerceIn(0f..1f)
             ),
         content = {
-            Surface(color = Color.Transparent) {
+            Box(modifier = Modifier.clipToBounds()) {
                 CollapsedPlayerControls(
                     modifier = Modifier.clickable(
                         onClick = onClickBar
@@ -109,7 +133,7 @@ private fun CollapsedPlayerControls(
             }
 
             if (additionalContent != null) {
-                Surface(color = Color.Transparent) {
+                Box(modifier = Modifier.clipToBounds()) {
                     additionalContent()
                 }
             }

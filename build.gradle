@@ -83,6 +83,7 @@ ext {
         ],
         accompanist : [
             insets: "com.google.accompanist:accompanist-insets:${versions.compose.accompanist}",
+            systemui: "com.google.accompanist:accompanist-systemuicontroller:${versions.compose.accompanist}",
         ],
         coil : [
             core: "io.coil-kt:coil:${versions.coil}",
