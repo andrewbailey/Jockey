@@ -58,6 +58,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':encore:mediastore')
     implementation project(':encore:player')
+    implementation project(':encore:mediaresumption')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib

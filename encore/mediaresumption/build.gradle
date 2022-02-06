@@ -1,0 +1,47 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: dev.andrewbailey.ExplicitApiModePlugin
+
+def config = rootProject.extensions.getByName("ext")
+
+android {
+    compileSdkVersion config.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion config.encoreMinSdkVersion
+        targetSdkVersion config.targetSdkVersion
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+        buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':encore:core')
+    api project(':encore:player')
+
+    // Kotlin
+    implementation config.deps.kotlin.stdlib
+    implementation config.deps.kotlin.coroutines
+
+    // Testing
+    testImplementation project(':encore:test')
+    testImplementation config.deps.test.junit
+    testImplementation config.deps.test.kotlinTest
+    testImplementation config.deps.test.kotlinJunit
+    testImplementation config.deps.test.coroutinesTest
+    androidTestImplementation config.deps.test.espresso
+}
