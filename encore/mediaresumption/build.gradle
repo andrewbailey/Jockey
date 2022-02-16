@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
 def config = rootProject.extensions.getByName("ext")
@@ -14,6 +15,12 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
         buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [ 'room.schemaLocation': "$projectDir/schemas".toString() ]
+            }
+        }
     }
 
     buildTypes {
@@ -36,6 +43,10 @@ dependencies {
     // Kotlin
     implementation config.deps.kotlin.stdlib
     implementation config.deps.kotlin.coroutines
+
+    // Room
+    implementation config.deps.androidx.room
+    kapt config.deps.androidx.roomCompiler
 
     // Testing
     testImplementation project(':encore:test')
