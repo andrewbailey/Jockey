@@ -5,12 +5,12 @@ import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-public data class MockSong(
+public data class FakeSong(
     override val id: String,
     override val playbackUri: String,
     val name: String,
-    val artist: MockArtist,
-    val album: MockAlbum
+    val artist: FakeArtist,
+    val album: FakeAlbum
 ) : MediaObject {
 
     override fun toMediaMetadata(): MediaMetadata {

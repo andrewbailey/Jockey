@@ -4,8 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-public data class MockAlbum(
+public data class FakeArtist(
     val id: String,
-    val name: String,
-    val artist: MockArtist
+    val name: String
 ) : Parcelable
