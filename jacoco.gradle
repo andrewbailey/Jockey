@@ -1,0 +1,66 @@
+apply plugin: 'jacoco'
+
+configurations.all {
+    resolutionStrategy {
+        eachDependency { details ->
+            if ('org.jacoco' == details.requested.group) {
+                details.useVersion versions.test.jacoco
+            }
+        }
+    }
+}
+
+jacoco {
+    toolVersion versions.test.jacoco
+}
+
+def excludedFiles = [
+    // android
+    '**/R.class',
+    '**/R$*.class',
+    '**/BuildConfig.*',
+    '**/Manifest*.*',
+    '**/*Test*.*',
+    'android/**/*.*',
+    // Dagger
+    '**/*Module*.*',
+    '**/*Dagger*.*',
+    '**/*Hilt*.*',
+    '**/*MembersInjector*.*',
+    '**/*_MembersInjector.class',
+    '**/*_Factory*.*',
+    '**/*_Provide*Factory*.*',
+]
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+    // Prevent this task from being cacheable
+    outputs.upToDateWhen { false }
+
+    reports {
+        html {
+            enabled true
+            destination file("$buildDir/coverage-report")
+        }
+    }
+
+    getSourceDirectories().setFrom(files(
+        "$project.projectDir/src/main/java"
+    ))
+    getClassDirectories().setFrom(files(
+        fileTree(
+            dir: "$project.buildDir/intermediates/classes/debug",
+            excludes: excludedFiles
+        ),
+        fileTree(
+            dir: "$project.buildDir/tmp/kotlin-classes/debug",
+            excludes: excludedFiles
+        )
+    ))
+    getExecutionData().setFrom(fileTree(
+            dir: project.buildDir,
+            includes: [
+                'outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec',
+                'outputs/code_coverage/debugAndroidTest/connected/**/coverage.ec'
+            ]
+    ))
+}

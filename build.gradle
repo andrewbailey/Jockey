@@ -30,6 +30,7 @@ buildscript {
         test : [
             junit : '4.13.2',
             espresso : '3.5.0-alpha03',
+            jacoco : '0.8.7',
         ]
     ]
 
@@ -50,6 +51,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.2.1"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}"
+        classpath "org.jacoco:org.jacoco.core:${versions.test.jacoco}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
