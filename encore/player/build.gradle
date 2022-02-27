@@ -59,8 +59,10 @@ dependencies {
     // Testing
     testImplementation project(':encore:test')
     testImplementation config.deps.test.junit
+    testImplementation config.deps.test.truth
     testImplementation config.deps.test.kotlinTest
     testImplementation config.deps.test.kotlinJunit
     testImplementation config.deps.test.coroutinesTest
     androidTestImplementation config.deps.test.espresso
+    androidTestImplementation config.deps.test.truth
 }

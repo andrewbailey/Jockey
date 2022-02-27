@@ -30,6 +30,7 @@ buildscript {
         test : [
             junit : '4.13.2',
             espresso : '3.5.0-alpha03',
+            truth : '1.1.3',
             jacoco : '0.8.7',
         ]
     ]
@@ -110,6 +111,7 @@ ext {
             kotlinTest : "org.jetbrains.kotlin:kotlin-test:${versions.kotlin.stdlib}",
             kotlinJunit : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin.stdlib}",
             coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
+            truth : "com.google.truth:truth:${versions.test.truth}"
         ]
     ]
 }
