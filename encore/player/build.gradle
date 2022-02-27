@@ -66,4 +66,7 @@ dependencies {
     testImplementation config.deps.test.coroutinesTest
     androidTestImplementation config.deps.test.espresso
     androidTestImplementation config.deps.test.truth
+
+    // Allow IdlingResources to be defined in debuggable builds
+    debugImplementation config.deps.test.idlingResource
 }

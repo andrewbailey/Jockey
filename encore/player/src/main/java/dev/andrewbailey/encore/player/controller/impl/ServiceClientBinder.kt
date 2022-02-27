@@ -10,6 +10,7 @@ import android.os.IBinder
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
+import dev.andrewbailey.encore.player.controller.impl.ServiceBindingResource.BindingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -24,19 +25,27 @@ internal class ServiceClientBinder<M : MediaObject>(
     val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>
         get() = _serviceBinder
 
+    internal val idlingResource = ServiceBindingResource(
+        currentState = BindingState.NotBound,
+        desiredState = BindingState.NotBound
+    )
+
     fun bind() {
         val intent = Intent(context, serviceClass)
+        idlingResource.desiredState = BindingState.Bound
         context.bindService(intent, serviceConnection, BIND_AUTO_CREATE or BIND_WAIVE_PRIORITY)
         context.startService(intent)
     }
 
     fun unbind() {
+        idlingResource.desiredState = BindingState.NotBound
         context.unbindService(serviceConnection)
     }
 
     inner class Connection : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName) {
             _serviceBinder.value = null
+            idlingResource.currentState = BindingState.NotBound
         }
 
         override fun onServiceConnected(name: ComponentName, service: IBinder?) {
@@ -45,6 +54,7 @@ internal class ServiceClientBinder<M : MediaObject>(
             }
 
             _serviceBinder.value = ServiceBidirectionalMessenger(service)
+            idlingResource.currentState = BindingState.Bound
         }
     }
 

@@ -108,6 +108,7 @@ ext {
         test : [
             junit : "junit:junit:${versions.test.junit}",
             espresso : "androidx.test.espresso:espresso-core:${versions.test.espresso}",
+            idlingResource : "androidx.test.espresso.idling:idling-concurrent:${versions.test.espresso}",
             kotlinTest : "org.jetbrains.kotlin:kotlin-test:${versions.kotlin.stdlib}",
             kotlinJunit : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin.stdlib}",
             coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
