@@ -1,9 +1,11 @@
 package dev.andrewbailey.encore.player.controller.impl
 
+import android.content.ComponentName
 import android.content.Context
 import android.support.v4.media.session.MediaControllerCompat
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.PRIVATE
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.binder.ServiceClientHandler
 import dev.andrewbailey.encore.player.binder.ServiceHostMessage
 import dev.andrewbailey.encore.player.controller.EncoreController
@@ -33,11 +35,13 @@ import kotlinx.coroutines.flow.flowOf
 
 internal class EncoreControllerImpl<M : MediaObject> constructor(
     context: Context,
-    serviceClass: Class<out MediaPlayerService<M>>
+    componentName: ComponentName
 ) : EncoreController<M> {
 
     private val activeTokens = mutableSetOf<EncoreToken>()
-    private val clientBinder = ServiceClientBinder(context, serviceClass)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    val clientBinder = ServiceClientBinder<M>(context, componentName)
 
     private val playbackState = MutableStateFlow<MediaPlayerState<M>?>(null)
     private val mediaController = MutableStateFlow<MediaControllerCompat?>(null)

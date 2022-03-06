@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player.controller
 
+import android.content.ComponentName
 import android.content.Context
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
@@ -43,7 +44,7 @@ public interface EncoreController<M : MediaObject> {
         ): EncoreController<M> {
             return EncoreControllerImpl(
                 context = context.applicationContext,
-                serviceClass = serviceClass
+                componentName = ComponentName(context.applicationContext, serviceClass)
             )
         }
     }
