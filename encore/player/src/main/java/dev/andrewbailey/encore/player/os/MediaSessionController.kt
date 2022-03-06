@@ -69,6 +69,7 @@ internal class MediaSessionController<M : MediaObject>(
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private val metadataMapper = MediaMetadataMapper()
+    private val queueMapper = QueueItemMapper()
     private var mediaSessionActionJob: Job? = null
 
     val mediaSession = MediaSessionCompat(context, tag)
@@ -101,6 +102,7 @@ internal class MediaSessionController<M : MediaObject>(
             when (newState) {
                 is Prepared -> {
                     setMetadata(metadataMapper.toMediaMetadataCompat(newState))
+                    setQueue(queueMapper.toQueue(newState.transportState.queue))
 
                     setPlaybackState(
                         PlaybackStateCompat.Builder()
@@ -141,6 +143,7 @@ internal class MediaSessionController<M : MediaObject>(
                             .build()
                     )
                     setMetadata(MediaMetadataCompat.Builder().build())
+                    setQueue(emptyList())
                 }
             }
         }
