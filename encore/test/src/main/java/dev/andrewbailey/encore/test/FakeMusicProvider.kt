@@ -1,10 +1,31 @@
 package dev.andrewbailey.encore.test
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
 import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.provider.MediaProvider
 import dev.andrewbailey.encore.provider.MediaSearchResults
 
-public class FakeMusicProvider : MediaProvider<FakeSong> {
+public class FakeMusicProvider(
+    playbackUriFor: (String) -> String = { songId ->
+        "content://media/songs/${songId.filter { it.isDigit() }}"
+    }
+) : MediaProvider<FakeSong> {
+
+    public constructor(context: Context) : this(
+        playbackUriFor = {
+            with(context.resources) {
+                Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(getResourcePackageName(R.raw.silence))
+                    .appendPath(getResourceTypeName(R.raw.silence))
+                    .appendPath(getResourceEntryName(R.raw.silence))
+                    .build()
+                    .toString()
+            }
+        }
+    )
 
     private val artists = listOf(
         FakeArtist(
@@ -56,77 +77,77 @@ public class FakeMusicProvider : MediaProvider<FakeSong> {
     private val songs = listOf(
         FakeSong(
             id = "song-001",
-            playbackUri = "content://media/songs/001",
+            playbackUri = playbackUriFor("song-001"),
             name = "Equator",
             artist = artists[0],
             album = albums[0]
         ),
         FakeSong(
             id = "song-002",
-            playbackUri = "content://media/songs/002",
+            playbackUri = playbackUriFor("song-002"),
             name = "Octet",
             artist = artists[0],
             album = albums[0]
         ),
         FakeSong(
             id = "song-003",
-            playbackUri = "content://media/songs/003",
+            playbackUri = playbackUriFor("song-003"),
             name = "Roundabout",
             artist = artists[0],
             album = albums[0]
         ),
         FakeSong(
             id = "song-004",
-            playbackUri = "content://media/songs/004",
+            playbackUri = playbackUriFor("song-004"),
             name = "Molecular Opulence",
             artist = artists[1],
             album = albums[1]
         ),
         FakeSong(
             id = "song-005",
-            playbackUri = "content://media/songs/005",
+            playbackUri = playbackUriFor("song-005"),
             name = "Optic Spore",
             artist = artists[1],
             album = albums[1]
         ),
         FakeSong(
             id = "song-006",
-            playbackUri = "content://media/songs/006",
+            playbackUri = playbackUriFor("song-006"),
             name = "Tertiary",
             artist = artists[1],
             album = albums[2]
         ),
         FakeSong(
             id = "song-007",
-            playbackUri = "content://media/songs/007",
+            playbackUri = playbackUriFor("song-007"),
             name = "Perimeter Cyclotron",
             artist = artists[1],
             album = albums[2]
         ),
         FakeSong(
             id = "song-008",
-            playbackUri = "content://media/songs/008",
+            playbackUri = playbackUriFor("song-008"),
             name = "Tremors",
             artist = artists[2],
             album = albums[3]
         ),
         FakeSong(
             id = "song-009",
-            playbackUri = "content://media/songs/009",
+            playbackUri = playbackUriFor("song-009"),
             name = "Infidel",
             artist = artists[2],
             album = albums[3]
         ),
         FakeSong(
             id = "song-010",
-            playbackUri = "content://media/songs/010",
+            playbackUri = playbackUriFor("song-010"),
             name = "Fortress",
             artist = artists[3],
             album = albums[4]
         ),
         FakeSong(
             id = "song-011",
-            playbackUri = "content://media/songs/011",
+            playbackUri = playbackUriFor("song-011"),
             name = "Interact",
             artist = artists[3],
             album = albums[4]

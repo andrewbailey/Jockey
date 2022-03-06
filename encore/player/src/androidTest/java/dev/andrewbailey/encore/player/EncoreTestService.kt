@@ -22,7 +22,9 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
     notificationProvider = TestNotificationProvider()
 ) {
 
-    private val mediaProvider = FakeMusicProvider()
+    private val mediaProvider by lazy {
+        FakeMusicProvider(this)
+    }
 
     override fun onCreate() {
         if (Build.VERSION.SDK_INT >= 28) {
