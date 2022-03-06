@@ -68,6 +68,7 @@ ext {
         kotlin : [
             stdlib : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.stdlib}",
             coroutines : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
+            coroutinesAndroid : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
         ],
         androidx : [
             core : "androidx.core:core-ktx:${versions.androidx.core}",

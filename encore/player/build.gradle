@@ -64,6 +64,7 @@ dependencies {
     testImplementation config.deps.test.kotlinTest
     testImplementation config.deps.test.kotlinJunit
     testImplementation config.deps.test.coroutinesTest
+    androidTestImplementation config.deps.kotlin.coroutinesAndroid
     androidTestImplementation config.deps.test.espresso
     androidTestImplementation config.deps.test.truth
 
