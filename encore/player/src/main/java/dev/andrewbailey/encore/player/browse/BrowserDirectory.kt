@@ -130,7 +130,7 @@ public class BrowserDirectory <M : MediaObject> internal constructor(
     private suspend fun getTransportState(itemId: String): TransportState<M> {
         val mediaItemProvider = entries.filterIsInstance<MediaItems<M>>()
             .firstOrNull { it.contains(itemId) }
-            ?: throw NoSuchElementException("")
+            ?: throw NoSuchElementException("$itemId is not a valid MediaItem in the hierarchy.")
 
         val items = mediaItemProvider.loadItems()
         val mediaId = itemId.substring(itemId.indexOf('[') + 1, itemId.lastIndexOf(']'))
