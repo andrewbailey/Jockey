@@ -15,11 +15,50 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
         public val artwork: Bitmap?,
         public val durationMs: Long?,
         public val bufferingState: BufferingState
-    ) : MediaPlayerState<M>()
+    ) : MediaPlayerState<M>() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            return other is Prepared<*> &&
+                transportState == other.transportState &&
+                artwork == other.artwork &&
+                durationMs == other.durationMs &&
+                bufferingState == other.bufferingState
+        }
+
+        override fun hashCode(): Int {
+            var result = transportState.hashCode()
+            result = 31 * result + artwork.hashCode()
+            result = 31 * result + durationMs.hashCode()
+            result = 31 * result + bufferingState.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "MediaPlayerState.Prepared(" +
+                "transportState=$transportState, " +
+                "artwork=$artwork, " +
+                "durationMs=$durationMs, " +
+                "bufferingState=$bufferingState)"
+        }
+    }
 
     @Parcelize
     public class Ready internal constructor(
         override val transportState: TransportState.Idle
-    ) : MediaPlayerState<Nothing>()
+    ) : MediaPlayerState<Nothing>() {
+        override fun equals(other: Any?): Boolean {
+            return (this === other) ||
+                (other is Ready && transportState == other.transportState)
+        }
+
+        override fun hashCode(): Int {
+            return 31 * transportState.hashCode()
+        }
+
+        override fun toString(): String {
+            return "MediaPlayerState.Ready(transportState=$transportState)"
+        }
+    }
 
 }
