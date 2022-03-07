@@ -6,14 +6,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 
 class BrowserHierarchyTest {
 
     private val mediaProvider = FakeMusicProvider()
 
     @Test
-    fun `empty root has no items`() = runBlockingTest {
+    fun `empty root has no items`() = runTest {
         val hierarchy = BrowserHierarchy<FakeSong> { }
 
         assertEquals(
@@ -23,7 +23,7 @@ class BrowserHierarchyTest {
     }
 
     @Test
-    fun `flat hierarchy has media items`() = runBlockingTest {
+    fun `flat hierarchy has media items`() = runTest {
         val mediaItems = mediaProvider.getAllSongs()
 
         val hierarchy = BrowserHierarchy<FakeSong> {
@@ -45,7 +45,7 @@ class BrowserHierarchyTest {
     }
 
     @Test
-    fun `static path has media items`() = runBlockingTest {
+    fun `static path has media items`() = runTest {
         val mediaItems = mediaProvider.getAllSongs()
 
         val hierarchy = BrowserHierarchy<FakeSong> {
@@ -83,7 +83,7 @@ class BrowserHierarchyTest {
     }
 
     @Test
-    fun `dynamic paths have media items`() = runBlockingTest {
+    fun `dynamic paths have media items`() = runTest {
         val hierarchy = BrowserHierarchy<FakeSong> {
             dynamicPaths(
                 identifier = "artist",
@@ -133,7 +133,7 @@ class BrowserHierarchyTest {
     }
 
     @Test
-    fun `complicated hierarchy has all media`() = runBlockingTest {
+    fun `complicated hierarchy has all media`() = runTest {
         val hierarchy = BrowserHierarchy<FakeSong> {
             staticPath(
                 id = "authors",
@@ -248,7 +248,7 @@ class BrowserHierarchyTest {
     }
 
     @Test
-    fun `ambiguous paths resolve to expected types`() = runBlockingTest {
+    fun `ambiguous paths resolve to expected types`() = runTest {
         val hierarchy = BrowserHierarchy<FakeSong> {
             mediaItems(
                 identifier = "ambiguous",
