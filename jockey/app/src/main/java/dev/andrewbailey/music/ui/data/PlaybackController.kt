@@ -32,7 +32,7 @@ class PlaybackController @Inject constructor(
     private val mediaController: EncoreController<Song>
 ) : UiMediator(lifecycle) {
 
-    private var token: EncoreToken = mediaController.acquireToken()
+    private val token: EncoreToken = mediaController.acquireToken()
 
     val playbackState = mediaController
         .observeState(seekUpdateFrequency = WhilePlayingEvery(100, TimeUnit.MILLISECONDS))
@@ -50,27 +50,39 @@ class PlaybackController @Inject constructor(
     }
 
     fun play() {
-        mediaController.play()
+        coroutineScope.launch {
+            mediaController.play()
+        }
     }
 
     fun pause() {
-        mediaController.pause()
+        coroutineScope.launch {
+            mediaController.pause()
+        }
     }
 
     fun skipNext() {
-        mediaController.skipNext()
+        coroutineScope.launch {
+            mediaController.skipNext()
+        }
     }
 
     fun skipPrevious() {
-        mediaController.skipPrevious()
+        coroutineScope.launch {
+            mediaController.skipPrevious()
+        }
     }
 
     fun setShuffleMode(shuffleMode: ShuffleMode) {
-        mediaController.setShuffleMode(shuffleMode)
+        coroutineScope.launch {
+            mediaController.setShuffleMode(shuffleMode)
+        }
     }
 
     fun seekTo(positionMs: Long) {
-        mediaController.seekTo(positionMs)
+        coroutineScope.launch {
+            mediaController.seekTo(positionMs)
+        }
     }
 
     fun playFrom(
@@ -81,22 +93,24 @@ class PlaybackController @Inject constructor(
             "Cannot play from an empty list"
         }
 
-        mediaController.setState(
-            TransportState.Active(
-                status = PlaybackState.PLAYING,
-                seekPosition = SeekPosition.AbsoluteSeekPosition(0),
-                queue = QueueState.Linear(
-                    queue = mediaList.map {
-                        QueueItem(
-                            queueId = UUID.randomUUID(),
-                            mediaItem = it
-                        )
-                    },
-                    queueIndex = startingAt
-                ),
-                repeatMode = RepeatMode.REPEAT_NONE
+        coroutineScope.launch {
+            mediaController.setState(
+                TransportState.Active(
+                    status = PlaybackState.PLAYING,
+                    seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                    queue = QueueState.Linear(
+                        queue = mediaList.map {
+                            QueueItem(
+                                queueId = UUID.randomUUID(),
+                                mediaItem = it
+                            )
+                        },
+                        queueIndex = startingAt
+                    ),
+                    repeatMode = RepeatMode.REPEAT_NONE
+                )
             )
-        )
+        }
     }
 
     fun playShuffled(
@@ -113,18 +127,20 @@ class PlaybackController @Inject constructor(
             )
         }
 
-        mediaController.setState(
-            TransportState.Active(
-                status = PlaybackState.PLAYING,
-                seekPosition = SeekPosition.AbsoluteSeekPosition(0),
-                queue = QueueState.Shuffled(
-                    linearQueue = queueItems,
-                    queue = queueItems.shuffled(),
-                    queueIndex = 0
-                ),
-                repeatMode = RepeatMode.REPEAT_NONE
+        coroutineScope.launch {
+            mediaController.setState(
+                TransportState.Active(
+                    status = PlaybackState.PLAYING,
+                    seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+                    queue = QueueState.Shuffled(
+                        linearQueue = queueItems,
+                        queue = queueItems.shuffled(),
+                        queueIndex = 0
+                    ),
+                    repeatMode = RepeatMode.REPEAT_NONE
+                )
             )
-        )
+        }
     }
 
     fun playAtQueueIndex(index: Int) {

@@ -23,19 +23,19 @@ public interface EncoreController<M : MediaObject> {
 
     public suspend fun getState(): MediaPlayerState<M>
 
-    public fun setState(newState: TransportState<M>)
+    public suspend fun setState(newState: TransportState<M>)
 
-    public fun play()
+    public suspend fun play()
 
-    public fun pause()
+    public suspend fun pause()
 
-    public fun skipPrevious()
+    public suspend fun skipPrevious()
 
-    public fun skipNext()
+    public suspend fun skipNext()
 
-    public fun seekTo(positionMs: Long)
+    public suspend fun seekTo(positionMs: Long)
 
-    public fun setShuffleMode(shuffleMode: ShuffleMode)
+    public suspend fun setShuffleMode(shuffleMode: ShuffleMode)
 
     public companion object {
         public fun <M : MediaObject> create(

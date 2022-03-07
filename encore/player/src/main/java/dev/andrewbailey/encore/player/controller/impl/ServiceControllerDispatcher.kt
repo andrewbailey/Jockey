@@ -17,17 +17,14 @@ import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.Me
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipPrevious
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import java.util.concurrent.Executors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     private val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>,
@@ -35,31 +32,15 @@ internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     private val receiver: ServiceClientHandler<M>
 ) {
 
-    private val executor = Executors.newFixedThreadPool(1)
-    private val dispatchScope = CoroutineScope(executor.asCoroutineDispatcher())
-    private val messageQueue = Channel<EncoreControllerCommand<M>>(capacity = UNLIMITED)
+    private val commandMutex = Mutex()
 
-    init {
-        dispatchScope.launch {
-            dispatchLoop()
-        }
-    }
-
-    fun sendMessage(message: EncoreControllerCommand<M>) {
-        if (!messageQueue.trySend(message).isSuccess) {
-            throw RuntimeException("Failed to enqueue message to be dispatched.")
-        }
-    }
-
-    fun cancelDispatch() {
-        dispatchScope.cancel(message = "The service controller has been released.")
-    }
-
-    private suspend fun dispatchLoop(): Nothing {
-        while (true) {
-            when (val message = messageQueue.receive()) {
-                is ServiceCommand<M> -> handleMessage(message)
-                is MediaControllerCommand -> handleMessage(message)
+    suspend fun sendMessage(message: EncoreControllerCommand<M>) {
+        withContext(Dispatchers.IO) {
+            commandMutex.withLock(owner = message) {
+                when (message) {
+                    is ServiceCommand<M> -> handleMessage(message)
+                    is MediaControllerCommand -> handleMessage(message)
+                }
             }
         }
     }

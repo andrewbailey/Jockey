@@ -24,6 +24,8 @@ import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,11 +34,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal class EncoreControllerImpl<M : MediaObject> constructor(
     context: Context,
     componentName: ComponentName
 ) : EncoreController<M> {
+
+    private val bindMutex = Mutex()
 
     private val activeTokens = mutableSetOf<EncoreToken>()
 
@@ -91,29 +98,30 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
     }
 
     override fun acquireToken(): EncoreToken {
-        return EncoreToken().also { token ->
-            synchronized(activeTokens) {
-                activeTokens += token
-                if (activeTokens.size == 1) {
+        val token = EncoreToken()
+        CoroutineScope(Dispatchers.IO).launch {
+            bindMutex.withLock(token) {
+                if (activeTokens.isEmpty()) {
                     connectToService()
+                }
+                activeTokens += token
+            }
+        }
+
+        return token
+    }
+
+    override fun releaseToken(token: EncoreToken) {
+        CoroutineScope(Dispatchers.IO).launch {
+            bindMutex.withLock(token) {
+                if (activeTokens.remove(token) && activeTokens.isEmpty()) {
+                    disconnectFromService()
                 }
             }
         }
     }
 
-    override fun releaseToken(token: EncoreToken) {
-        synchronized(activeTokens) {
-            check(activeTokens.remove(token)) {
-                "The provided token is not currently registered with this EncoreController instance"
-            }
-
-            if (activeTokens.isEmpty()) {
-                disconnectFromService()
-            }
-        }
-    }
-
-    private fun connectToService() {
+    private suspend fun connectToService() {
         clientBinder.bind()
         dispatcher.sendMessage(ServiceCommand(ServiceHostMessage.Initialize))
     }
@@ -168,7 +176,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         }
     }
 
-    override fun setState(newState: TransportState<M>) {
+    override suspend fun setState(newState: TransportState<M>) {
         dispatcher.sendMessage(
             ServiceCommand(
                 ServiceHostMessage.SetState(
@@ -178,27 +186,27 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         )
     }
 
-    override fun play() {
+    override suspend fun play() {
         dispatcher.sendMessage(Play)
     }
 
-    override fun pause() {
-        dispatcher.sendMessage(Pause)
+    override suspend fun pause() {
+        this.dispatcher.sendMessage(Pause)
     }
 
-    override fun skipPrevious() {
+    override suspend fun skipPrevious() {
         dispatcher.sendMessage(SkipPrevious)
     }
 
-    override fun skipNext() {
+    override suspend fun skipNext() {
         dispatcher.sendMessage(SkipNext)
     }
 
-    override fun seekTo(positionMs: Long) {
+    override suspend fun seekTo(positionMs: Long) {
         dispatcher.sendMessage(SeekTo(positionMs))
     }
 
-    override fun setShuffleMode(shuffleMode: ShuffleMode) {
+    override suspend fun setShuffleMode(shuffleMode: ShuffleMode) {
         dispatcher.sendMessage(SetShuffleMode(shuffleMode))
     }
 
