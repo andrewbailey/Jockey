@@ -42,6 +42,7 @@ internal class ServiceClientBinder<M : MediaObject>(
     fun unbind() {
         idlingResource.desiredState = BindingState.NotBound
         context.unbindService(serviceConnection)
+        idlingResource.currentState = BindingState.NotBound
     }
 
     inner class Connection : ServiceConnection {

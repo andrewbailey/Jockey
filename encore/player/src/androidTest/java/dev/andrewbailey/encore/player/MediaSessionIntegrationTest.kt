@@ -66,8 +66,10 @@ class MediaSessionIntegrationTest {
 
     @After
     fun tearDown() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
         mediaBrowser.disconnect()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         context.stopService(Intent(context, EncoreTestService::class.java))
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
