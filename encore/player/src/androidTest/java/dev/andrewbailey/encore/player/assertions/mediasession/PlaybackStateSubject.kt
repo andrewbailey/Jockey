@@ -1,4 +1,4 @@
-package dev.andrewbailey.encore.player.assertions
+package dev.andrewbailey.encore.player.assertions.mediasession
 
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction
@@ -10,9 +10,9 @@ import com.google.common.truth.LongSubject
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
-import dev.andrewbailey.encore.player.assertions.model.PlaybackStateConstants.Action
-import dev.andrewbailey.encore.player.assertions.model.PlaybackStateConstants.ErrorCode
-import dev.andrewbailey.encore.player.assertions.model.PlaybackStateConstants.State
+import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStateConstants.Action
+import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStateConstants.ErrorCode
+import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStateConstants.State
 
 fun assertThat(playbackStateCompat: PlaybackStateCompat?) =
     assertAbout(PlaybackStateSubject.Factory).that(playbackStateCompat)

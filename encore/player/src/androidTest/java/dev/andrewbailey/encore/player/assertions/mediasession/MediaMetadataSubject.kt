@@ -1,12 +1,12 @@
-package dev.andrewbailey.encore.player.assertions
+package dev.andrewbailey.encore.player.assertions.mediasession
 
 import android.support.v4.media.MediaMetadataCompat
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.MapSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
-import dev.andrewbailey.encore.player.assertions.model.MediaMetadataKey
-import dev.andrewbailey.encore.player.assertions.model.asMap
+import dev.andrewbailey.encore.player.assertions.mediasession.model.MediaMetadataKey
+import dev.andrewbailey.encore.player.assertions.mediasession.model.asMap
 
 fun assertThat(mediaMetadataCompat: MediaMetadataCompat?) =
     Truth.assertAbout(MediaMetadataSubject.Factory).that(mediaMetadataCompat)

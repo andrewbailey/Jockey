@@ -1,4 +1,4 @@
-package dev.andrewbailey.encore.player.assertions
+package dev.andrewbailey.encore.player.assertions.mediasession
 
 import android.support.v4.media.session.MediaControllerCompat
 import com.google.common.truth.BooleanSubject
@@ -6,8 +6,8 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
-import dev.andrewbailey.encore.player.assertions.model.MediaDescriptionKey
-import dev.andrewbailey.encore.player.assertions.model.asMap
+import dev.andrewbailey.encore.player.assertions.mediasession.model.MediaDescriptionKey
+import dev.andrewbailey.encore.player.assertions.mediasession.model.asMap
 
 fun assertThat(mediaMetadataCompat: MediaControllerCompat?) =
     Truth.assertAbout(MediaControllerSubject.Factory).that(mediaMetadataCompat)

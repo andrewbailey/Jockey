@@ -1,4 +1,4 @@
-package dev.andrewbailey.encore.player.assertions
+package dev.andrewbailey.encore.player.assertions.mediasession
 
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat

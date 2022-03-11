@@ -1,4 +1,4 @@
-package dev.andrewbailey.encore.player.assertions.model
+package dev.andrewbailey.encore.player.assertions.mediasession.model
 
 import android.graphics.Bitmap
 import android.net.Uri
