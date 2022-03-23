@@ -9,6 +9,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 import dev.andrewbailey.encore.player.state.PlaybackState
 import dev.andrewbailey.encore.player.state.QueueState
+import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
 
 fun assertThat(
@@ -110,6 +111,37 @@ class TransportStateSubject private constructor(
         check("queue").that(actualQueue).isEqualTo(expected)
     }
 
+    fun isEqualTo(other: Any?, seekToleranceMs: Long) {
+        when (actual) {
+            null, is TransportState.Idle -> {
+                isEqualTo(other)
+            }
+            is TransportState.Active -> {
+                val allOtherParametersEqual = other is TransportState.Active<*> &&
+                    actual.status == other.status &&
+                    actual.queue == other.queue &&
+                    actual.repeatMode == other.repeatMode
+
+                if (other !is TransportState.Active<*> || !allOtherParametersEqual) {
+                    isEqualTo(other)
+                    throw AssertionError()
+                }
+
+                if (!actual.seekPosition.equals(other.seekPosition, seekToleranceMs)) {
+                    fail(
+                        simpleFact(
+                            "The seek position was not in the desired bounds " +
+                                "(All other properties matched the expected values)"
+                        ),
+                        fact("expected seek position", "${other.seekPosition} ms"),
+                        fact("actual seek position", "${actual.seekPosition} ms"),
+                        fact("threshold", "$seekToleranceMs ms")
+                    )
+                }
+            }
+        }
+    }
+
     // endregion assertion operations
 
     // region subject accessors
@@ -128,5 +160,13 @@ class TransportStateSubject private constructor(
     private fun fail(first: Fact?, vararg rest: Fact): Nothing {
         failWithoutActual(first, *rest)
         throw AssertionError()
+    }
+
+    private fun SeekPosition.equals(other: SeekPosition, thresholdMs: Long): Boolean {
+        val otherSeekPos = other.seekPositionMillis
+        val lowerBound = (otherSeekPos - thresholdMs).coerceAtLeast(0)
+        val upperBound = otherSeekPos + thresholdMs
+
+        return seekPositionMillis in lowerBound..upperBound
     }
 }
