@@ -71,7 +71,17 @@ internal class MediaPlayer<M : MediaObject>(
             for (operation in diff.operations) {
                 when (operation) {
                     is TimelinePositionChange -> {
-                        exoPlayer.seekTo(operation.queueIndex, operation.seekPositionMillis)
+                        if (operation.seekPositionMillis != Long.MAX_VALUE) {
+                            exoPlayer.seekTo(operation.queueIndex, operation.seekPositionMillis)
+                        } else {
+                            // Seek to the end of the track by seeking to approximately infinity.
+                            // Under the hood, ExoPlayer converts this seek position from
+                            // milliseconds to microseconds. If we pass in MAX_VALUE directly, we'll
+                            // get an integer overflow and go into the negatives, which gets treated
+                            // as zero. Bit shifting by 10 bits (i.e. dividing by 1024), we give
+                            // ExoPlayer enough padding to make this conversion.
+                            exoPlayer.seekTo(operation.queueIndex, Long.MAX_VALUE.ushr(10))
+                        }
                     }
                     is SetPlaying -> {
                         exoPlayer.playWhenReady = operation.isPlaying

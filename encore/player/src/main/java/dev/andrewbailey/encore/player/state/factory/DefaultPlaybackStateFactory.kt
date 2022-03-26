@@ -102,17 +102,30 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     override fun skipToNext(
         state: TransportState<M>
     ): TransportState<M> {
-        return state.modifyTransportState(
-            status = {
-                if (queue.queueIndex == queue.queue.size - 1) {
-                    REACHED_END
-                } else {
-                    PLAYING
-                }
-            },
-            seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
-            queueIndex = { min(queue.queueIndex + 1, queue.queue.size - 1) }
-        )
+        return when (state.repeatMode) {
+            RepeatMode.REPEAT_ALL -> state.modifyTransportState(
+                status = { PLAYING },
+                seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
+                queueIndex = { (queue.queueIndex + 1) % queue.queue.size }
+            )
+            else -> state.modifyTransportState(
+                status = {
+                    if (queue.queueIndex == queue.queue.size - 1) {
+                        REACHED_END
+                    } else {
+                        PLAYING
+                    }
+                },
+                seekPosition = {
+                    if (queue.queueIndex == queue.queue.size - 1) {
+                        SeekPosition.AbsoluteSeekPosition(Long.MAX_VALUE)
+                    } else {
+                        SeekPosition.AbsoluteSeekPosition(0)
+                    }
+                },
+                queueIndex = { min(queue.queueIndex + 1, queue.queue.size - 1) }
+            )
+        }
     }
 
     override fun skipToIndex(

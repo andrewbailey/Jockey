@@ -518,6 +518,96 @@ class EncoreIntegrationTest {
             .isEqualTo(desiredState, seekToleranceMs = 500)
     }
 
+    @Test
+    fun testSkipNextRestartsQueueWithRepeatEnabled() = encoreTest { encoreController ->
+        val originalState = createActiveState(
+            status = PlaybackState.PLAYING,
+            queueIndex = 2,
+            songs = mediaProvider.getAllSongs().take(3),
+            repeatMode = RepeatMode.REPEAT_ALL
+        )
+
+        val desiredState = originalState.copy(
+            status = PlaybackState.PLAYING,
+            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+            queue = originalState.queue.copy(queueIndex = 0)
+        )
+
+        encoreController.setStateAndWaitForIdle(originalState)
+        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+
+        encoreController.play()
+        encoreController.skipNext()
+        encoreController.waitForStateToSettle()
+
+        assertWithMessage(
+            "The player should restart the queue after calling skipNext() when the " +
+                "player is playing the last song in the queue and repeat all is enabled"
+        )
+            .about(mediaPlayerState())
+            .that(encoreController.getState())
+            .transportState()
+            .isEqualTo(desiredState, seekToleranceMs = 500)
+    }
+
+    @Test
+    fun testSkipNextWhilePausedOnLastTrack() = encoreTest { encoreController ->
+        val originalState = createActiveState(
+            status = PlaybackState.PAUSED,
+            queueIndex = 2,
+            songs = mediaProvider.getAllSongs().take(3),
+        )
+
+        val desiredState = originalState.copy(
+            status = PlaybackState.REACHED_END,
+            seekPosition = SeekPosition.AbsoluteSeekPosition(30_167)
+        )
+
+        encoreController.setStateAndWaitForIdle(originalState)
+        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+
+        encoreController.skipNext()
+        encoreController.waitForStateToSettle()
+
+        assertWithMessage(
+            "The player should skip to the end of the track after calling " +
+                "skipNext() when the player is paused at the last song in the queue"
+        )
+            .about(mediaPlayerState())
+            .that(encoreController.getState())
+            .transportState()
+            .isEqualTo(desiredState, seekToleranceMs = 0)
+    }
+
+    @Test
+    fun testSkipNextWhilePlayingLastTrack() = encoreTest { encoreController ->
+        val originalState = createActiveState(
+            status = PlaybackState.PLAYING,
+            queueIndex = 2,
+            songs = mediaProvider.getAllSongs().take(3),
+        )
+
+        val desiredState = originalState.copy(
+            status = PlaybackState.REACHED_END,
+            seekPosition = SeekPosition.AbsoluteSeekPosition(30_167)
+        )
+
+        encoreController.setStateAndWaitForIdle(originalState)
+        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+
+        encoreController.skipNext()
+        encoreController.waitForStateToSettle()
+
+        assertWithMessage(
+            "The player should skip to the end of the track after calling " +
+                "skipNext() when the player is playing the last song in the queue"
+        )
+            .about(mediaPlayerState())
+            .that(encoreController.getState())
+            .transportState()
+            .isEqualTo(desiredState, seekToleranceMs = 0)
+    }
+
     // endregion Test cases
 
     // region Utility functions
@@ -574,8 +664,10 @@ class EncoreIntegrationTest {
         }
     }
 
-    private suspend fun EncoreController<*>.isBuffering() =
-        (getState() as? MediaPlayerState.Prepared<*>)?.bufferingState is BufferingState.Buffering
+    private suspend fun EncoreController<*>.isBuffering(): Boolean {
+        val bufferingState = (getState() as? MediaPlayerState.Prepared<*>)?.bufferingState
+        return bufferingState is BufferingState.Buffering && bufferingState.pausedForBuffering
+    }
 
     private suspend fun EncoreController<*>.checkIdle() {
         val state = getState()

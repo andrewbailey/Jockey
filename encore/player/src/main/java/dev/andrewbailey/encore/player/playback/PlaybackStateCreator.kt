@@ -10,6 +10,7 @@ import com.google.android.exoplayer2.Player.REPEAT_MODE_ONE
 import com.google.android.exoplayer2.Player.STATE_BUFFERING
 import com.google.android.exoplayer2.Player.STATE_ENDED
 import com.google.android.exoplayer2.Player.STATE_READY
+import com.google.android.exoplayer2.Timeline
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
@@ -57,7 +58,8 @@ internal class PlaybackStateCreator<M : MediaObject>(
         } else {
             TransportState.Active(
                 status = when {
-                    exoPlayer.playbackState == STATE_ENDED -> REACHED_END
+                    exoPlayer.playbackState == STATE_ENDED ||
+                        exoPlayer.isAtEndOfTimeline() -> REACHED_END
                     exoPlayer.playWhenReady -> PLAYING
                     else -> PAUSED
                 },
@@ -116,6 +118,32 @@ internal class PlaybackStateCreator<M : MediaObject>(
         REPEAT_MODE_ONE -> REPEAT_ONE
         REPEAT_MODE_ALL -> REPEAT_ALL
         else -> throw IllegalStateException("Invalid exoPlayer repeat mode $repeatMode")
+    }
+
+    private fun ExoPlayer.isAtEndOfTimeline(): Boolean {
+        val timeline = currentTimeline
+        if (isCurrentMediaItemLive || timeline.isEmpty) {
+            return false
+        }
+
+        val window = timeline.getWindow(currentMediaItemIndex, Timeline.Window())
+        val period = timeline.getPeriod(currentPeriodIndex, Timeline.Period())
+        val isLastTrack = timeline.isLastPeriod(
+            currentPeriodIndex,
+            period,
+            window,
+            repeatMode,
+            shuffleModeEnabled
+        )
+
+        val trackDuration = period.durationMs.takeIf { it != C.TIME_UNSET } ?: return false
+        val currentPosition = currentPosition
+
+        return (isLastTrack && trackDuration - currentPosition <= TRACK_END_THRESHOLD_MS)
+    }
+
+    companion object {
+        private const val TRACK_END_THRESHOLD_MS = 5
     }
 
 }
