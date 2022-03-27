@@ -16,9 +16,9 @@ import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState.PAUSED
-import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
-import dev.andrewbailey.encore.player.state.PlaybackState.REACHED_END
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Paused
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
+import dev.andrewbailey.encore.player.state.PlaybackStatus.ReachedEnd
 import dev.andrewbailey.encore.player.state.QueueState.Linear
 import dev.andrewbailey.encore.player.state.QueueState.Shuffled
 import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ALL
@@ -59,9 +59,9 @@ internal class PlaybackStateCreator<M : MediaObject>(
             TransportState.Active(
                 status = when {
                     exoPlayer.playbackState == STATE_ENDED ||
-                        exoPlayer.isAtEndOfTimeline() -> REACHED_END
-                    exoPlayer.playWhenReady -> PLAYING
-                    else -> PAUSED
+                        exoPlayer.isAtEndOfTimeline() -> ReachedEnd
+                    exoPlayer.playWhenReady -> Playing
+                    else -> Paused
                 },
                 seekPosition = when {
                     exoPlayer.playWhenReady && exoPlayer.playbackState == STATE_READY -> {

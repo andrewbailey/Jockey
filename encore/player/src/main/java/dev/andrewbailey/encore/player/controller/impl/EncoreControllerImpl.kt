@@ -20,7 +20,7 @@ import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.Me
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
 import dev.andrewbailey.encore.player.state.BufferingState.Buffering
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
@@ -158,7 +158,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
     ): Flow<MediaPlayerState<M>> {
         return flow {
             val duration = (state as? MediaPlayerState.Prepared)
-                ?.takeIf { it.transportState.status == PLAYING }
+                ?.takeIf { it.transportState.status == Playing }
                 ?.takeIf { (it.bufferingState as? Buffering)?.pausedForBuffering != true }
                 ?.durationMs
 

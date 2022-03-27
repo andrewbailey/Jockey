@@ -3,10 +3,10 @@ package dev.andrewbailey.encore.player.state.factory
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.model.QueueItem
-import dev.andrewbailey.encore.player.state.PlaybackState
-import dev.andrewbailey.encore.player.state.PlaybackState.PAUSED
-import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
-import dev.andrewbailey.encore.player.state.PlaybackState.REACHED_END
+import dev.andrewbailey.encore.player.state.PlaybackStatus
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Paused
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
+import dev.andrewbailey.encore.player.state.PlaybackStatus.ReachedEnd
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
@@ -34,19 +34,19 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         return state.modifyTransportState(
             status = {
                 when (status) {
-                    PAUSED, REACHED_END -> PLAYING
-                    PLAYING -> status
+                    Paused, ReachedEnd -> Playing
+                    Playing -> status
                 }
             },
             seekPosition = {
-                if (status == REACHED_END) {
+                if (status == ReachedEnd) {
                     SeekPosition.AbsoluteSeekPosition(0L)
                 } else {
                     seekPosition
                 }
             },
             queueIndex = {
-                if (status == REACHED_END) {
+                if (status == ReachedEnd) {
                     0
                 } else {
                     queue.queueIndex
@@ -61,8 +61,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         return state.modifyTransportState(
             status = {
                 when (status) {
-                    PLAYING -> PAUSED
-                    PAUSED, REACHED_END -> status
+                    Playing -> Paused
+                    Paused, ReachedEnd -> status
                 }
             }
         )
@@ -75,8 +75,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         return state.modifyTransportState(
             status = {
                 when (status) {
-                    PLAYING, PAUSED -> status
-                    REACHED_END -> PAUSED
+                    Playing, Paused -> status
+                    ReachedEnd -> Paused
                 }
             },
             seekPosition = { SeekPosition.AbsoluteSeekPosition(seekPositionMillis) }
@@ -87,7 +87,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         state: TransportState<M>
     ): TransportState<M> {
         return state.modifyTransportState(
-            status = { PLAYING },
+            status = { Playing },
             seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
             queueIndex = {
                 if (seekPosition.seekPositionMillis < 5_000 && queue.queueIndex > 0) {
@@ -104,16 +104,16 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     ): TransportState<M> {
         return when (state.repeatMode) {
             RepeatMode.REPEAT_ALL -> state.modifyTransportState(
-                status = { PLAYING },
+                status = { Playing },
                 seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
                 queueIndex = { (queue.queueIndex + 1) % queue.queue.size }
             )
             else -> state.modifyTransportState(
                 status = {
                     if (queue.queueIndex == queue.queue.size - 1) {
-                        REACHED_END
+                        ReachedEnd
                     } else {
-                        PLAYING
+                        Playing
                     }
                 },
                 seekPosition = {
@@ -133,7 +133,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         index: Int
     ): TransportState<M> {
         return state.modifyTransportState(
-            status = { PLAYING },
+            status = { Playing },
             queueIndex = { index }
         )
     }
@@ -191,7 +191,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         }
 
         return Active(
-            status = if (beginPlayback) PLAYING else PAUSED,
+            status = if (beginPlayback) Playing else Paused,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = when (state.shuffleMode) {
                 ShuffleMode.LINEAR -> QueueState.Linear(
@@ -211,7 +211,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     private inline fun TransportState<M>.modifyTransportState(
-        status: Active<M>.() -> PlaybackState = { this.status },
+        status: Active<M>.() -> PlaybackStatus = { this.status },
         seekPosition: Active<M>.() -> SeekPosition = { this.seekPosition },
         queueIndex: Active<M>.() -> Int = { this.queue.queueIndex }
     ): TransportState<M> {

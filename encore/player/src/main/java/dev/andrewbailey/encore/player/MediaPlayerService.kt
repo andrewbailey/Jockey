@@ -23,7 +23,7 @@ import dev.andrewbailey.encore.player.playback.MediaPlayer
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import dev.andrewbailey.encore.provider.MediaProvider
@@ -140,7 +140,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         val playerState = mediaPlayer.getState() as? MediaPlayerState.Prepared
-        if (playerState?.transportState?.status != PlaybackState.PLAYING) {
+        if (playerState?.transportState?.status != PlaybackStatus.Playing) {
             quit()
         }
     }
@@ -163,7 +163,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         if (binder.hasClients()) {
             (mediaPlayer.getState() as? MediaPlayerState.Prepared)
                 ?.transportState
-                ?.takeIf { it.status == PlaybackState.PLAYING }
+                ?.takeIf { it.status == PlaybackStatus.Playing }
                 ?.let { playbackStateFactory.pause(it) }
                 ?.let { mediaPlayer.setState(it) }
             stopForeground(true)

@@ -24,7 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -44,7 +44,7 @@ fun NowPlayingControls(
             artistName = nowPlaying.artist?.name ?: stringResource(R.string.unknown_artist),
             songDurationMs = playbackState.durationMs ?: 0,
             seekPositionMs = transportState.seekPosition.seekPositionMillis,
-            isPlaying = transportState.status == PlaybackState.PLAYING,
+            isPlaying = transportState.status == PlaybackStatus.Playing,
             onSkipNext = playbackController::skipNext,
             onSkipPrevious = playbackController::skipPrevious,
             onPlay = playbackController::play,

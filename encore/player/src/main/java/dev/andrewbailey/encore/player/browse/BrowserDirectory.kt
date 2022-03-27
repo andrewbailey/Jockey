@@ -5,7 +5,7 @@ import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.DynamicPath
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.MediaItems
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.StaticPath
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
@@ -136,7 +136,7 @@ public class BrowserDirectory <M : MediaObject> internal constructor(
         val mediaId = itemId.substring(itemId.indexOf('[') + 1, itemId.lastIndexOf(']'))
 
         return TransportState.Active(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = QueueState.Linear(
                 queue = items.map { QueueItem(UUID.randomUUID(), it) },

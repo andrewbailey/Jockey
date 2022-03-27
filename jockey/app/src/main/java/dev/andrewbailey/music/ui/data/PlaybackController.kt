@@ -7,7 +7,7 @@ import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
 import dev.andrewbailey.encore.player.controller.EncoreToken
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
@@ -96,7 +96,7 @@ class PlaybackController @Inject constructor(
         coroutineScope.launch {
             mediaController.setState(
                 TransportState.Active(
-                    status = PlaybackState.PLAYING,
+                    status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Linear(
                         queue = mediaList.map {
@@ -130,7 +130,7 @@ class PlaybackController @Inject constructor(
         coroutineScope.launch {
             mediaController.setState(
                 TransportState.Active(
-                    status = PlaybackState.PLAYING,
+                    status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Shuffled(
                         linearQueue = queueItems,
@@ -152,7 +152,7 @@ class PlaybackController @Inject constructor(
 
             mediaController.setState(
                 currentState.copy(
-                    status = PlaybackState.PLAYING,
+                    status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0L),
                     queue = currentState.queue.copy(queueIndex = index)
                 )

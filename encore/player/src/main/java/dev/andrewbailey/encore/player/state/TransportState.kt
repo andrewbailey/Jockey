@@ -11,7 +11,7 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
 
     @Parcelize
     public data class Active<out M : MediaObject>(
-        val status: PlaybackState,
+        val status: PlaybackStatus,
         val seekPosition: SeekPosition,
         val queue: QueueState<M>,
         override val repeatMode: RepeatMode

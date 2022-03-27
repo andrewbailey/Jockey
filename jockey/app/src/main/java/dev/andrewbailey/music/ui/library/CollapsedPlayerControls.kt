@@ -41,7 +41,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -246,7 +246,7 @@ private fun PlayPauseButton(
     onPlayClicked: () -> Unit = {},
     onPauseClicked: () -> Unit = {}
 ) {
-    val isPlaying = playbackState.transportState.status == PlaybackState.PLAYING
+    val isPlaying = playbackState.transportState.status == PlaybackStatus.Playing
     IconButton(
         modifier = modifier,
         onClick = if (isPlaying) {

@@ -7,7 +7,7 @@ import dev.andrewbailey.encore.player.assertions.encore.mediaPlayerState
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
@@ -61,7 +61,7 @@ class EncoreIntegrationTest {
     @Test
     fun testSetStateFromIdleToActiveAndPlaying() = encoreTest { encoreController ->
         val transportState = TransportState.Active(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             repeatMode = RepeatMode.REPEAT_NONE,
             queue = QueueState.Linear(
@@ -88,7 +88,7 @@ class EncoreIntegrationTest {
             .about(mediaPlayerState())
             .that(actualState)
             .transportState()
-            .hasStatus(PlaybackState.PLAYING)
+            .hasStatus(PlaybackStatus.Playing)
 
         assertWithMessage("The player is not at the beginning of the track")
             .about(mediaPlayerState())
@@ -130,7 +130,7 @@ class EncoreIntegrationTest {
     @Test
     fun testSetStateFromIdleToActiveAndPaused() = encoreTest { encoreController ->
         val transportState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             seekPositionMs = 5000
         )
 
@@ -144,7 +144,7 @@ class EncoreIntegrationTest {
             .about(mediaPlayerState())
             .that(actualState)
             .transportState()
-            .hasStatus(PlaybackState.PAUSED)
+            .hasStatus(PlaybackStatus.Paused)
 
         assertWithMessage("The seek position did not match the requested value")
             .about(mediaPlayerState())
@@ -155,7 +155,7 @@ class EncoreIntegrationTest {
 
     @Test
     fun testSetStateFromActiveToIdle() = encoreTest { encoreController ->
-        val activeState = createActiveState(PlaybackState.PLAYING)
+        val activeState = createActiveState(PlaybackStatus.Playing)
 
         encoreController.setStateAndWaitForIdle(activeState)
 
@@ -163,7 +163,7 @@ class EncoreIntegrationTest {
             .about(mediaPlayerState())
             .that(encoreController.getState())
             .transportState()
-            .hasStatus(PlaybackState.PLAYING)
+            .hasStatus(PlaybackStatus.Playing)
 
         val idleState = TransportState.Idle(
             repeatMode = RepeatMode.REPEAT_NONE,
@@ -201,11 +201,11 @@ class EncoreIntegrationTest {
 
     @Test
     fun testPlayWhilePaused() = encoreTest { encoreController ->
-        val originalState = createActiveState(PlaybackState.PAUSED)
-        val desiredState = originalState.copy(status = PlaybackState.PLAYING)
+        val originalState = createActiveState(PlaybackStatus.Paused)
+        val desiredState = originalState.copy(status = PlaybackStatus.Playing)
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.play()
         encoreController.waitForStateToSettle()
@@ -219,9 +219,9 @@ class EncoreIntegrationTest {
 
     @Test
     fun testPlayWhilePlaying() = encoreTest { encoreController ->
-        val originalState = createActiveState(PlaybackState.PLAYING)
+        val originalState = createActiveState(PlaybackStatus.Playing)
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.play()
         encoreController.waitForStateToSettle()
@@ -255,9 +255,9 @@ class EncoreIntegrationTest {
 
     @Test
     fun testPauseWhilePaused() = encoreTest { encoreController ->
-        val originalState = createActiveState(PlaybackState.PAUSED)
+        val originalState = createActiveState(PlaybackStatus.Paused)
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.pause()
         encoreController.waitForStateToSettle()
@@ -271,11 +271,11 @@ class EncoreIntegrationTest {
 
     @Test
     fun testPauseWhilePlaying() = encoreTest { encoreController ->
-        val originalState = createActiveState(PlaybackState.PLAYING)
-        val desiredState = originalState.copy(status = PlaybackState.PAUSED)
+        val originalState = createActiveState(PlaybackStatus.Playing)
+        val desiredState = originalState.copy(status = PlaybackStatus.Paused)
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.pause()
         encoreController.waitForStateToSettle()
@@ -310,18 +310,18 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipPreviousWhilePausedNearMiddleOfTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             queueIndex = 3,
             seekPositionMs = 15_000
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.skipPrevious()
         encoreController.waitForStateToSettle()
@@ -339,20 +339,20 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipPreviousWhilePausedNearBeginningOfTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             queueIndex = 3,
             seekPositionMs = 2_500
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = originalState.queue.copy(queueIndex = 2)
 
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.skipPrevious()
         encoreController.waitForStateToSettle()
@@ -370,18 +370,18 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipPreviousWhilePausedNearBeginningOfTrackAndQueue() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             queueIndex = 0,
             seekPositionMs = 2_500
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.skipPrevious()
         encoreController.waitForStateToSettle()
@@ -399,18 +399,18 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipPreviousWhilePlayingNearMiddleOfTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             queueIndex = 3,
             seekPositionMs = 15_000
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipPrevious()
         encoreController.waitForStateToSettle()
@@ -428,20 +428,20 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipPreviousWhilePlayingNearBeginningOfTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             queueIndex = 3,
             seekPositionMs = 2_500
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = originalState.queue.copy(queueIndex = 2)
 
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipPrevious()
         encoreController.waitForStateToSettle()
@@ -459,20 +459,20 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipNextWhilePlaying() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             queueIndex = 3,
             seekPositionMs = 2_500
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = originalState.queue.copy(queueIndex = 4)
 
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
@@ -490,20 +490,20 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipNextWhilePaused() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             queueIndex = 3,
             seekPositionMs = 2_500
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = originalState.queue.copy(queueIndex = 4)
 
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
@@ -521,20 +521,20 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipNextRestartsQueueWithRepeatEnabled() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             queueIndex = 2,
             songs = mediaProvider.getAllSongs().take(3),
             repeatMode = RepeatMode.REPEAT_ALL
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = originalState.queue.copy(queueIndex = 0)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
@@ -552,18 +552,18 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipNextWhilePausedOnLastTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PAUSED,
+            status = PlaybackStatus.Paused,
             queueIndex = 2,
             songs = mediaProvider.getAllSongs().take(3),
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.REACHED_END,
+            status = PlaybackStatus.ReachedEnd,
             seekPosition = SeekPosition.AbsoluteSeekPosition(30_167)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PAUSED)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused)
 
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
@@ -581,18 +581,18 @@ class EncoreIntegrationTest {
     @Test
     fun testSkipNextWhilePlayingLastTrack() = encoreTest { encoreController ->
         val originalState = createActiveState(
-            status = PlaybackState.PLAYING,
+            status = PlaybackStatus.Playing,
             queueIndex = 2,
             songs = mediaProvider.getAllSongs().take(3),
         )
 
         val desiredState = originalState.copy(
-            status = PlaybackState.REACHED_END,
+            status = PlaybackStatus.ReachedEnd,
             seekPosition = SeekPosition.AbsoluteSeekPosition(30_167)
         )
 
         encoreController.setStateAndWaitForIdle(originalState)
-        encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
@@ -622,7 +622,7 @@ class EncoreIntegrationTest {
     }
 
     private suspend fun createActiveState(
-        status: PlaybackState,
+        status: PlaybackStatus,
         seekPositionMs: Long = 0,
         repeatMode: RepeatMode = RepeatMode.REPEAT_NONE,
         queueIndex: Int = 0,
@@ -675,7 +675,7 @@ class EncoreIntegrationTest {
         }
     }
 
-    private suspend fun EncoreController<*>.checkPlaybackStatus(requiredStatus: PlaybackState) {
+    private suspend fun EncoreController<*>.checkPlaybackStatus(requiredStatus: PlaybackStatus) {
         val state = getState()
         check(state is MediaPlayerState.Prepared<*>) {
             "Test setup failed: The Encore service was not in the Prepared state"

@@ -7,7 +7,7 @@ import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
@@ -33,7 +33,7 @@ class TransportStateSubject private constructor(
         subclass().isAssignableTo(T::class.java)
     }
 
-    fun hasStatus(expected: PlaybackState) {
+    fun hasStatus(expected: PlaybackStatus) {
         val actualStatus = when (actual) {
             is TransportState.Active -> actual.status
             is TransportState.Idle -> {

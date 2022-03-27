@@ -8,7 +8,7 @@ import dev.andrewbailey.diff.DiffResult
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.state.BufferingState
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
 import kotlinx.parcelize.Parcelize
@@ -32,7 +32,7 @@ internal class BufferingStateDiff(
 
 @Parcelize
 internal class TransportStateStatusDiff(
-    val status: PlaybackState
+    val status: PlaybackStatus
 ) : MediaPlayerStateModification<Nothing>()
 
 @Parcelize

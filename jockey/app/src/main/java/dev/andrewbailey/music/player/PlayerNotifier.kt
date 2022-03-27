@@ -12,7 +12,7 @@ import dev.andrewbailey.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.notification.NotificationAction
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackState.PLAYING
+import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
 import dev.andrewbailey.encore.player.state.TransportState.Active
 import dev.andrewbailey.encore.player.state.TransportState.Idle
 import dev.andrewbailey.music.R
@@ -28,7 +28,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     override fun getNotificationIcon(playbackState: MediaPlayerState<Song>): Int {
         val state = playbackState.transportState
         return when {
-            state is Active && state.status == PLAYING -> R.drawable.ic_notification_play
+            state is Active && state.status == Playing -> R.drawable.ic_notification_play
             else -> R.drawable.ic_notification_pause
         }
     }
@@ -58,7 +58,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
                     title = R.string.app_name,
                     action = PlaybackAction.SKIP_PREVIOUS
                 ),
-                if (transportState.status == PLAYING) {
+                if (transportState.status == Playing) {
                     NotificationAction.fromPlaybackAction(
                         icon = R.drawable.ic_pause,
                         title = R.string.app_name,

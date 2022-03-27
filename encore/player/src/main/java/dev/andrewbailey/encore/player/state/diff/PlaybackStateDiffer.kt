@@ -4,7 +4,7 @@ import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.QueueState.Linear
 import dev.andrewbailey.encore.player.state.QueueState.Shuffled
@@ -110,7 +110,7 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun TransportState<M>.isPlaying(): Boolean {
-        return this is Active && status == PlaybackState.PLAYING
+        return this is Active && status == PlaybackStatus.Playing
     }
 
     private fun TransportState<M>.queue(): QueueState<M>? {

@@ -44,7 +44,7 @@ import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Ready
-import dev.andrewbailey.encore.player.state.PlaybackState
+import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ALL
 import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_NONE
 import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ONE
@@ -108,8 +108,8 @@ internal class MediaSessionController<M : MediaObject>(
                         PlaybackStateCompat.Builder()
                             .setState(
                                 when (newState.transportState.status) {
-                                    PlaybackState.PLAYING -> STATE_PLAYING
-                                    PlaybackState.PAUSED, PlaybackState.REACHED_END -> STATE_PAUSED
+                                    PlaybackStatus.Playing -> STATE_PLAYING
+                                    PlaybackStatus.Paused, PlaybackStatus.ReachedEnd -> STATE_PAUSED
                                 },
                                 newState.transportState.seekPosition.seekPositionMillis,
                                 1.0f
