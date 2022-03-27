@@ -536,7 +536,6 @@ class EncoreIntegrationTest {
         encoreController.setStateAndWaitForIdle(originalState)
         encoreController.checkPlaybackStatus(PlaybackState.PLAYING)
 
-        encoreController.play()
         encoreController.skipNext()
         encoreController.waitForStateToSettle()
 

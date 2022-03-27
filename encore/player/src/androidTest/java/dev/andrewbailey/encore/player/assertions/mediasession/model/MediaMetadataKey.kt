@@ -7,6 +7,7 @@ import android.support.v4.media.RatingCompat
 sealed class MediaMetadataKey<out T>(
     val key: String,
     val type: Class<out T>,
+    @Suppress("UNCHECKED_CAST")
     val defaultValue: T? = when (type) {
         Long::class.java -> 0L as T?
         String::class.java -> null
