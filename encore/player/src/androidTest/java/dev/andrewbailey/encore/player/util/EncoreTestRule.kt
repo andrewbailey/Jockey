@@ -11,7 +11,8 @@ import dev.andrewbailey.encore.player.EncoreTestService
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerImpl
-import dev.andrewbailey.encore.player.controller.impl.ServiceBindingResource.BindingState.Bound
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runCurrent
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -27,6 +28,7 @@ class EncoreTestRule<M : MediaObject>(
         get() = InstrumentationRegistry.getInstrumentation().context
 
     private var encoreController: EncoreControllerImpl<M>? = null
+    private val testCoroutineScope = TestScope()
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
@@ -49,7 +51,8 @@ class EncoreTestRule<M : MediaObject>(
 
             encoreController = EncoreControllerImpl<M>(
                 context = testContext,
-                componentName = ComponentName(serviceContext, serviceClass)
+                componentName = ComponentName(serviceContext, serviceClass),
+                coroutineScope = testCoroutineScope
             ).apply {
                 IdlingRegistry.getInstance().register(clientBinder.idlingResource)
             }
@@ -64,7 +67,7 @@ class EncoreTestRule<M : MediaObject>(
 
             waitForServiceBindingToSettle()
 
-            val wasServiceBound = controller.clientBinder.idlingResource.desiredState == Bound
+            val wasServiceBound = controller.clientBinder.isBound
             if (wasServiceBound) {
                 controller.clientBinder.unbind()
                 waitForServiceBindingToSettle()
@@ -110,6 +113,7 @@ class EncoreTestRule<M : MediaObject>(
     }
 
     private fun waitForServiceBindingToSettle() {
+        testCoroutineScope.runCurrent()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         Espresso.onIdle()
     }

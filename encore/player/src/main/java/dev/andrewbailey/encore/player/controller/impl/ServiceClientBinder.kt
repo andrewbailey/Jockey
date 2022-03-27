@@ -10,6 +10,7 @@ import android.os.IBinder
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.binder.ServiceBidirectionalMessenger
 import dev.andrewbailey.encore.player.controller.impl.ServiceBindingResource.BindingState
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -19,6 +20,8 @@ internal class ServiceClientBinder<M : MediaObject>(
 ) {
 
     private val serviceConnection = Connection()
+    private val _isBound = atomic(false)
+    val isBound: Boolean get() = _isBound.value
 
     private val _serviceBinder = MutableStateFlow<ServiceBidirectionalMessenger<M>?>(null)
     val serviceBinder: StateFlow<ServiceBidirectionalMessenger<M>?>
@@ -30,19 +33,28 @@ internal class ServiceClientBinder<M : MediaObject>(
     )
 
     fun bind() {
-        idlingResource.desiredState = BindingState.Bound
-
         val intent = Intent().apply {
             component = componentName
         }
-        context.bindService(intent, serviceConnection, BIND_AUTO_CREATE or BIND_WAIVE_PRIORITY)
-        context.startService(intent)
+
+        val wasBound = _isBound.getAndSet(true)
+        if (!wasBound) {
+            idlingResource.desiredState = BindingState.Bound
+
+            context.bindService(intent, serviceConnection, BIND_AUTO_CREATE or BIND_WAIVE_PRIORITY)
+            context.startService(intent)
+        } else {
+            context.startService(intent)
+        }
     }
 
     fun unbind() {
-        idlingResource.desiredState = BindingState.NotBound
-        context.unbindService(serviceConnection)
-        idlingResource.currentState = BindingState.NotBound
+        val wasBound = _isBound.getAndSet(false)
+        if (wasBound) {
+            idlingResource.desiredState = BindingState.NotBound
+            context.unbindService(serviceConnection)
+            idlingResource.currentState = BindingState.NotBound
+        }
     }
 
     inner class Connection : ServiceConnection {

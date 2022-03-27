@@ -40,7 +40,8 @@ import kotlinx.coroutines.sync.withLock
 
 internal class EncoreControllerImpl<M : MediaObject> constructor(
     context: Context,
-    componentName: ComponentName
+    componentName: ComponentName,
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : EncoreController<M> {
 
     private val bindMutex = Mutex()
@@ -99,7 +100,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
 
     override fun acquireToken(): EncoreToken {
         val token = EncoreToken()
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             bindMutex.withLock(token) {
                 if (activeTokens.isEmpty()) {
                     connectToService()
@@ -112,7 +113,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
     }
 
     override fun releaseToken(token: EncoreToken) {
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             bindMutex.withLock(token) {
                 if (activeTokens.remove(token) && activeTokens.isEmpty()) {
                     disconnectFromService()
@@ -191,7 +192,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
     }
 
     override suspend fun pause() {
-        this.dispatcher.sendMessage(Pause)
+        dispatcher.sendMessage(Pause)
     }
 
     override suspend fun skipPrevious() {
