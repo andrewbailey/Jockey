@@ -6,12 +6,32 @@ import kotlinx.parcelize.Parcelize
 public sealed class PlaybackStatus : Parcelable {
 
     @Parcelize
-    object Playing : PlaybackStatus()
+    public object Playing : PlaybackStatus()
 
     @Parcelize
-    object Paused : PlaybackStatus()
+    public class Paused internal constructor(
+        public val reachedEndOfQueue: Boolean
+    ) : PlaybackStatus() {
 
-    @Parcelize
-    object ReachedEnd : PlaybackStatus()
+        public constructor() : this(
+            reachedEndOfQueue = false
+        )
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            return other is Paused &&
+                other.reachedEndOfQueue == this.reachedEndOfQueue
+        }
+
+        override fun hashCode(): Int {
+            return reachedEndOfQueue.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Paused(reachedEndOfQueue=$reachedEndOfQueue)"
+        }
+
+    }
 
 }
