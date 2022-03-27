@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-atomicfu'
 apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
 apply from: "$rootDir/jacoco.gradle"
@@ -43,6 +44,7 @@ dependencies {
     // Kotlin
     implementation config.deps.kotlin.stdlib
     implementation config.deps.kotlin.coroutines
+    implementation config.deps.kotlin.atomicFu
 
     // Androidx
     implementation config.deps.androidx.core

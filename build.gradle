@@ -3,8 +3,9 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib: '1.6.10',
-            coroutines: '1.6.0'
+            stdlib : '1.6.10',
+            coroutines : '1.6.0',
+            atomicFu : '0.17.1',
         ],
         androidx : [
             core : '1.8.0-alpha02',
@@ -51,6 +52,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
+        classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:${versions.kotlin.atomicFu}"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:10.2.1"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}"
         classpath "org.jacoco:org.jacoco.core:${versions.test.jacoco}"
@@ -70,6 +72,7 @@ ext {
             stdlib : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.stdlib}",
             coroutines : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
             coroutinesAndroid : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
+            atomicFu : "org.jetbrains.kotlinx:atomicfu:${versions.kotlin.atomicFu}",
         ],
         androidx : [
             core : "androidx.core:core-ktx:${versions.androidx.core}",
