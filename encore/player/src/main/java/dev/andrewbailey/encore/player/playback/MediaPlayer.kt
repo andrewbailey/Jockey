@@ -3,6 +3,7 @@ package dev.andrewbailey.encore.player.playback
 import android.content.Context
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.audio.AudioAttributes
 import dev.andrewbailey.encore.model.MediaObject
@@ -12,6 +13,7 @@ import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.PlaybackStateDiffer
 import dev.andrewbailey.encore.player.state.diff.QueueModification
+import dev.andrewbailey.encore.player.state.diff.SetPlaybackSpeed
 import dev.andrewbailey.encore.player.state.diff.SetPlaying
 import dev.andrewbailey.encore.player.state.diff.SetRepeatMode
 import dev.andrewbailey.encore.player.state.diff.StopPlayback
@@ -105,6 +107,12 @@ internal class MediaPlayer<M : MediaObject>(
                                 exoPlayer.prepare()
                             }
                         }
+                    }
+                    is SetPlaybackSpeed -> {
+                        exoPlayer.playbackParameters = PlaybackParameters(
+                            operation.speed,
+                            operation.pitch
+                        )
                     }
                 }.let { /* Require when to be exhaustive */ }
             }

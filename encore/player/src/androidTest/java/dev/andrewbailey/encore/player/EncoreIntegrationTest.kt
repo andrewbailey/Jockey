@@ -52,7 +52,8 @@ class EncoreIntegrationTest {
                 MediaPlayerState.Ready(
                     transportState = TransportState.Idle(
                         repeatMode = RepeatMode.REPEAT_NONE,
-                        shuffleMode = ShuffleMode.LINEAR
+                        shuffleMode = ShuffleMode.LINEAR,
+                        playbackSpeed = 1f
                     )
                 )
             )
@@ -72,7 +73,8 @@ class EncoreIntegrationTest {
                         mediaItem = it
                     )
                 }
-            )
+            ),
+            playbackSpeed = 1f
         )
 
         encoreController.setStateAndWaitForIdle(transportState)
@@ -167,7 +169,8 @@ class EncoreIntegrationTest {
 
         val idleState = TransportState.Idle(
             repeatMode = RepeatMode.REPEAT_NONE,
-            shuffleMode = ShuffleMode.LINEAR
+            shuffleMode = ShuffleMode.LINEAR,
+            playbackSpeed = 1f
         )
 
         encoreController.setStateAndWaitForIdle(idleState)
@@ -193,7 +196,8 @@ class EncoreIntegrationTest {
                 MediaPlayerState.Ready(
                     transportState = TransportState.Idle(
                         repeatMode = RepeatMode.REPEAT_NONE,
-                        shuffleMode = ShuffleMode.LINEAR
+                        shuffleMode = ShuffleMode.LINEAR,
+                        playbackSpeed = 1f
                     )
                 )
             )
@@ -247,7 +251,8 @@ class EncoreIntegrationTest {
                 MediaPlayerState.Ready(
                     transportState = TransportState.Idle(
                         repeatMode = RepeatMode.REPEAT_NONE,
-                        shuffleMode = ShuffleMode.LINEAR
+                        shuffleMode = ShuffleMode.LINEAR,
+                        playbackSpeed = 1f
                     )
                 )
             )
@@ -301,7 +306,8 @@ class EncoreIntegrationTest {
                 MediaPlayerState.Ready(
                     transportState = TransportState.Idle(
                         repeatMode = RepeatMode.REPEAT_NONE,
-                        shuffleMode = ShuffleMode.LINEAR
+                        shuffleMode = ShuffleMode.LINEAR,
+                        playbackSpeed = 1f
                     )
                 )
             )
@@ -624,12 +630,14 @@ class EncoreIntegrationTest {
         status: PlaybackStatus,
         seekPositionMs: Long = 0,
         repeatMode: RepeatMode = RepeatMode.REPEAT_NONE,
+        playbackSpeed: Float = 1f,
         queueIndex: Int = 0,
         songs: List<FakeSong>? = null
     ) = TransportState.Active(
         status = status,
         seekPosition = SeekPosition.AbsoluteSeekPosition(seekPositionMs),
         repeatMode = repeatMode,
+        playbackSpeed = playbackSpeed,
         queue = run {
             QueueState.Linear(
                 queueIndex = queueIndex,

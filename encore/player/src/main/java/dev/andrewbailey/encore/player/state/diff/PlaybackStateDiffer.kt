@@ -24,6 +24,7 @@ internal class PlaybackStateDiffer<M : MediaObject> {
                 generateQueueDiff(oldState, newState),
                 generateSeekDiff(oldState, newState),
                 generateRepeatDiff(oldState, newState),
+                generatePlaybackSpeedDiff(oldState, newState),
                 generatePlayDiff(newState)
             )
         )
@@ -58,6 +59,20 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     ): PlaybackStateModification<M>? {
         return if (oldState.repeatMode != newState.repeatMode) {
             SetRepeatMode(newState.repeatMode)
+        } else {
+            null
+        }
+    }
+
+    private fun generatePlaybackSpeedDiff(
+        oldState: TransportState<M>,
+        newState: TransportState<M>
+    ): PlaybackStateModification<M>? {
+        return if (oldState.playbackSpeed != newState.playbackSpeed) {
+            SetPlaybackSpeed(
+                speed = newState.playbackSpeed,
+                pitch = 1f
+            )
         } else {
             null
         }

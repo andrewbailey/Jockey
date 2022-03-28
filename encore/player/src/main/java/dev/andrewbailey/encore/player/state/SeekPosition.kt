@@ -3,6 +3,7 @@ package dev.andrewbailey.encore.player.state
 import android.os.Parcelable
 import android.os.SystemClock
 import kotlin.math.min
+import kotlin.math.roundToLong
 import kotlinx.parcelize.Parcelize
 
 public sealed class SeekPosition : Parcelable {
@@ -17,13 +18,14 @@ public sealed class SeekPosition : Parcelable {
     internal data class ComputedSeekPosition(
         val originalSeekPositionMillis: Long,
         val maxSeekPositionMillis: Long,
-        val creationTimeMillis: Long = SystemClock.elapsedRealtime()
+        val creationTimeMillis: Long = SystemClock.elapsedRealtime(),
+        val playbackSpeed: Float
     ) : SeekPosition() {
 
         override val seekPositionMillis: Long
             get() {
                 val dT = SystemClock.elapsedRealtime() - creationTimeMillis
-                val computedTime = originalSeekPositionMillis + dT
+                val computedTime = (originalSeekPositionMillis + dT * playbackSpeed).roundToLong()
                 return min(computedTime, maxSeekPositionMillis)
             }
     }

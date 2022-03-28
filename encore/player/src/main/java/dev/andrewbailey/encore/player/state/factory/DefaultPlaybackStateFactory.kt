@@ -205,7 +205,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
                     linearQueue = searchResultsQueue + continuationQueue
                 )
             },
-            repeatMode = state.repeatMode
+            repeatMode = state.repeatMode,
+            playbackSpeed = state.playbackSpeed
         )
     }
 
@@ -229,7 +230,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
                 ShuffleMode.LINEAR -> queue
                 ShuffleMode.SHUFFLED -> queue.toShuffledQueue(random)
             },
-            repeatMode = state.repeatMode
+            repeatMode = state.repeatMode,
+            playbackSpeed = state.playbackSpeed
         )
     }
 

@@ -19,6 +19,11 @@ internal data class SetRepeatMode(
     val repeatMode: RepeatMode
 ) : PlaybackStateModification<Nothing>()
 
+internal data class SetPlaybackSpeed(
+    val speed: Float,
+    val pitch: Float
+) : PlaybackStateModification<Nothing>()
+
 internal object StopPlayback : PlaybackStateModification<Nothing>()
 
 internal data class QueueModification<M : MediaObject>(

@@ -52,7 +52,8 @@ internal class PlaybackStateCreator<M : MediaObject>(
         return if (queueItems == null) {
             TransportState.Idle(
                 repeatMode = getRepeatMode(),
-                shuffleMode = LINEAR
+                shuffleMode = LINEAR,
+                playbackSpeed = exoPlayer.playbackParameters.speed
             )
         } else {
             TransportState.Active(
@@ -68,7 +69,8 @@ internal class PlaybackStateCreator<M : MediaObject>(
                             originalSeekPositionMillis = exoPlayer.currentPosition,
                             maxSeekPositionMillis = exoPlayer.contentDuration
                                 .takeIf { it != C.TIME_UNSET }
-                                ?: Long.MAX_VALUE
+                                ?: Long.MAX_VALUE,
+                            playbackSpeed = exoPlayer.playbackParameters.speed
                         )
                     }
                     else -> {
@@ -88,7 +90,8 @@ internal class PlaybackStateCreator<M : MediaObject>(
                         linearQueue = queueItems.linearQueue
                     )
                 },
-                repeatMode = getRepeatMode()
+                repeatMode = getRepeatMode(),
+                playbackSpeed = exoPlayer.playbackParameters.speed
             )
         }
     }

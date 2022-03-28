@@ -112,7 +112,7 @@ internal class MediaSessionController<M : MediaObject>(
                                     is PlaybackStatus.Paused -> STATE_PAUSED
                                 },
                                 newState.transportState.seekPosition.seekPositionMillis,
-                                1.0f
+                                newState.transportState.playbackSpeed
                             )
                             .setActions(
                                 ACTION_PLAY or

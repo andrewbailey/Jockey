@@ -107,7 +107,8 @@ class PlaybackController @Inject constructor(
                         },
                         queueIndex = startingAt
                     ),
-                    repeatMode = RepeatMode.REPEAT_NONE
+                    repeatMode = RepeatMode.REPEAT_NONE,
+                    playbackSpeed = 1f
                 )
             )
         }
@@ -137,7 +138,8 @@ class PlaybackController @Inject constructor(
                         queue = queueItems.shuffled(),
                         queueIndex = 0
                     ),
-                    repeatMode = RepeatMode.REPEAT_NONE
+                    repeatMode = RepeatMode.REPEAT_NONE,
+                    playbackSpeed = 1f
                 )
             )
         }
