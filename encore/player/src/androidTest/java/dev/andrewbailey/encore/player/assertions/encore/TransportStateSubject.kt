@@ -55,7 +55,7 @@ class TransportStateSubject private constructor(
 
     fun hasSeekPosition(
         expectedSeekPositionMs: Long,
-        thresholdMs: Long = 500
+        thresholdMs: Long
     ) {
         val seekPosition = when (actual) {
             is TransportState.Active -> actual.seekPosition.seekPositionMillis
