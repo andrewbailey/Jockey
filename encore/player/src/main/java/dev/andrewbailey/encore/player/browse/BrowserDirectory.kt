@@ -1,16 +1,9 @@
 package dev.andrewbailey.encore.player.browse
 
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.DynamicPath
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.MediaItems
 import dev.andrewbailey.encore.player.browse.BrowserDirectory.DirectoryListing.StaticPath
-import dev.andrewbailey.encore.player.state.PlaybackStatus
-import dev.andrewbailey.encore.player.state.QueueState
-import dev.andrewbailey.encore.player.state.RepeatMode
-import dev.andrewbailey.encore.player.state.SeekPosition
-import dev.andrewbailey.encore.player.state.TransportState
-import java.util.UUID
 
 private const val RESERVED_CHARS = "/@[]"
 
@@ -60,14 +53,23 @@ public class BrowserDirectory <M : MediaObject> internal constructor(
         return traversePath(path).loadContents()
     }
 
-    internal suspend fun traversePathAndGetTransportState(path: String): TransportState<M> {
+    internal suspend fun traversePathAndGetMediaItems(path: String): BrowserMediaResults<M> {
         require(path.startsWith("/")) {
             "Invalid path: '$path'. Paths must begin with '/'"
         }
 
         val itemId = path.takeLastWhile { it != '/' }
         val parentDir = path.dropLast(itemId.length)
-        return traversePath(parentDir).getTransportState(itemId)
+        val directory = traversePath(parentDir)
+
+        val mediaItemProvider = directory.entries.filterIsInstance<MediaItems<M>>()
+            .firstOrNull { it.contains(itemId) }
+            ?: throw NoSuchElementException("$itemId is not a valid MediaItem in the hierarchy.")
+
+        return BrowserMediaResults(
+            mediaItems = mediaItemProvider.loadItems(),
+            mediaItemId = itemId.substring(itemId.indexOf('[') + 1, itemId.lastIndexOf(']'))
+        )
     }
 
     private suspend fun traversePath(path: String): BrowserDirectory<M> {
@@ -125,25 +127,6 @@ public class BrowserDirectory <M : MediaObject> internal constructor(
                     }
                 }
             }
-    }
-
-    private suspend fun getTransportState(itemId: String): TransportState<M> {
-        val mediaItemProvider = entries.filterIsInstance<MediaItems<M>>()
-            .firstOrNull { it.contains(itemId) }
-            ?: throw NoSuchElementException("$itemId is not a valid MediaItem in the hierarchy.")
-
-        val items = mediaItemProvider.loadItems()
-        val mediaId = itemId.substring(itemId.indexOf('[') + 1, itemId.lastIndexOf(']'))
-
-        return TransportState.Active(
-            status = PlaybackStatus.Playing,
-            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
-            queue = QueueState.Linear(
-                queue = items.map { QueueItem(UUID.randomUUID(), it) },
-                queueIndex = items.indexOfFirst { it.id == mediaId }
-            ),
-            repeatMode = RepeatMode.REPEAT_NONE
-        )
     }
 
     public data class BrowserPath(
@@ -229,5 +212,10 @@ public class BrowserDirectory <M : MediaObject> internal constructor(
         }
 
     }
+
+    internal class BrowserMediaResults<M : MediaObject>(
+        val mediaItemId: String,
+        val mediaItems: List<M>
+    )
 
 }

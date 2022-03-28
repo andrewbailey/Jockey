@@ -53,4 +53,11 @@ public abstract class PlaybackStateFactory<M : MediaObject> {
         searchResults: MediaSearchResults<M>
     ): TransportState<M>
 
+    public abstract fun playFromMediaBrowser(
+        state: TransportState<M>,
+        browserId: String,
+        mediaItemId: String,
+        mediaItems: List<M>
+    ): TransportState<M>
+
 }

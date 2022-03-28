@@ -1,7 +1,6 @@
 package dev.andrewbailey.encore.player.browse
 
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.player.state.TransportState
 
 public class BrowserHierarchy<M : MediaObject>(
     private val hierarchy: BrowserDirectory<M>.() -> Unit
@@ -14,8 +13,8 @@ public class BrowserHierarchy<M : MediaObject>(
         return root.traversePathAndLoadContents(path)
     }
 
-    internal suspend fun getTransportState(path: String): TransportState<M> {
-        return root.traversePathAndGetTransportState(path)
+    internal suspend fun getMediaItems(path: String): BrowserDirectory.BrowserMediaResults<M> {
+        return root.traversePathAndGetMediaItems(path)
     }
 
 }

@@ -209,6 +209,30 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         )
     }
 
+    override fun playFromMediaBrowser(
+        state: TransportState<M>,
+        browserId: String,
+        mediaItemId: String,
+        mediaItems: List<M>
+    ): TransportState<M> {
+        val queue = QueueState.Linear(
+            queue = mediaItems.map { item ->
+                QueueItem(queueId = UUID.randomUUID(), mediaItem = item)
+            },
+            queueIndex = mediaItems.indexOfFirst { it.id == mediaItemId }
+        )
+
+        return Active(
+            status = Playing,
+            seekPosition = SeekPosition.AbsoluteSeekPosition(0),
+            queue = when (state.shuffleMode) {
+                ShuffleMode.LINEAR -> queue
+                ShuffleMode.SHUFFLED -> queue.toShuffledQueue(random)
+            },
+            repeatMode = state.repeatMode
+        )
+    }
+
     private inline fun TransportState<M>.modifyTransportState(
         status: Active<M>.() -> PlaybackStatus = { this.status },
         seekPosition: Active<M>.() -> SeekPosition = { this.seekPosition },

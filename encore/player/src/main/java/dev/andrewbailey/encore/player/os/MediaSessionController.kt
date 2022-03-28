@@ -274,7 +274,16 @@ internal class MediaSessionController<M : MediaObject>(
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
             onNewAction()
             mediaSessionActionJob = coroutineScope.launch {
-                setTransportState(browserHierarchy.getTransportState(mediaId))
+                val browserResults = browserHierarchy.getMediaItems(mediaId)
+
+                setTransportState(
+                    playbackStateFactory.playFromMediaBrowser(
+                        state = getCurrentPlaybackState().transportState,
+                        browserId = mediaId,
+                        mediaItemId = browserResults.mediaItemId,
+                        mediaItems = browserResults.mediaItems
+                    )
+                )
             }
         }
 
