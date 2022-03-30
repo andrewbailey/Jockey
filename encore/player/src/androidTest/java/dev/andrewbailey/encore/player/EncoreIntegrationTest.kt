@@ -35,7 +35,7 @@ class EncoreIntegrationTest {
     val encoreTestRule = EncoreTestRule()
 
     @get:Rule
-    val timeoutRule = Timeout(5, TimeUnit.SECONDS)
+    val timeoutRule = Timeout(10, TimeUnit.SECONDS)
 
     private lateinit var mediaProvider: FakeMusicProvider
     private val playbackStateFactoryRandomSeed: Long = Random().nextLong()
