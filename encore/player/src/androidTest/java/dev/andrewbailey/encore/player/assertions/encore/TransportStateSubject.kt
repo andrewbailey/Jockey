@@ -9,7 +9,6 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
-import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
 
 fun assertThat(
@@ -127,14 +126,22 @@ class TransportStateSubject private constructor(
                     throw AssertionError()
                 }
 
-                if (!actual.seekPosition.equals(other.seekPosition, seekToleranceMs)) {
+                val expectedSeekPosition = other.seekPosition.seekPositionMillis
+                val actualSeekPosition = actual.seekPosition.seekPositionMillis
+
+                val lowerBound = (expectedSeekPosition - seekToleranceMs).coerceAtLeast(0)
+                val upperBound = expectedSeekPosition + seekToleranceMs
+
+                val areSeekPositionsEqual = actualSeekPosition in lowerBound..upperBound
+
+                if (!areSeekPositionsEqual) {
                     fail(
                         simpleFact(
                             "The seek position was not in the desired bounds " +
                                 "(All other properties matched the expected values)"
                         ),
                         fact("expected seek position", "${other.seekPosition} ms"),
-                        fact("actual seek position", "${actual.seekPosition} ms"),
+                        fact("actual seek position", "$actualSeekPosition ms"),
                         fact("threshold", "$seekToleranceMs ms")
                     )
                 }
@@ -160,13 +167,5 @@ class TransportStateSubject private constructor(
     private fun fail(first: Fact?, vararg rest: Fact): Nothing {
         failWithoutActual(first, *rest)
         throw AssertionError()
-    }
-
-    private fun SeekPosition.equals(other: SeekPosition, thresholdMs: Long): Boolean {
-        val otherSeekPos = other.seekPositionMillis
-        val lowerBound = (otherSeekPos - thresholdMs).coerceAtLeast(0)
-        val upperBound = otherSeekPos + thresholdMs
-
-        return seekPositionMillis in lowerBound..upperBound
     }
 }
