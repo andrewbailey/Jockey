@@ -27,6 +27,7 @@ import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
 import dev.andrewbailey.encore.player.state.TransportState
+import java.util.UUID
 
 internal class PlaybackStateCreator<M : MediaObject>(
     private val exoPlayer: ExoPlayer,
@@ -79,16 +80,25 @@ internal class PlaybackStateCreator<M : MediaObject>(
                         )
                     }
                 },
-                queue = when (queueItems) {
-                    is LinearQueueItems -> Linear(
-                        queue = queueItems.queue,
-                        queueIndex = exoPlayer.currentMediaItemIndex
-                    )
-                    is ShuffledQueueItems -> Shuffled(
-                        queue = queueItems.queue,
-                        queueIndex = exoPlayer.currentMediaItemIndex,
-                        linearQueue = queueItems.linearQueue
-                    )
+                queue = run {
+                    val currentQueueId = exoPlayer.currentMediaItem?.mediaId
+                        ?.let { UUID.fromString(it) }
+
+                    val nowPlayingIndex = queueItems.queue
+                        .indexOfFirst { it.queueId == currentQueueId }
+                        .takeIf { it >= 0 } ?: 0
+
+                    when (queueItems) {
+                        is LinearQueueItems -> Linear(
+                            queue = queueItems.queue,
+                            queueIndex = nowPlayingIndex
+                        )
+                        is ShuffledQueueItems -> Shuffled(
+                            queue = queueItems.queue,
+                            queueIndex = nowPlayingIndex,
+                            linearQueue = queueItems.linearQueue
+                        )
+                    }
                 },
                 repeatMode = getRepeatMode(),
                 playbackSpeed = exoPlayer.playbackParameters.speed

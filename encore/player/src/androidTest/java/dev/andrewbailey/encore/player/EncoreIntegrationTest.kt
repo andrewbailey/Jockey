@@ -14,13 +14,16 @@ import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
+import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.util.EncoreTestRule
 import dev.andrewbailey.encore.test.FakeMusicProvider
 import dev.andrewbailey.encore.test.FakeSong
+import java.util.Random
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,11 +38,23 @@ class EncoreIntegrationTest {
     val timeoutRule = Timeout(5, TimeUnit.SECONDS)
 
     private lateinit var mediaProvider: FakeMusicProvider
+    private val playbackStateFactoryRandomSeed: Long = Random().nextLong()
 
     @Before
     fun setUp() {
         val context = InstrumentationRegistry.getInstrumentation().context
         mediaProvider = FakeMusicProvider(context)
+
+        EncoreTestService.Dependencies.apply {
+            playbackStateFactoryOverride = DefaultPlaybackStateFactory(
+                random = Random(playbackStateFactoryRandomSeed)
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        EncoreTestService.Dependencies.reset()
     }
 
     // region Test cases
@@ -584,7 +599,7 @@ class EncoreIntegrationTest {
             status = PlaybackStatus.Paused(),
             playbackSpeed = 1f,
             queueIndex = 2,
-            songs = mediaProvider.getAllSongs().take(3),
+            songs = mediaProvider.getAllSongs().take(3)
         )
 
         val desiredState = originalState.copy(
@@ -614,7 +629,7 @@ class EncoreIntegrationTest {
             status = PlaybackStatus.Playing,
             playbackSpeed = 1f,
             queueIndex = 2,
-            songs = mediaProvider.getAllSongs().take(3),
+            songs = mediaProvider.getAllSongs().take(3)
         )
 
         val desiredState = originalState.copy(
@@ -636,6 +651,55 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .transportState()
             .isEqualTo(desiredState, seekToleranceMs = 0)
+    }
+
+    @Test
+    fun setShuffleShufflesTracks() = encoreTest { encoreController ->
+        println("The random seed is $playbackStateFactoryRandomSeed")
+
+        val originalState = createActiveState(
+            status = PlaybackStatus.Playing,
+            playbackSpeed = 0.5f,
+            seekPositionMs = 1500,
+            queueIndex = 2
+        )
+
+        val nowPlaying = originalState.queue.nowPlaying
+        val desiredState = originalState.copy(
+            queue = QueueState.Shuffled(
+                queue = buildList {
+                    add(nowPlaying)
+                    addAll(
+                        originalState.queue.queue
+                            .filter { it != nowPlaying }
+                            .shuffled(Random(playbackStateFactoryRandomSeed))
+                    )
+                },
+                queueIndex = 0,
+                linearQueue = originalState.queue.queue
+            )
+        )
+
+        encoreController.setStateAndWaitForIdle(originalState)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
+
+        encoreController.setShuffleMode(ShuffleMode.SHUFFLED)
+        encoreController.waitForStateToSettle()
+
+        val actualState = encoreController.getState()
+        assertWithMessage("The player did not shuffle its tracks as expected")
+            .about(mediaPlayerState())
+            .that(actualState)
+            .transportState()
+            .hasQueueState(desiredState.queue)
+
+        assertWithMessage(
+            "The final state after enabling shuffling mode did not match the expected value"
+        )
+            .about(mediaPlayerState())
+            .that(actualState)
+            .transportState()
+            .isEqualTo(desiredState, seekToleranceMs = 500)
     }
 
     // endregion Test cases

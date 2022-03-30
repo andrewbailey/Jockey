@@ -279,11 +279,10 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     private fun QueueState.Linear<M>.toShuffledQueue(
         random: Random
     ): QueueState.Shuffled<M> {
-        val shuffledQueue = queue.toMutableList().apply {
-            remove(nowPlaying)
-            shuffle(random)
-            add(element = nowPlaying, index = 0)
-        }.toList()
+        val shuffledQueue = buildList {
+            add(nowPlaying)
+            addAll(queue.filter { it != nowPlaying }.shuffled(random))
+        }
 
         return QueueState.Shuffled(
             linearQueue = queue,

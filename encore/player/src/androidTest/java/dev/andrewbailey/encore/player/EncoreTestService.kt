@@ -12,6 +12,7 @@ import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.notification.NotificationAction
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import dev.andrewbailey.encore.provider.MediaProvider
 import dev.andrewbailey.encore.test.FakeMusicProvider
 import dev.andrewbailey.encore.test.FakeSong
@@ -42,6 +43,10 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
 
     override fun onCreateMediaProvider(): MediaProvider<FakeSong> {
         return mediaProvider
+    }
+
+    override fun onCreatePlaybackStateFactory(): PlaybackStateFactory<FakeSong> {
+        return Dependencies.playbackStateFactoryOverride ?: super.onCreatePlaybackStateFactory()
     }
 
     override fun isClientAllowedToBrowse(clientPackageName: String, clientUid: Int): Boolean {
@@ -88,6 +93,16 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
                 }
             )
         }
+    }
+
+    object Dependencies {
+
+        var playbackStateFactoryOverride: PlaybackStateFactory<FakeSong>? = null
+
+        fun reset() {
+            playbackStateFactoryOverride = null
+        }
+
     }
 
 }

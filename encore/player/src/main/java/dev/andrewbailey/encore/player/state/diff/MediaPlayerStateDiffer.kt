@@ -107,15 +107,14 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                     result.move(operation.fromIndex, operation.toIndex)
                 }
                 is MoveRange<*> -> {
-                    val count = operation.fromIndex - operation.toIndex
                     when {
                         operation.toIndex < operation.fromIndex -> {
-                            (0 until count).forEach { item ->
+                            (0 until operation.itemCount).forEach { item ->
                                 result.move(operation.fromIndex + item, operation.toIndex + item)
                             }
                         }
                         operation.toIndex > operation.fromIndex -> {
-                            repeat(count) {
+                            repeat(operation.itemCount) {
                                 result.move(operation.fromIndex, operation.toIndex)
                             }
                         }

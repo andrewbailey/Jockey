@@ -87,7 +87,10 @@ internal class MediaQueue<M : MediaObject>(
     }
 
     private fun buildMediaSource(queueItem: QueueItem<*>): MediaSource {
-        val mediaItem = MediaItem.fromUri(queueItem.mediaItem.playbackUri)
+        val mediaItem = MediaItem.Builder()
+            .setMediaId(queueItem.queueId.toString())
+            .setUri(queueItem.mediaItem.playbackUri)
+            .build()
         return mediaSourceFactory.createMediaSource(mediaItem)
     }
 
