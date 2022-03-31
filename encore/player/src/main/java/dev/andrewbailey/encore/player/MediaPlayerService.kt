@@ -5,6 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaBrowserCompat
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.PRIVATE
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import dev.andrewbailey.encore.model.MediaObject
@@ -44,8 +46,11 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
     private lateinit var extensions: List<PlaybackExtension<M>>
     private lateinit var observers: List<PlaybackObserver<M>>
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal lateinit var mediaSessionController: MediaSessionController<M>
+        private set
+
     private lateinit var customActions: List<CustomActionProvider<M>>
-    private lateinit var mediaSessionController: MediaSessionController<M>
     private lateinit var notifier: PlaybackNotifier<M>
     private lateinit var mediaPlayer: MediaPlayer<M>
     private lateinit var browserPackageValidator: BrowserPackageValidator

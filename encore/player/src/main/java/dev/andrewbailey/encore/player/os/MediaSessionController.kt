@@ -73,6 +73,7 @@ internal class MediaSessionController<M : MediaObject>(
     private var mediaSessionActionJob: Job? = null
 
     val mediaSession = MediaSessionCompat(context, tag)
+    val idlingResource = MediaSessionControllerIdlingResource()
 
     override fun onPrepared() {
         mediaSession.apply {
@@ -158,31 +159,37 @@ internal class MediaSessionController<M : MediaObject>(
         override fun onPlay() {
             onNewAction()
             modifyTransportState { play() }
+            onActionCompleted()
         }
 
         override fun onPause() {
             onNewAction()
             modifyTransportState { pause() }
+            onActionCompleted()
         }
 
         override fun onStop() {
             onNewAction()
             modifyTransportState { seekTo(0).pause() }
+            onActionCompleted()
         }
 
         override fun onSeekTo(pos: Long) {
             onNewAction()
             modifyTransportState { seekTo(pos) }
+            onActionCompleted()
         }
 
         override fun onSkipToPrevious() {
             onNewAction()
             modifyTransportState { skipToPrevious() }
+            onActionCompleted()
         }
 
         override fun onSkipToNext() {
             onNewAction()
             modifyTransportState { skipToNext() }
+            onActionCompleted()
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
@@ -197,6 +204,7 @@ internal class MediaSessionController<M : MediaObject>(
                     }
                 )
             }
+            onActionCompleted()
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
@@ -210,6 +218,7 @@ internal class MediaSessionController<M : MediaObject>(
                     }
                 )
             }
+            onActionCompleted()
         }
 
         override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
@@ -268,6 +277,8 @@ internal class MediaSessionController<M : MediaObject>(
                         searchResults = mediaProvider.searchForMediaItems(query, searchArguments)
                     )
                 )
+
+                onActionCompleted()
             }
         }
 
@@ -284,11 +295,17 @@ internal class MediaSessionController<M : MediaObject>(
                         mediaItems = browserResults.mediaItems
                     )
                 )
+
+                onActionCompleted()
             }
         }
 
         private fun onNewAction() {
             mediaSessionActionJob?.cancel("Another action has been received")
+        }
+
+        private fun onActionCompleted() {
+            idlingResource.onCompleteCommand()
         }
     }
 

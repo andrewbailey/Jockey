@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player
 
+import androidx.test.espresso.Espresso
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertWithMessage
 import dev.andrewbailey.encore.model.QueueItem
@@ -16,6 +17,7 @@ import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.util.EncoreTestRule
+import dev.andrewbailey.encore.player.util.EspressoTimeout
 import dev.andrewbailey.encore.test.FakeMusicProvider
 import dev.andrewbailey.encore.test.FakeSong
 import java.util.Random
@@ -27,7 +29,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.Timeout
 
 class EncoreIntegrationTest {
 
@@ -35,7 +36,7 @@ class EncoreIntegrationTest {
     val encoreTestRule = EncoreTestRule()
 
     @get:Rule
-    val timeoutRule = Timeout(10, TimeUnit.SECONDS)
+    val timeoutRule = EspressoTimeout(10, TimeUnit.SECONDS)
 
     private lateinit var mediaProvider: FakeMusicProvider
     private val playbackStateFactoryRandomSeed: Long = Random().nextLong()
@@ -206,7 +207,7 @@ class EncoreIntegrationTest {
         encoreController.checkIdle()
 
         encoreController.play()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should remain idle after calling play() in the idle state")
             .about(mediaPlayerState())
@@ -234,7 +235,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.play()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should be playing after calling play() in the paused state")
             .about(mediaPlayerState())
@@ -253,7 +254,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.play()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should do nothing after calling play() when already playing")
             .about(mediaPlayerState())
@@ -267,7 +268,7 @@ class EncoreIntegrationTest {
         encoreController.checkIdle()
 
         encoreController.pause()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should remain idle after calling pause() in the idle state")
             .about(mediaPlayerState())
@@ -293,7 +294,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.pause()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should do nothing after calling pause() when already paused")
             .about(mediaPlayerState())
@@ -314,7 +315,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.pause()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should be paused after calling pause() in the playing state")
             .about(mediaPlayerState())
@@ -328,7 +329,7 @@ class EncoreIntegrationTest {
         encoreController.checkIdle()
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage("The player should remain idle after calling skipPrevious() while idle")
             .about(mediaPlayerState())
@@ -362,7 +363,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The track should restart when calling skipPrevious() when " +
@@ -394,7 +395,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The play should skip to the previous track after calling " +
@@ -424,7 +425,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The track should restart when calling skipPrevious() when " +
@@ -454,7 +455,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The track should restart when calling skipPrevious() when " +
@@ -486,7 +487,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipPrevious()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should skip to the previous track after calling " +
@@ -518,7 +519,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should skip to the next track after calling " +
@@ -549,7 +550,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.skipNext()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should skip to the next track after calling " +
@@ -581,7 +582,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should restart the queue after calling skipNext() when the " +
@@ -611,7 +612,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.skipNext()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should skip to the end of the track after calling " +
@@ -641,7 +642,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.skipNext()
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         assertWithMessage(
             "The player should skip to the end of the track after calling " +
@@ -684,7 +685,7 @@ class EncoreIntegrationTest {
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
 
         encoreController.setShuffleMode(ShuffleMode.SHUFFLED)
-        encoreController.waitForStateToSettle()
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
 
         val actualState = encoreController.getState()
         assertWithMessage("The player did not shuffle its tracks as expected")
@@ -748,7 +749,13 @@ class EncoreIntegrationTest {
         waitForStateToSettle()
     }
 
-    private suspend fun EncoreController<*>.waitForStateToSettle() {
+    private suspend fun EncoreController<*>.waitForStateToSettle(
+        numberOfMediaSessionCommands: Int? = null
+    ) {
+        numberOfMediaSessionCommands?.let {
+            encoreTestRule.setNumberOfExpectedMediaSessionCommands(it)
+        }
+        Espresso.onIdle()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         waitForPlayerToBuffer()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()

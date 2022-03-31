@@ -39,6 +39,12 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
         }
 
         super.onCreate()
+        currentInstance = this
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        currentInstance = null
     }
 
     override fun onCreateMediaProvider(): MediaProvider<FakeSong> {
@@ -93,6 +99,11 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
                 }
             )
         }
+    }
+
+    companion object {
+        var currentInstance: EncoreTestService? = null
+            private set
     }
 
     object Dependencies {
