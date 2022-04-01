@@ -140,7 +140,7 @@ class TransportStateSubject private constructor(
                             "The seek position was not in the desired bounds " +
                                 "(All other properties matched the expected values)"
                         ),
-                        fact("expected seek position", "${other.seekPosition} ms"),
+                        fact("expected seek position", "$expectedSeekPosition ms"),
                         fact("actual seek position", "$actualSeekPosition ms"),
                         fact("threshold", "$seekToleranceMs ms")
                     )
