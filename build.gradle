@@ -33,6 +33,7 @@ buildscript {
             junit : '4.13.2',
             espresso : '3.5.0-alpha03',
             truth : '1.1.3',
+            mockk : '1.12.3',
             turbine : '0.7.0',
             jacoco : '0.8.7',
         ]
@@ -120,6 +121,8 @@ ext {
             kotlinTest : "org.jetbrains.kotlin:kotlin-test:${versions.kotlin.stdlib}",
             kotlinJunit : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin.stdlib}",
             coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
+            mockk : "io.mockk:mockk:${versions.test.mockk}",
+            mockkAndroid : "io.mockk:mockk-android:${versions.test.mockk}",
             turbine : "app.cash.turbine:turbine:${versions.test.turbine}",
             truth : "com.google.truth:truth:${versions.test.truth}"
         ]
