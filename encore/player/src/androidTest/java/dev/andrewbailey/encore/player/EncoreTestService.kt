@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.core.content.getSystemService
 import dev.andrewbailey.encore.player.browse.BrowserDirectory
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
+import dev.andrewbailey.encore.player.browse.MediaResumptionProvider
 import dev.andrewbailey.encore.player.notification.NotificationAction
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
@@ -49,6 +50,11 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
 
     override fun onCreateMediaProvider(): MediaProvider<FakeSong> {
         return mediaProvider
+    }
+
+    override fun onCreateMediaResumptionProvider(): MediaResumptionProvider<FakeSong>? {
+        return Dependencies.mediaResumptionProviderOverride
+            ?: super.onCreateMediaResumptionProvider()
     }
 
     override fun onCreatePlaybackStateFactory(): PlaybackStateFactory<FakeSong> {
@@ -109,9 +115,11 @@ class EncoreTestService : MediaPlayerService<FakeSong>(
     object Dependencies {
 
         var playbackStateFactoryOverride: PlaybackStateFactory<FakeSong>? = null
+        var mediaResumptionProviderOverride: MediaResumptionProvider<FakeSong>? = null
 
         fun reset() {
             playbackStateFactoryOverride = null
+            mediaResumptionProviderOverride = null
         }
 
     }

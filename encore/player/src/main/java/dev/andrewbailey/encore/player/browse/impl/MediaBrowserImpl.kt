@@ -72,12 +72,14 @@ internal class MediaBrowserImpl<M : MediaObject>(
         rootHints: Bundle?
     ): Boolean {
         return rootHints?.getBoolean(BrowserRoot.EXTRA_RECENT) == true &&
-            browserPackageValidator.isSystemClient(
-                BrowserClient(
+            browserPackageValidator.run {
+                val client = BrowserClient(
                     packageName = clientPackageName,
                     uid = clientUid
                 )
-            )
+
+                isSystemClient(client) || isSelf(client)
+            }
     }
 
     companion object {

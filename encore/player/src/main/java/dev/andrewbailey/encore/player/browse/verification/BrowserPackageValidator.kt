@@ -43,6 +43,14 @@ internal class BrowserPackageValidator(
         return result is Allowed
     }
 
+    fun isSelf(client: BrowserClient): Boolean {
+        val result = checkedClients.getOrPut(client) {
+            getClientBindPermission(client)
+        }
+
+        return result is Allowed && result.isSelf
+    }
+
     fun isSystemClient(client: BrowserClient): Boolean {
         val result = checkedClients.getOrPut(client) {
             getClientBindPermission(client)
@@ -53,7 +61,7 @@ internal class BrowserPackageValidator(
 
     private fun getClientBindPermission(client: BrowserClient): BindPermission {
         return when (client.uid) {
-            Process.myUid() -> Allowed()
+            Process.myUid() -> Allowed(isSelf = true)
             Process.SYSTEM_UID -> Allowed(isSystem = true)
             else -> getPackageBindPermission(client.packageName)
         }
@@ -64,7 +72,7 @@ internal class BrowserPackageValidator(
         return when {
             packageMetadata == null -> Disallowed
             platformSignature in packageMetadata.signatures -> Allowed(isSystem = true)
-            mySignatures.any { it in packageMetadata.signatures } -> Allowed()
+            mySignatures.any { it in packageMetadata.signatures } -> Allowed(isSelf = true)
             isWhitelisted(packageName, packageMetadata.signatures) -> Allowed()
             packageMetadata.permissions.contains(MEDIA_CONTENT_CONTROL) -> Allowed()
             packageMetadata.permissions.contains(BIND_NOTIFICATION_LISTENER_SERVICE) -> Allowed()
@@ -108,7 +116,8 @@ internal class BrowserPackageValidator(
         object Disallowed : BindPermission()
 
         data class Allowed(
-            val isSystem: Boolean = false
+            val isSystem: Boolean = false,
+            val isSelf: Boolean = false
         ) : BindPermission()
     }
 

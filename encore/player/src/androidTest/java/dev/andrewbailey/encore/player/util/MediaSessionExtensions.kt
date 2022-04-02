@@ -3,6 +3,7 @@ package dev.andrewbailey.encore.player.util
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import androidx.test.platform.app.InstrumentationRegistry
@@ -12,7 +13,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 suspend inline fun <reified S : Service> mediaBrowserFor(
     context: Context = InstrumentationRegistry.getInstrumentation().context,
-    serviceContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
+    serviceContext: Context = InstrumentationRegistry.getInstrumentation().targetContext,
+    rootHints: Bundle? = null
 ): MediaBrowserCompat {
     return suspendCancellableCoroutine { cont ->
         lateinit var browser: MediaBrowserCompat
@@ -29,7 +31,7 @@ suspend inline fun <reified S : Service> mediaBrowserFor(
                     cont.resumeWithException(RuntimeException("Failed to bind to browser"))
                 }
             },
-            null
+            rootHints
         )
 
         browser.connect()
