@@ -40,6 +40,7 @@ import androidx.core.content.IntentCompat.EXTRA_START_PLAYBACK
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
+import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
@@ -285,17 +286,20 @@ internal class MediaSessionController<M : MediaObject>(
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
             onNewAction()
             mediaSessionActionJob = coroutineScope.launch {
-                val browserResults = browserHierarchy.getMediaItems(mediaId)
+                if (mediaId == MediaBrowserImpl.MEDIA_RESUMPTION_TRACK_ID) {
+                    modifyTransportState { play() }
+                } else {
+                    val browserResults = browserHierarchy.getMediaItems(mediaId)
 
-                setTransportState(
-                    playbackStateFactory.playFromMediaBrowser(
-                        state = getCurrentPlaybackState().transportState,
-                        browserId = mediaId,
-                        mediaItemId = browserResults.mediaItemId,
-                        mediaItems = browserResults.mediaItems
+                    setTransportState(
+                        playbackStateFactory.playFromMediaBrowser(
+                            state = getCurrentPlaybackState().transportState,
+                            browserId = mediaId,
+                            mediaItemId = browserResults.mediaItemId,
+                            mediaItems = browserResults.mediaItems
+                        )
                     )
-                )
-
+                }
                 onActionCompleted()
             }
         }

@@ -4,13 +4,15 @@ import android.Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE
 import android.Manifest.permission.MEDIA_CONTENT_CONTROL
 import android.content.Context
 import android.os.Process
+import dev.andrewbailey.encore.player.browse.verification.BrowserPackageValidator.BindPermission.Allowed
+import dev.andrewbailey.encore.player.browse.verification.BrowserPackageValidator.BindPermission.Disallowed
 
 internal class BrowserPackageValidator(
     context: Context
 ) {
 
     private val packageResolver = BrowserClientPackageResolver.getInstance(context)
-    private val checkedClients = mutableMapOf<BrowserClient, Boolean>()
+    private val checkedClients = mutableMapOf<BrowserClient, BindPermission>()
 
     private val platformSignature: String
     private val mySignatures: List<String>
@@ -34,30 +36,39 @@ internal class BrowserPackageValidator(
     }
 
     fun isClientAllowedToBind(client: BrowserClient): Boolean {
-        return checkedClients.getOrPut(client) {
-            doesClientHaveBindPermission(client)
+        val result = checkedClients.getOrPut(client) {
+            getClientBindPermission(client)
+        }
+
+        return result is Allowed
+    }
+
+    fun isSystemClient(client: BrowserClient): Boolean {
+        val result = checkedClients.getOrPut(client) {
+            getClientBindPermission(client)
+        }
+
+        return result is Allowed && result.isSystem
+    }
+
+    private fun getClientBindPermission(client: BrowserClient): BindPermission {
+        return when (client.uid) {
+            Process.myUid() -> Allowed()
+            Process.SYSTEM_UID -> Allowed(isSystem = true)
+            else -> getPackageBindPermission(client.packageName)
         }
     }
 
-    private fun doesClientHaveBindPermission(client: BrowserClient): Boolean {
-        return when {
-            client.uid == Process.myUid() -> true
-            client.uid == Process.SYSTEM_UID -> true
-            doesPackageHaveBindPermission(client.packageName) -> true
-            else -> false
-        }
-    }
-
-    private fun doesPackageHaveBindPermission(packageName: String): Boolean {
+    private fun getPackageBindPermission(packageName: String): BindPermission {
         val packageMetadata = packageResolver.getPackageMetadata(packageName)
         return when {
-            packageMetadata == null -> false
-            platformSignature in packageMetadata.signatures -> true
-            mySignatures.any { it in packageMetadata.signatures } -> true
-            isWhitelisted(packageName, packageMetadata.signatures) -> true
-            packageMetadata.permissions.contains(MEDIA_CONTENT_CONTROL) -> true
-            packageMetadata.permissions.contains(BIND_NOTIFICATION_LISTENER_SERVICE) -> true
-            else -> false
+            packageMetadata == null -> Disallowed
+            platformSignature in packageMetadata.signatures -> Allowed(isSystem = true)
+            mySignatures.any { it in packageMetadata.signatures } -> Allowed()
+            isWhitelisted(packageName, packageMetadata.signatures) -> Allowed()
+            packageMetadata.permissions.contains(MEDIA_CONTENT_CONTROL) -> Allowed()
+            packageMetadata.permissions.contains(BIND_NOTIFICATION_LISTENER_SERVICE) -> Allowed()
+            else -> Disallowed
         }
     }
 
@@ -91,6 +102,14 @@ internal class BrowserPackageValidator(
                 "74b6fbf710e8d90d44d340125889b42306a62c4379d0e5a66220e3a68abf90e2"
             )
         )
+    }
+
+    private sealed class BindPermission {
+        object Disallowed : BindPermission()
+
+        data class Allowed(
+            val isSystem: Boolean = false
+        ) : BindPermission()
     }
 
 }

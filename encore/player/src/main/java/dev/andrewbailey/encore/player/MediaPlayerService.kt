@@ -15,6 +15,7 @@ import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.binder.ServiceHostHandler
 import dev.andrewbailey.encore.player.browse.BrowserHierarchy
+import dev.andrewbailey.encore.player.browse.MediaResumptionProvider
 import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
 import dev.andrewbailey.encore.player.browse.verification.BrowserClient
 import dev.andrewbailey.encore.player.browse.verification.BrowserPackageValidator
@@ -65,6 +66,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         customActions = onCreateCustomActions() + listOf(QuitActionProvider(this))
         val mediaProvider = onCreateMediaProvider()
         val browserHierarchy = onCreateMediaBrowserHierarchy()
+        val mediaResumptionProvider = onCreateMediaResumptionProvider()
 
         mediaSessionController = MediaSessionController(
             context = this,
@@ -91,8 +93,9 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         mediaPlayer = MediaPlayer(
             context = applicationContext,
             playbackStateFactory = playbackStateFactory,
-            extensions = listOf(
+            extensions = listOfNotNull(
                 mediaSessionController,
+                mediaResumptionProvider?.asPlaybackExtension(),
                 *extensions.toTypedArray()
             ),
             observers = listOf(
@@ -103,7 +106,12 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
         )
 
         browserPackageValidator = BrowserPackageValidator(applicationContext)
-        mediaBrowserDelegate = MediaBrowserImpl(coroutineScope, browserHierarchy)
+        mediaBrowserDelegate = MediaBrowserImpl(
+            coroutineScope = coroutineScope,
+            hierarchy = browserHierarchy,
+            browserPackageValidator = browserPackageValidator,
+            mediaResumptionProvider = mediaResumptionProvider
+        )
 
         sessionToken = mediaSessionController.mediaSession.sessionToken
     }
@@ -227,4 +235,8 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
     public abstract fun onCreateMediaProvider(): MediaProvider<M>
 
     public abstract fun onCreateMediaBrowserHierarchy(): BrowserHierarchy<M>
+
+    public open fun onCreateMediaResumptionProvider(): MediaResumptionProvider<M>? {
+        return null
+    }
 }
