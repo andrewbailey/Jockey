@@ -106,11 +106,11 @@ public class WrappedMediaProvider<T : MediaProvider<M>, M : MediaObject, R : Mer
     }
 
     override suspend fun getMediaItemById(id: String): R? {
-        return provider.getMediaItemById(id)?.let { wrapResult(it) }
+        return provider.getMediaItemById(unwrapId(id))?.let { wrapResult(it) }
     }
 
     override suspend fun getMediaItemsByIds(ids: List<String>): List<R> {
-        return wrapResult(provider.getMediaItemsByIds(ids))
+        return wrapResult(provider.getMediaItemsByIds(ids.map { unwrapId(it) }))
     }
 
     override suspend fun searchForMediaItems(
@@ -123,6 +123,11 @@ public class WrappedMediaProvider<T : MediaProvider<M>, M : MediaObject, R : Mer
                 playbackContinuation = wrapResult(results.playbackContinuation)
             )
         }
+    }
+
+    private fun unwrapId(id: String): String {
+        val idPrefix = "$originId/"
+        return if (id.startsWith(idPrefix)) { id.drop(idPrefix.length) } else { id }
     }
 }
 
