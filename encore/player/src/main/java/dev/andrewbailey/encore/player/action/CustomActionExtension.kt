@@ -17,7 +17,7 @@ internal class CustomActionExtension<M : MediaObject>(
             }
         }
 
-    override fun onNewPlayerState(newState: MediaPlayerState<M>) {
+    override fun onNewPlayerState(newState: MediaPlayerState.Initialized<M>) {
         updateActions(newState)
     }
 

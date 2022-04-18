@@ -824,14 +824,16 @@ class EncoreIntegrationTest {
     private suspend fun EncoreController<*>.checkIdle() {
         val state = getState()
         check(state is MediaPlayerState.Ready) {
-            "Test setup failed: The Encore service was not in the Idle state"
+            "Test setup failed: The Encore service was not in the Idle state " +
+                "(it was actually $state)"
         }
     }
 
     private suspend fun EncoreController<*>.checkPlaybackStatus(requiredStatus: PlaybackStatus) {
         val state = getState()
         check(state is MediaPlayerState.Prepared<*>) {
-            "Test setup failed: The Encore service was not in the Prepared state"
+            "Test setup failed: The Encore service was not in the Prepared state " +
+                "(it was actually $state)"
         }
 
         val status = state.transportState.status

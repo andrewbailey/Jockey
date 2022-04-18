@@ -30,7 +30,7 @@ internal class PlaybackNotifier<M : MediaObject>(
         }
     }
 
-    override fun onPlaybackStateChanged(newState: MediaPlayerState<M>) {
+    override fun onPlaybackStateChanged(newState: MediaPlayerState.Initialized<M>) {
         showNotification(
             foreground = (newState.transportState as? Active)?.status == PlaybackStatus.Playing,
             playbackState = newState

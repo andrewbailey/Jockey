@@ -27,7 +27,9 @@ public abstract class NotificationProvider<M : MediaObject>(
         mediaSession: MediaSessionCompat,
         stopIntent: PendingIntent
     ): Notification {
-        val actions = getActions(playbackState)
+        val actions = (playbackState as? MediaPlayerState.Initialized)
+            ?.let { getActions(it) }
+            .orEmpty()
             .mapNotNull { action ->
                 action.getNotificationActionIcon(
                     state = playbackState,
@@ -89,7 +91,7 @@ public abstract class NotificationProvider<M : MediaObject>(
     ): PendingIntent
 
     public abstract fun getActions(
-        playbackState: MediaPlayerState<M>
+        playbackState: MediaPlayerState.Initialized<M>
     ): List<NotificationAction<M>>
 
     private fun getPendingIntent(

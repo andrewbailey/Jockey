@@ -21,7 +21,7 @@ public abstract class PlaybackExtension<M : MediaObject> {
         onPrepared()
     }
 
-    internal fun dispatchNewState(newState: MediaPlayerState<M>) {
+    internal fun dispatchNewState(newState: MediaPlayerState.Initialized<M>) {
         onNewPlayerState(newState)
     }
 
@@ -43,6 +43,14 @@ public abstract class PlaybackExtension<M : MediaObject> {
 
     protected fun getCurrentPlaybackState(): MediaPlayerState<M> = requireMediaPlayer().getState()
 
+    protected fun requireCurrentTransportState(): TransportState<M> {
+        val playbackState = getCurrentPlaybackState()
+        check(playbackState is MediaPlayerState.Initialized) {
+            "Cannot read current transport state. The player is not initialized."
+        }
+        return playbackState.transportState
+    }
+
     protected fun setTransportState(state: TransportState<M>) {
         requireMediaPlayer().setState(state)
     }
@@ -50,14 +58,14 @@ public abstract class PlaybackExtension<M : MediaObject> {
     protected inline fun modifyTransportState(
         modification: TransportState<M>.() -> TransportState<M>
     ) {
-        setTransportState(getCurrentPlaybackState().transportState.modification())
+        setTransportState(requireCurrentTransportState().modification())
     }
 
     protected open fun onPrepared() {
 
     }
 
-    protected abstract fun onNewPlayerState(newState: MediaPlayerState<M>)
+    protected abstract fun onNewPlayerState(newState: MediaPlayerState.Initialized<M>)
 
     protected open fun onRelease() {
 

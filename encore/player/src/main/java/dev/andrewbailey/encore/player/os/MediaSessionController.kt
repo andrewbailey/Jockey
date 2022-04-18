@@ -43,6 +43,8 @@ import dev.andrewbailey.encore.player.browse.BrowserHierarchy
 import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Initialized
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Initializing
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Ready
 import dev.andrewbailey.encore.player.state.PlaybackStatus
@@ -79,27 +81,33 @@ internal class MediaSessionController<M : MediaObject>(
     override fun onPrepared() {
         mediaSession.apply {
             setCallback(MediaSessionCallback())
-            onNewPlayerState(getCurrentPlaybackState())
+            updateMediaSessionState(getCurrentPlaybackState())
             isActive = true
         }
     }
 
-    override fun onNewPlayerState(newState: MediaPlayerState<M>) {
-        mediaSession.apply {
-            setRepeatMode(
-                when (newState.transportState.repeatMode) {
-                    REPEAT_NONE -> REPEAT_MODE_NONE
-                    REPEAT_ONE -> REPEAT_MODE_ONE
-                    REPEAT_ALL -> REPEAT_MODE_ALL
-                }
-            )
+    override fun onNewPlayerState(newState: Initialized<M>) {
+        updateMediaSessionState(newState)
+    }
 
-            setShuffleMode(
-                when (newState.transportState.shuffleMode) {
-                    LINEAR -> SHUFFLE_MODE_NONE
-                    SHUFFLED -> SHUFFLE_MODE_ALL
-                }
-            )
+    private fun updateMediaSessionState(newState: MediaPlayerState<M>) {
+        mediaSession.apply {
+            if (newState is Initialized) {
+                setRepeatMode(
+                    when (newState.transportState.repeatMode) {
+                        REPEAT_NONE -> REPEAT_MODE_NONE
+                        REPEAT_ONE -> REPEAT_MODE_ONE
+                        REPEAT_ALL -> REPEAT_MODE_ALL
+                    }
+                )
+
+                setShuffleMode(
+                    when (newState.transportState.shuffleMode) {
+                        LINEAR -> SHUFFLE_MODE_NONE
+                        SHUFFLED -> SHUFFLE_MODE_ALL
+                    }
+                )
+            }
 
             when (newState) {
                 is Prepared -> {
@@ -132,7 +140,7 @@ internal class MediaSessionController<M : MediaObject>(
                             .build()
                     )
                 }
-                is Ready -> {
+                is Ready, is Initializing -> {
                     setPlaybackState(
                         PlaybackStateCompat.Builder()
                             .setState(STATE_NONE, 0, 0f)
@@ -271,7 +279,7 @@ internal class MediaSessionController<M : MediaObject>(
 
                 setTransportState(
                     playbackStateFactory.playFromSearchResults(
-                        state = getCurrentPlaybackState().transportState,
+                        state = requireCurrentTransportState(),
                         query = query,
                         beginPlayback = extras?.getBoolean(EXTRA_START_PLAYBACK, true) ?: true,
                         arguments = searchArguments,
@@ -293,7 +301,7 @@ internal class MediaSessionController<M : MediaObject>(
 
                     setTransportState(
                         playbackStateFactory.playFromMediaBrowser(
-                            state = getCurrentPlaybackState().transportState,
+                            state = requireCurrentTransportState(),
                             browserId = mediaId,
                             mediaItemId = browserResults.mediaItemId,
                             mediaItems = browserResults.mediaItems

@@ -46,7 +46,7 @@ public abstract class MediaResumptionProvider<M : MediaObject> {
             }
         }
 
-        override fun onNewPlayerState(newState: MediaPlayerState<M>) {
+        override fun onNewPlayerState(newState: MediaPlayerState.Initialized<M>) {
             if (wasInitialStateSet && newState != lastPersistedState) {
                 saveStateJob = coroutineScope.launch {
                     if (persistState(newState.transportState)) {

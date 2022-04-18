@@ -48,7 +48,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     }
 
     override fun getActions(
-        playbackState: MediaPlayerState<Song>
+        playbackState: MediaPlayerState.Initialized<Song>
     ): List<NotificationAction<Song>> {
         return when (val transportState = playbackState.transportState) {
             is Idle -> emptyList()

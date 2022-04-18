@@ -127,8 +127,10 @@ internal class MediaPlayer<M : MediaObject>(
             val state = getState()
             if (state != lastDispatchedState) {
                 lastDispatchedState = state
-                extensions.forEach { it.dispatchNewState(state) }
-                observers.forEach { it.onPlaybackStateChanged(state) }
+                if (state is MediaPlayerState.Initialized) {
+                    extensions.forEach { it.dispatchNewState(state) }
+                    observers.forEach { it.onPlaybackStateChanged(state) }
+                }
             }
         }
     }

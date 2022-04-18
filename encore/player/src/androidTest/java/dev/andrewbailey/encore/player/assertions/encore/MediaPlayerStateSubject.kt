@@ -10,6 +10,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 import dev.andrewbailey.encore.player.state.BufferingState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.MediaPlayerState.Initializing
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Ready
 
@@ -40,7 +41,13 @@ class MediaPlayerStateSubject private constructor(
             is Ready -> {
                 fail(
                     fact("expected", bitmap),
-                    simpleFact("but state was not Prepared")
+                    simpleFact("but state was Ready (not Prepared)")
+                )
+            }
+            Initializing -> {
+                fail(
+                    fact("expected", bitmap),
+                    simpleFact("but state was Initializing")
                 )
             }
             null -> {
@@ -78,7 +85,14 @@ class MediaPlayerStateSubject private constructor(
                 fail(
                     fact("expected", "$expectedDurationMs ms"),
                     fact("with tolerance of", "$thresholdMs ms"),
-                    simpleFact("but state was not Prepared")
+                    simpleFact("but state was Ready (not Prepared)")
+                )
+            }
+            Initializing -> {
+                fail(
+                    fact("expected", "$expectedDurationMs ms"),
+                    fact("with tolerance of", "$thresholdMs ms"),
+                    simpleFact("but state was Initializing")
                 )
             }
             null -> {
@@ -122,7 +136,13 @@ class MediaPlayerStateSubject private constructor(
             is Ready -> {
                 fail(
                     fact("expected", expected),
-                    simpleFact("but state was not Prepared")
+                    simpleFact("but state was Ready (not Prepared)")
+                )
+            }
+            Initializing -> {
+                fail(
+                    fact("expected", expected),
+                    simpleFact("but state was Initializing")
                 )
             }
             null -> {

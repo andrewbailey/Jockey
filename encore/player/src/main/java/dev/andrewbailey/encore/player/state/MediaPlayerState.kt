@@ -7,7 +7,17 @@ import kotlinx.parcelize.Parcelize
 
 public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
-    public abstract val transportState: TransportState<M>
+    public abstract val transportState: TransportState<M>?
+
+    @Parcelize
+    public object Initializing : MediaPlayerState<Nothing>() {
+        override val transportState: TransportState<Nothing>?
+            get() = null
+    }
+
+    public sealed class Initialized<out M : MediaObject> : MediaPlayerState<M>() {
+        public abstract override val transportState: TransportState<M>
+    }
 
     @Parcelize
     public class Prepared<M : MediaObject> internal constructor(
@@ -15,7 +25,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
         public val artwork: Bitmap?,
         public val durationMs: Long?,
         public val bufferingState: BufferingState
-    ) : MediaPlayerState<M>() {
+    ) : MediaPlayerState.Initialized<M>() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
 
@@ -46,7 +56,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
     @Parcelize
     public class Ready internal constructor(
         override val transportState: TransportState.Idle
-    ) : MediaPlayerState<Nothing>() {
+    ) : MediaPlayerState.Initialized<Nothing>() {
         override fun equals(other: Any?): Boolean {
             return (this === other) ||
                 (other is Ready && transportState == other.transportState)

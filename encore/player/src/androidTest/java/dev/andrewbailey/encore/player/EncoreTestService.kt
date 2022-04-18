@@ -142,7 +142,7 @@ private class TestNotificationProvider : NotificationProvider<FakeSong>(
     }
 
     override fun getActions(
-        playbackState: MediaPlayerState<FakeSong>
+        playbackState: MediaPlayerState.Initialized<FakeSong>
     ): List<NotificationAction<FakeSong>> {
         return emptyList()
     }
