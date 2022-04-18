@@ -61,11 +61,10 @@ public sealed class QueueState<out M : MediaObject> : Parcelable {
 }
 
 public fun <M : MediaObject> QueueState<M>.copy(
-    queue: List<QueueItem<M>> = this.queue,
     queueIndex: Int = this.queueIndex
 ): QueueState<M> {
     return when (this) {
-        is QueueState.Linear -> copy(queue, queueIndex)
-        is QueueState.Shuffled -> copy(queue, queueIndex)
+        is QueueState.Linear -> copy(queueIndex = queueIndex)
+        is QueueState.Shuffled -> copy(queueIndex = queueIndex)
     }
 }
