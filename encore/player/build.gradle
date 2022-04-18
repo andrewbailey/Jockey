@@ -41,6 +41,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':encore:core')
     implementation project(':misc:ipc')
+    implementation project(':misc:compose-annotations')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib

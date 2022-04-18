@@ -1,12 +1,14 @@
 package dev.andrewbailey.encore.player.state
 
 import android.os.Parcelable
+import dev.andrewbailey.annotations.compose.ComposeStableClass
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.util.equalsIgnoringOrder
 import dev.andrewbailey.encore.player.util.isUniqueBy
 import kotlinx.parcelize.Parcelize
 
+@ComposeStableClass
 public sealed class QueueState<out M : MediaObject> : Parcelable {
 
     public abstract val queue: List<QueueItem<M>>
@@ -29,6 +31,7 @@ public sealed class QueueState<out M : MediaObject> : Parcelable {
         }
     }
 
+    @ComposeStableClass
     @Parcelize
     public data class Linear<out M : MediaObject>(
         override val queue: List<QueueItem<M>>,
@@ -41,6 +44,7 @@ public sealed class QueueState<out M : MediaObject> : Parcelable {
 
     }
 
+    @ComposeStableClass
     @Parcelize
     public data class Shuffled<out M : MediaObject>(
         override val queue: List<QueueItem<M>>,

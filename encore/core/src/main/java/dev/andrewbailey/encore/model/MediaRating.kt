@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.model
 
+import dev.andrewbailey.annotations.compose.ComposeStableClass
 import dev.andrewbailey.encore.model.RatingScale.HeartRatingScale
 import dev.andrewbailey.encore.model.RatingScale.PercentageRatingScale
 import dev.andrewbailey.encore.model.RatingScale.StarRatingScale
@@ -9,6 +10,7 @@ import dev.andrewbailey.encore.model.RatingValue.PercentageRatingValue
 import dev.andrewbailey.encore.model.RatingValue.StarRatingValue
 import dev.andrewbailey.encore.model.RatingValue.ThumbRatingValue
 
+@ComposeStableClass
 public data class MediaRating<T : RatingValue>(
     /**
      * The kind of rating scale being used. One of either [HeartRatingScale], [ThumbRatingScale],
@@ -28,16 +30,20 @@ public data class MediaRating<T : RatingValue>(
     }
 }
 
+@ComposeStableClass
 public sealed class RatingScale<T : RatingValue> {
 
     internal open fun assertValueIsValid(value: T) {
         // Do nothing by default.
     }
 
+    @ComposeStableClass
     public object HeartRatingScale : RatingScale<HeartRatingValue>()
 
+    @ComposeStableClass
     public object ThumbRatingScale : RatingScale<ThumbRatingValue>()
 
+    @ComposeStableClass
     public data class StarRatingScale(
         val maxNumberOfStars: Int
     ) : RatingScale<StarRatingValue>() {
@@ -55,21 +61,26 @@ public sealed class RatingScale<T : RatingValue> {
         }
     }
 
+    @ComposeStableClass
     public object PercentageRatingScale : RatingScale<PercentageRatingValue>()
 }
 
+@ComposeStableClass
 public sealed class RatingValue {
 
+    @ComposeStableClass
     public sealed class HeartRatingValue : RatingValue() {
         public object Hearted : HeartRatingValue()
         public object NotHearted : HeartRatingValue()
     }
 
+    @ComposeStableClass
     public sealed class ThumbRatingValue : RatingValue() {
         public object ThumbsUp : ThumbRatingValue()
         public object ThumbsDown : ThumbRatingValue()
     }
 
+    @ComposeStableClass
     public data class StarRatingValue(
         val numberOfStars: Int
     ) : RatingValue() {
@@ -80,6 +91,7 @@ public sealed class RatingValue {
         }
     }
 
+    @ComposeStableClass
     public data class PercentageRatingValue(
         val percent: Double
     ) : RatingValue() {

@@ -1,7 +1,9 @@
 package dev.andrewbailey.encore.model
 
+import dev.andrewbailey.annotations.compose.ComposeStableClass
 import java.time.Instant
 
+@ComposeStableClass
 public data class MediaMetadata(
     val title: String,
     val subtitle: String? = null,

@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':misc:compose-annotations')
 
     // Kotlin
     implementation config.deps.kotlin.stdlib

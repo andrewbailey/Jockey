@@ -2,6 +2,8 @@ package dev.andrewbailey.encore.player.state
 
 import android.graphics.Bitmap
 import android.os.Parcelable
+import dev.andrewbailey.annotations.compose.ComposeStableClass
+import dev.andrewbailey.annotations.compose.ComposeStableProperty
 import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.parcelize.Parcelize
 
@@ -22,8 +24,11 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
     @Parcelize
     public class Prepared<M : MediaObject> internal constructor(
         override val mediaPlaybackState: MediaPlaybackState.Populated<M>,
+        @ComposeStableProperty
         public val artwork: Bitmap?,
+        @ComposeStableProperty
         public val durationMs: Long?,
+        @ComposeStableProperty
         public val bufferingState: BufferingState
     ) : MediaPlayerState.Initialized<M>() {
         override fun equals(other: Any?): Boolean {
@@ -53,6 +58,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
         }
     }
 
+    @ComposeStableClass
     @Parcelize
     public class Ready internal constructor(
         override val mediaPlaybackState: MediaPlaybackState.Empty

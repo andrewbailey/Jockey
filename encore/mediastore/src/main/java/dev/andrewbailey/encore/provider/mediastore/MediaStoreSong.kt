@@ -1,10 +1,12 @@
 package dev.andrewbailey.encore.provider.mediastore
 
+import dev.andrewbailey.annotations.compose.ComposeStableClass
 import dev.andrewbailey.encore.model.MediaDownloadStatus
 import dev.andrewbailey.encore.model.MediaMetadata
 import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.parcelize.Parcelize
 
+@ComposeStableClass
 @Parcelize
 public data class MediaStoreSong(
     override val id: String,

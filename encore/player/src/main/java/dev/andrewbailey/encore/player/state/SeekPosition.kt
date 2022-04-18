@@ -2,6 +2,7 @@ package dev.andrewbailey.encore.player.state
 
 import android.os.Parcelable
 import android.os.SystemClock
+import dev.andrewbailey.annotations.compose.ComposeStableClass
 import kotlin.math.min
 import kotlin.math.roundToLong
 import kotlinx.parcelize.Parcelize
@@ -30,6 +31,7 @@ public sealed class SeekPosition : Parcelable {
             }
     }
 
+    @ComposeStableClass
     @Parcelize
     public data class AbsoluteSeekPosition(
         override val seekPositionMillis: Long
