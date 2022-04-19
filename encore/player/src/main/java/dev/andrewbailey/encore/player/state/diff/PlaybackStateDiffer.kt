@@ -92,7 +92,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
                     is Shuffled -> ShuffledQueueItems(newQueue.queue, newQueue.linearQueue)
                     null -> null
                 },
-                isSeamless = newQueue?.nowPlaying == oldQueue?.nowPlaying
+                isSeamless = newQueue?.nowPlaying == oldQueue?.nowPlaying &&
+                    (oldState.isPlaying() && newState.isPlaying())
             )
         } else {
             null

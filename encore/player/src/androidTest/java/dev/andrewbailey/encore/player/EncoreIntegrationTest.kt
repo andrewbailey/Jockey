@@ -655,7 +655,7 @@ class EncoreIntegrationTest {
     }
 
     @Test
-    fun setShuffleShufflesTracks() = encoreTest { encoreController ->
+    fun testSetShuffleShufflesTracksWhenPlaying() = encoreTest { encoreController ->
         println("The random seed is $playbackStateFactoryRandomSeed")
 
         val originalState = createActiveState(
@@ -683,6 +683,55 @@ class EncoreIntegrationTest {
 
         encoreController.setStateAndWaitForIdle(originalState)
         encoreController.checkPlaybackStatus(PlaybackStatus.Playing)
+
+        encoreController.setShuffleMode(ShuffleMode.SHUFFLED)
+        encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
+
+        val actualState = encoreController.getState()
+        assertWithMessage("The player did not shuffle its tracks as expected")
+            .about(mediaPlayerState())
+            .that(actualState)
+            .transportState()
+            .hasQueueState(desiredState.queue)
+
+        assertWithMessage(
+            "The final state after enabling shuffling mode did not match the expected value"
+        )
+            .about(mediaPlayerState())
+            .that(actualState)
+            .transportState()
+            .isEqualTo(desiredState, seekToleranceMs = 100)
+    }
+
+    @Test
+    fun testSetShuffleShufflesTracksWhenPaused() = encoreTest { encoreController ->
+        println("The random seed is $playbackStateFactoryRandomSeed")
+
+        val originalState = createActiveState(
+            status = PlaybackStatus.Paused(),
+            playbackSpeed = 0.001f,
+            seekPositionMs = 1500,
+            queueIndex = 2
+        )
+
+        val nowPlaying = originalState.queue.nowPlaying
+        val desiredState = originalState.copy(
+            queue = QueueState.Shuffled(
+                queue = buildList {
+                    add(nowPlaying)
+                    addAll(
+                        originalState.queue.queue
+                            .filter { it != nowPlaying }
+                            .shuffled(Random(playbackStateFactoryRandomSeed))
+                    )
+                },
+                queueIndex = 0,
+                linearQueue = originalState.queue.queue
+            )
+        )
+
+        encoreController.setStateAndWaitForIdle(originalState)
+        encoreController.checkPlaybackStatus(PlaybackStatus.Paused())
 
         encoreController.setShuffleMode(ShuffleMode.SHUFFLED)
         encoreController.waitForStateToSettle(numberOfMediaSessionCommands = 1)
