@@ -58,8 +58,11 @@ import dev.andrewbailey.encore.provider.MediaField
 import dev.andrewbailey.encore.provider.MediaProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal class MediaSessionController<M : MediaObject>(
@@ -73,21 +76,47 @@ internal class MediaSessionController<M : MediaObject>(
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private val metadataMapper = MediaMetadataMapper()
     private val queueMapper = QueueItemMapper()
-    private var mediaSessionActionJob: Job? = null
+
+    private val mediaSessionRequestQueue = Channel<suspend () -> Unit>()
+    private val isPlayerFullyInitialized = MutableStateFlow(false)
 
     val mediaSession = MediaSessionCompat(context, tag)
     val idlingResource = MediaSessionControllerIdlingResource()
 
-    override fun onPrepared() {
+    override fun onAttached() {
         mediaSession.apply {
             setCallback(MediaSessionCallback())
             updateMediaSessionState(getCurrentPlaybackState())
             isActive = true
         }
+
+        coroutineScope.launch {
+            for (action in mediaSessionRequestQueue) {
+                action()
+            }
+        }
+    }
+
+    override fun onPlayerFullyInitialized() {
+        isPlayerFullyInitialized.value = true
     }
 
     override fun onNewPlayerState(newState: Initialized<M>) {
         updateMediaSessionState(newState)
+    }
+
+    private fun dispatchAction(
+        action: suspend () -> Unit
+    ) {
+        coroutineScope.launch {
+            awaitPlayerInitialization()
+            mediaSessionRequestQueue.send(action)
+            idlingResource.onCompleteCommand()
+        }
+    }
+
+    private suspend fun awaitPlayerInitialization() {
+        isPlayerFullyInitialized.filter { it }.first()
     }
 
     private fun updateMediaSessionState(newState: MediaPlayerState<M>) {
@@ -162,72 +191,78 @@ internal class MediaSessionController<M : MediaObject>(
     override fun onRelease() {
         mediaSession.release()
         coroutineScope.cancel()
+        mediaSessionRequestQueue.close()
     }
 
     private inner class MediaSessionCallback : MediaSessionCompat.Callback() {
+
         override fun onPlay() {
-            onNewAction()
-            modifyTransportState { play() }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { play() }
+            }
         }
 
         override fun onPause() {
-            onNewAction()
-            modifyTransportState { pause() }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { pause() }
+            }
         }
 
         override fun onStop() {
-            onNewAction()
-            modifyTransportState { seekTo(0).pause() }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { seekTo(0).pause() }
+            }
         }
 
         override fun onSeekTo(pos: Long) {
-            onNewAction()
-            modifyTransportState { seekTo(pos) }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { seekTo(pos) }
+            }
         }
 
         override fun onSkipToPrevious() {
-            onNewAction()
-            modifyTransportState { skipToPrevious() }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { skipToPrevious() }
+            }
         }
 
         override fun onSkipToNext() {
-            onNewAction()
-            modifyTransportState { skipToNext() }
-            onActionCompleted()
+            dispatchAction {
+                modifyTransportState { skipToNext() }
+            }
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
-            onNewAction()
-            modifyTransportState {
-                setRepeatMode(
-                    repeatMode = when (repeatMode) {
-                        REPEAT_MODE_NONE -> REPEAT_NONE
-                        REPEAT_MODE_ONE -> REPEAT_ONE
-                        REPEAT_MODE_ALL, REPEAT_MODE_GROUP -> REPEAT_ALL
-                        else -> throw IllegalArgumentException("Invalid repeat mode: $repeatMode")
-                    }
-                )
+            val encoreRepeatMode = when (repeatMode) {
+                REPEAT_MODE_NONE -> REPEAT_NONE
+                REPEAT_MODE_ONE -> REPEAT_ONE
+                REPEAT_MODE_ALL, REPEAT_MODE_GROUP -> REPEAT_ALL
+                else -> throw IllegalArgumentException("Invalid repeat mode: $repeatMode")
             }
-            onActionCompleted()
+
+            dispatchAction {
+                modifyTransportState {
+                    setRepeatMode(
+                        repeatMode = encoreRepeatMode
+                    )
+                }
+            }
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
-            onNewAction()
-            modifyTransportState {
-                setShuffleMode(
-                    shuffleMode = when (shuffleMode) {
-                        SHUFFLE_MODE_NONE -> LINEAR
-                        SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> SHUFFLED
-                        else -> throw IllegalArgumentException("Invalid shuffle mode: $shuffleMode")
-                    }
-                )
+            val encoreShuffleMode = when (shuffleMode) {
+                SHUFFLE_MODE_NONE -> LINEAR
+                SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> SHUFFLED
+                else -> throw IllegalArgumentException("Invalid shuffle mode: $shuffleMode")
             }
-            onActionCompleted()
+
+            dispatchAction {
+                modifyTransportState {
+                    setShuffleMode(
+                        shuffleMode = encoreShuffleMode
+                    )
+                }
+            }
         }
 
         override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
@@ -235,7 +270,6 @@ internal class MediaSessionController<M : MediaObject>(
         }
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
-            onNewAction()
             if (query.isNullOrEmpty()) {
                 // Use provided a generic command (e.g. "Play music"). Attempt to resume playback.
 
@@ -245,7 +279,7 @@ internal class MediaSessionController<M : MediaObject>(
                 return onPlay()
             }
 
-            mediaSessionActionJob = coroutineScope.launch {
+            dispatchAction {
                 val searchArguments = MediaSearchArguments(
                     preferredSearchField = when (extras?.getString(EXTRA_MEDIA_FOCUS)) {
                         Media.ENTRY_CONTENT_TYPE -> MediaField.Title
@@ -286,14 +320,11 @@ internal class MediaSessionController<M : MediaObject>(
                         searchResults = mediaProvider.searchForMediaItems(query, searchArguments)
                     )
                 )
-
-                onActionCompleted()
             }
         }
 
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
-            onNewAction()
-            mediaSessionActionJob = coroutineScope.launch {
+            dispatchAction {
                 if (mediaId == MediaBrowserImpl.MEDIA_RESUMPTION_TRACK_ID) {
                     modifyTransportState { play() }
                 } else {
@@ -308,16 +339,7 @@ internal class MediaSessionController<M : MediaObject>(
                         )
                     )
                 }
-                onActionCompleted()
             }
-        }
-
-        private fun onNewAction() {
-            mediaSessionActionJob?.cancel("Another action has been received")
-        }
-
-        private fun onActionCompleted() {
-            idlingResource.onCompleteCommand()
         }
     }
 

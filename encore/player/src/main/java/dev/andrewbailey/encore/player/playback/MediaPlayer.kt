@@ -19,6 +19,9 @@ import dev.andrewbailey.encore.player.state.diff.SetRepeatMode
 import dev.andrewbailey.encore.player.state.diff.StopPlayback
 import dev.andrewbailey.encore.player.state.diff.TimelinePositionChange
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 internal class MediaPlayer<M : MediaObject>(
     context: Context,
@@ -31,6 +34,9 @@ internal class MediaPlayer<M : MediaObject>(
     private val exoPlayer = ExoPlayer.Builder(context).build()
     private val queue = MediaQueue<M>(context, userAgent)
 
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+    private var isInitializationComplete = false
+
     private val stateLock = Any()
     private val differ = PlaybackStateDiffer<M>()
     private val stateCreator = PlaybackStateCreator<M>(exoPlayer, queue)
@@ -38,7 +44,7 @@ internal class MediaPlayer<M : MediaObject>(
     private var shouldDispatchStateChanges: Boolean = true
 
     init {
-        extensions.forEach { it.initialize(this, playbackStateFactory) }
+        extensions.forEach { it.attachToPlayer(this, playbackStateFactory) }
 
         exoPlayer.apply {
             addListener(ExoPlayerListeners(this@MediaPlayer::dispatchStateChange))
@@ -50,11 +56,28 @@ internal class MediaPlayer<M : MediaObject>(
                 true
             )
         }
+
+        coroutineScope.launch {
+            val initialState = extensions.fold(null as TransportState<M>?) { acc, extension ->
+                extension.interceptInitialPlayerState(acc)
+            }
+
+            synchronized(stateLock) {
+                isInitializationComplete = true
+                initialState?.let { setState(it) }
+            }
+
+            extensions.forEach { it.dispatchPlayerInitialized() }
+        }
     }
 
     fun getState(): MediaPlayerState<M> {
         return synchronized(stateLock) {
-            stateCreator.createPlaybackState()
+            if (isInitializationComplete) {
+                stateCreator.createPlaybackState()
+            } else {
+                MediaPlayerState.Initializing
+            }
         }
     }
 
@@ -66,6 +89,10 @@ internal class MediaPlayer<M : MediaObject>(
 
     fun setState(state: TransportState<M>) {
         synchronized(stateLock) {
+            check(isInitializationComplete) {
+                "Cannot change the player's state because it is still initializing."
+            }
+
             shouldDispatchStateChanges = false
 
             val diff = differ.generateDiff(getTransportState(), state)
@@ -123,7 +150,7 @@ internal class MediaPlayer<M : MediaObject>(
     }
 
     private fun dispatchStateChange() {
-        if (shouldDispatchStateChanges) {
+        if (isInitializationComplete && shouldDispatchStateChanges) {
             val state = getState()
             if (state != lastDispatchedState) {
                 lastDispatchedState = state

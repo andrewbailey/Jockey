@@ -4,6 +4,7 @@ import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.TransportState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,13 +12,14 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-public abstract class MediaResumptionProvider<M : MediaObject> {
+public abstract class MediaResumptionProvider<M : MediaObject>(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
 
     private val extension = Extension()
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(dispatcher)
 
     private var lastPersistedState: TransportState<M>? = null
-    private var wasInitialStateSet = false
 
     private var saveStateJob: Job? = null
         set(value) {
@@ -34,20 +36,19 @@ public abstract class MediaResumptionProvider<M : MediaObject> {
     internal fun asPlaybackExtension(): PlaybackExtension<M> = extension
 
     private inner class Extension : PlaybackExtension<M>() {
-        override fun onPrepared() {
-            coroutineScope.launch {
-                getPersistedTransportState()?.let {
+
+        override suspend fun onInterceptInitializationState(
+            pendingTransportState: TransportState<M>?
+        ): TransportState<M>? {
+            return withContext(dispatcher) {
+                getPersistedTransportState().also {
                     lastPersistedState = it
-                    withContext(Dispatchers.Main) {
-                        setTransportState(it)
-                    }
                 }
-                wasInitialStateSet = true
             }
         }
 
         override fun onNewPlayerState(newState: MediaPlayerState.Initialized<M>) {
-            if (wasInitialStateSet && newState != lastPersistedState) {
+            if (newState != lastPersistedState) {
                 saveStateJob = coroutineScope.launch {
                     if (persistState(newState.transportState)) {
                         lastPersistedState = newState.transportState

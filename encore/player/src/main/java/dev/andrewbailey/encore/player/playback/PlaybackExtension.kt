@@ -1,5 +1,6 @@
 package dev.andrewbailey.encore.player.playback
 
+import android.util.Log
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
@@ -12,13 +13,41 @@ public abstract class PlaybackExtension<M : MediaObject> {
     private var mediaPlayer: MediaPlayer<M>? = null
     private var playbackStateFactory: PlaybackStateFactory<M>? = null
 
-    internal fun initialize(
+    internal fun attachToPlayer(
         mediaPlayer: MediaPlayer<M>,
         playbackStateFactory: PlaybackStateFactory<M>
     ) {
         this.mediaPlayer = mediaPlayer
         this.playbackStateFactory = playbackStateFactory
-        onPrepared()
+        onAttached()
+    }
+
+    internal suspend fun interceptInitialPlayerState(
+        pendingTransportState: TransportState<M>?
+    ): TransportState<M>? {
+        val modifiedState = onInterceptInitializationState(pendingTransportState)
+
+        if (pendingTransportState != null && modifiedState != pendingTransportState) {
+            if (modifiedState == null) {
+                Log.w(
+                    "Encore",
+                    "Extension ${javaClass.name} has cleared the state that the player will " +
+                        "initialize to."
+                )
+            } else {
+                Log.i(
+                    "Encore",
+                    "Extension ${javaClass.name} modified the state that the player will " +
+                        "initialize to."
+                )
+            }
+        }
+
+        return modifiedState
+    }
+
+    internal fun dispatchPlayerInitialized() {
+        onPlayerFullyInitialized()
     }
 
     internal fun dispatchNewState(newState: MediaPlayerState.Initialized<M>) {
@@ -61,7 +90,17 @@ public abstract class PlaybackExtension<M : MediaObject> {
         setTransportState(requireCurrentTransportState().modification())
     }
 
-    protected open fun onPrepared() {
+    protected open fun onAttached() {
+
+    }
+
+    protected open suspend fun onInterceptInitializationState(
+        pendingTransportState: TransportState<M>?
+    ): TransportState<M>? {
+        return pendingTransportState
+    }
+
+    protected open fun onPlayerFullyInitialized() {
 
     }
 
