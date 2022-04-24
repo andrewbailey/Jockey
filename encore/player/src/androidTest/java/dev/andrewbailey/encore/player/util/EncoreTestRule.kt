@@ -86,6 +86,7 @@ class EncoreTestRule<M : MediaObject>(
                 }
             )
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            waitForServiceToStop(serviceClass)
 
             if (wasServiceBound) {
                 throw AssertionError("The EncoreController did not release itself")

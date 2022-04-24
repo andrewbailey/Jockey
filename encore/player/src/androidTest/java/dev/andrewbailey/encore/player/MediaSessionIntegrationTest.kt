@@ -24,6 +24,7 @@ import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStat
 import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStateConstants.State
 import dev.andrewbailey.encore.player.util.mediaBrowserFor
 import dev.andrewbailey.encore.player.util.mediaControllerFrom
+import dev.andrewbailey.encore.player.util.waitForServiceToStop
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
@@ -54,6 +55,8 @@ class MediaSessionIntegrationTest {
             println("Finished initialization")
         }
 
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
         assertWithMessage(
             "The MediaSession did not initialize in a clean state. " +
                 "Was it not reset between tests?"
@@ -72,6 +75,7 @@ class MediaSessionIntegrationTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         context.stopService(Intent(context, EncoreTestService::class.java))
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        waitForServiceToStop(EncoreTestService::class.java)
     }
 
     // region Test cases
