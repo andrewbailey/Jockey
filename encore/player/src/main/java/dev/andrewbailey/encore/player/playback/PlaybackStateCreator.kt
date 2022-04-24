@@ -20,12 +20,12 @@ import dev.andrewbailey.encore.player.state.PlaybackStatus.Paused
 import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
 import dev.andrewbailey.encore.player.state.QueueState.Linear
 import dev.andrewbailey.encore.player.state.QueueState.Shuffled
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ALL
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_NONE
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ONE
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatAll
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatNone
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatOne
 import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
-import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
+import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleDisabled
 import dev.andrewbailey.encore.player.state.TransportState
 import java.util.UUID
 
@@ -53,7 +53,7 @@ internal class PlaybackStateCreator<M : MediaObject>(
         return if (queueItems == null) {
             TransportState.Idle(
                 repeatMode = getRepeatMode(),
-                shuffleMode = LINEAR,
+                shuffleMode = ShuffleDisabled,
                 playbackSpeed = exoPlayer.playbackParameters.speed
             )
         } else {
@@ -126,9 +126,9 @@ internal class PlaybackStateCreator<M : MediaObject>(
     }
 
     private fun getRepeatMode() = when (val repeatMode = exoPlayer.repeatMode) {
-        REPEAT_MODE_OFF -> REPEAT_NONE
-        REPEAT_MODE_ONE -> REPEAT_ONE
-        REPEAT_MODE_ALL -> REPEAT_ALL
+        REPEAT_MODE_OFF -> RepeatNone
+        REPEAT_MODE_ONE -> RepeatOne
+        REPEAT_MODE_ALL -> RepeatAll
         else -> throw IllegalStateException("Invalid exoPlayer repeat mode $repeatMode")
     }
 

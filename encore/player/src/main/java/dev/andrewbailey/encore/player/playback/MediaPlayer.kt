@@ -121,9 +121,9 @@ internal class MediaPlayer<M : MediaObject>(
                     }
                     is SetRepeatMode -> {
                         exoPlayer.repeatMode = when (operation.repeatMode) {
-                            RepeatMode.REPEAT_NONE -> Player.REPEAT_MODE_OFF
-                            RepeatMode.REPEAT_ALL -> Player.REPEAT_MODE_ALL
-                            RepeatMode.REPEAT_ONE -> Player.REPEAT_MODE_ONE
+                            RepeatMode.RepeatNone -> Player.REPEAT_MODE_OFF
+                            RepeatMode.RepeatAll -> Player.REPEAT_MODE_ALL
+                            RepeatMode.RepeatOne -> Player.REPEAT_MODE_ONE
                         }
                     }
                     is QueueModification -> {

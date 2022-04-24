@@ -29,7 +29,7 @@ public data class MediaStoreSong(
         discNumber = discNumber,
         year = publishYear,
         durationMs = durationMs,
-        downloadStatus = MediaDownloadStatus.DOWNLOADED
+        downloadStatus = MediaDownloadStatus.Downloaded
     )
 
 }

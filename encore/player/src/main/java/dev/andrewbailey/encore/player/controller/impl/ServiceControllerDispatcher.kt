@@ -79,8 +79,8 @@ internal class ServiceControllerDispatcher<M : MediaObject> constructor(
     private fun TransportControls.setShuffleMode(shuffleMode: ShuffleMode) {
         setShuffleMode(
             when (shuffleMode) {
-                ShuffleMode.LINEAR -> PlaybackStateCompat.SHUFFLE_MODE_NONE
-                ShuffleMode.SHUFFLED -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+                ShuffleMode.ShuffleDisabled -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+                ShuffleMode.ShuffleEnabled -> PlaybackStateCompat.SHUFFLE_MODE_ALL
             }
         )
     }

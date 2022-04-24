@@ -5,8 +5,8 @@ import androidx.room.Room
 import androidx.room.withTransaction
 import dev.andrewbailey.encore.mediaresumption.impl.db.MediaPersistenceDatabase
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
-import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
+import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleDisabled
+import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleEnabled
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.MediaProvider
 
@@ -51,10 +51,10 @@ internal class PersistedMediaStateRepository<M : MediaObject>(
     suspend fun getLastPlayingItem(): M? {
         val playbackState = database.playbackStateDao().getPersistedPlaybackState()
         val queueItem = when (playbackState?.shuffleMode) {
-            LINEAR -> {
+            ShuffleDisabled -> {
                 database.queueDao().getQueueItemAtIndex(playbackState.queueIndex)
             }
-            SHUFFLED -> {
+            ShuffleEnabled -> {
                 database.queueDao().getQueueItemAtShuffledIndex(playbackState.queueIndex)
             }
             null -> null

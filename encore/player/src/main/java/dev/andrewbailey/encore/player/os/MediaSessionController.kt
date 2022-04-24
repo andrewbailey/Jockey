@@ -48,11 +48,11 @@ import dev.andrewbailey.encore.player.state.MediaPlayerState.Initializing
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Ready
 import dev.andrewbailey.encore.player.state.PlaybackStatus
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ALL
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_NONE
-import dev.andrewbailey.encore.player.state.RepeatMode.REPEAT_ONE
-import dev.andrewbailey.encore.player.state.ShuffleMode.LINEAR
-import dev.andrewbailey.encore.player.state.ShuffleMode.SHUFFLED
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatAll
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatNone
+import dev.andrewbailey.encore.player.state.RepeatMode.RepeatOne
+import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleDisabled
+import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleEnabled
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 import dev.andrewbailey.encore.provider.MediaField
 import dev.andrewbailey.encore.provider.MediaProvider
@@ -124,16 +124,16 @@ internal class MediaSessionController<M : MediaObject>(
             if (newState is Initialized) {
                 setRepeatMode(
                     when (newState.transportState.repeatMode) {
-                        REPEAT_NONE -> REPEAT_MODE_NONE
-                        REPEAT_ONE -> REPEAT_MODE_ONE
-                        REPEAT_ALL -> REPEAT_MODE_ALL
+                        RepeatNone -> REPEAT_MODE_NONE
+                        RepeatOne -> REPEAT_MODE_ONE
+                        RepeatAll -> REPEAT_MODE_ALL
                     }
                 )
 
                 setShuffleMode(
                     when (newState.transportState.shuffleMode) {
-                        LINEAR -> SHUFFLE_MODE_NONE
-                        SHUFFLED -> SHUFFLE_MODE_ALL
+                        ShuffleDisabled -> SHUFFLE_MODE_NONE
+                        ShuffleEnabled -> SHUFFLE_MODE_ALL
                     }
                 )
             }
@@ -234,9 +234,9 @@ internal class MediaSessionController<M : MediaObject>(
 
         override fun onSetRepeatMode(repeatMode: Int) {
             val encoreRepeatMode = when (repeatMode) {
-                REPEAT_MODE_NONE -> REPEAT_NONE
-                REPEAT_MODE_ONE -> REPEAT_ONE
-                REPEAT_MODE_ALL, REPEAT_MODE_GROUP -> REPEAT_ALL
+                REPEAT_MODE_NONE -> RepeatNone
+                REPEAT_MODE_ONE -> RepeatOne
+                REPEAT_MODE_ALL, REPEAT_MODE_GROUP -> RepeatAll
                 else -> throw IllegalArgumentException("Invalid repeat mode: $repeatMode")
             }
 
@@ -251,8 +251,8 @@ internal class MediaSessionController<M : MediaObject>(
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             val encoreShuffleMode = when (shuffleMode) {
-                SHUFFLE_MODE_NONE -> LINEAR
-                SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> SHUFFLED
+                SHUFFLE_MODE_NONE -> ShuffleDisabled
+                SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP -> ShuffleEnabled
                 else -> throw IllegalArgumentException("Invalid shuffle mode: $shuffleMode")
             }
 

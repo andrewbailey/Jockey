@@ -27,9 +27,9 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
 
         override val shuffleMode: ShuffleMode
             get() = if (queue is QueueState.Linear) {
-                ShuffleMode.LINEAR
+                ShuffleMode.ShuffleDisabled
             } else {
-                ShuffleMode.SHUFFLED
+                ShuffleMode.ShuffleEnabled
             }
 
     }

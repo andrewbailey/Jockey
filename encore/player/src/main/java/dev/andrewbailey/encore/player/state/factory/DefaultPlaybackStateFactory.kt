@@ -102,7 +102,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         state: TransportState<M>
     ): TransportState<M> {
         return when (state.repeatMode) {
-            RepeatMode.REPEAT_ALL -> state.modifyTransportState(
+            RepeatMode.RepeatAll -> state.modifyTransportState(
                 status = { Playing },
                 seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
                 queueIndex = { (queue.queueIndex + 1) % queue.queue.size }
@@ -193,11 +193,11 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
             status = if (beginPlayback) Playing else Paused(),
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = when (state.shuffleMode) {
-                ShuffleMode.LINEAR -> QueueState.Linear(
+                ShuffleMode.ShuffleDisabled -> QueueState.Linear(
                     queue = searchResultsQueue + continuationQueue,
                     queueIndex = 0
                 )
-                ShuffleMode.SHUFFLED -> QueueState.Shuffled(
+                ShuffleMode.ShuffleEnabled -> QueueState.Shuffled(
                     queue = searchResultsQueue.take(1)
                         .plus(searchResultsQueue.drop(1).shuffled(random))
                         .plus(continuationQueue.shuffled(random)),
@@ -227,8 +227,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
             status = Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = when (state.shuffleMode) {
-                ShuffleMode.LINEAR -> queue
-                ShuffleMode.SHUFFLED -> queue.toShuffledQueue(random)
+                ShuffleMode.ShuffleDisabled -> queue
+                ShuffleMode.ShuffleEnabled -> queue.toShuffledQueue(random)
             },
             repeatMode = state.repeatMode,
             playbackSpeed = state.playbackSpeed
@@ -263,14 +263,14 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         return when (this) {
             is QueueState.Linear -> {
                 when (shuffleMode) {
-                    ShuffleMode.LINEAR -> this
-                    ShuffleMode.SHUFFLED -> toShuffledQueue(random)
+                    ShuffleMode.ShuffleDisabled -> this
+                    ShuffleMode.ShuffleEnabled -> toShuffledQueue(random)
                 }
             }
             is QueueState.Shuffled -> {
                 when (shuffleMode) {
-                    ShuffleMode.SHUFFLED -> this
-                    ShuffleMode.LINEAR -> toLinearQueue()
+                    ShuffleMode.ShuffleEnabled -> this
+                    ShuffleMode.ShuffleDisabled -> toLinearQueue()
                 }
             }
         }

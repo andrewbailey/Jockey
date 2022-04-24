@@ -56,25 +56,25 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
                 NotificationAction.fromPlaybackAction(
                     icon = R.drawable.ic_skip_previous,
                     title = R.string.app_name,
-                    action = PlaybackAction.SKIP_PREVIOUS
+                    action = PlaybackAction.SkipPrevious
                 ),
                 if (transportState.status == Playing) {
                     NotificationAction.fromPlaybackAction(
                         icon = R.drawable.ic_pause,
                         title = R.string.app_name,
-                        action = PlaybackAction.PAUSE
+                        action = PlaybackAction.Pause
                     )
                 } else {
                     NotificationAction.fromPlaybackAction(
                         icon = R.drawable.ic_play,
                         title = R.string.app_name,
-                        action = PlaybackAction.PLAY
+                        action = PlaybackAction.Play
                     )
                 },
                 NotificationAction.fromPlaybackAction(
                     icon = R.drawable.ic_skip_next,
                     title = R.string.app_name,
-                    action = PlaybackAction.SKIP_NEXT
+                    action = PlaybackAction.SkipNext
                 )
             )
         }

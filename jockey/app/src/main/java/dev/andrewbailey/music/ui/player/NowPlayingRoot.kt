@@ -192,8 +192,8 @@ private fun NowPlayingToolbar(
         actions = {
             playbackState?.transportState?.shuffleMode?.let { shuffleMode ->
                 val toggledShuffleMode = when (shuffleMode) {
-                    ShuffleMode.LINEAR -> ShuffleMode.SHUFFLED
-                    ShuffleMode.SHUFFLED -> ShuffleMode.LINEAR
+                    ShuffleMode.ShuffleDisabled -> ShuffleMode.ShuffleEnabled
+                    ShuffleMode.ShuffleEnabled -> ShuffleMode.ShuffleDisabled
                 }
 
                 IconButton(
@@ -203,14 +203,18 @@ private fun NowPlayingToolbar(
                         painter = painterResource(id = R.drawable.ic_shuffle),
                         contentDescription = stringResource(
                             id = when (shuffleMode) {
-                                ShuffleMode.LINEAR -> R.string.content_description_disable_shuffle
-                                ShuffleMode.SHUFFLED -> R.string.content_description_enable_shuffle
+                                ShuffleMode.ShuffleDisabled -> {
+                                    R.string.content_description_disable_shuffle
+                                }
+                                ShuffleMode.ShuffleEnabled -> {
+                                    R.string.content_description_enable_shuffle
+                                }
                             }
                         ),
                         tint = LocalContentColor.current.copy(
                             alpha = when (shuffleMode) {
-                                ShuffleMode.LINEAR -> 0.5f
-                                ShuffleMode.SHUFFLED -> 1.0f
+                                ShuffleMode.ShuffleDisabled -> 0.5f
+                                ShuffleMode.ShuffleEnabled -> 1.0f
                             }
                         )
                     )

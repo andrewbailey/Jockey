@@ -134,7 +134,7 @@ class MediaResumptionTest {
                     )
                 }
             ),
-            repeatMode = RepeatMode.REPEAT_NONE,
+            repeatMode = RepeatMode.RepeatNone,
             playbackSpeed = 1f
         )
 

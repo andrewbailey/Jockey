@@ -114,13 +114,13 @@ internal class PersistenceConverter<M : MediaObject>(
             ?: return null
 
         return when (persistedPlaybackState.shuffleMode) {
-            ShuffleMode.LINEAR -> {
+            ShuffleMode.ShuffleDisabled -> {
                 QueueState.Linear(
                     queueIndex = persistedPlaybackState.queueIndex,
                     queue = linearQueue
                 )
             }
-            ShuffleMode.SHUFFLED -> {
+            ShuffleMode.ShuffleEnabled -> {
                 QueueState.Shuffled(
                     queueIndex = persistedPlaybackState.queueIndex,
                     queue = persistedQueue

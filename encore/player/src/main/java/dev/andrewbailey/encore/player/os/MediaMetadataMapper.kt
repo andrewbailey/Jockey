@@ -129,9 +129,9 @@ internal class MediaMetadataMapper {
 
     private fun toDownloadStatus(downloadStatus: MediaDownloadStatus): Long {
         return when (downloadStatus) {
-            MediaDownloadStatus.DOWNLOADED -> STATUS_DOWNLOADED
-            MediaDownloadStatus.DOWNLOADING -> STATUS_DOWNLOADING
-            MediaDownloadStatus.NOT_DOWNLOADED -> STATUS_NOT_DOWNLOADED
+            MediaDownloadStatus.Downloaded -> STATUS_DOWNLOADED
+            MediaDownloadStatus.Downloading -> STATUS_DOWNLOADING
+            MediaDownloadStatus.NotDownloaded -> STATUS_NOT_DOWNLOADED
         }
     }
 
