@@ -78,7 +78,6 @@ dependencies {
     implementation config.deps.compose.animation
     implementation config.deps.compose.runtime
     implementation config.deps.compose.activity
-    implementation config.deps.accompanist.insets
     implementation config.deps.accompanist.systemui
     implementation config.deps.coil.core
     implementation config.deps.coil.compose

@@ -5,25 +5,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ExperimentalGraphicsApi
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.withSave
-import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -33,7 +33,7 @@ fun rememberLetterPainter(
     textSize: TextUnit
 ): LetterPainter {
     val isLight = MaterialTheme.colors.isLight
-    val fontLoader = LocalFontLoader.current
+    val fontLoader = LocalFontFamilyResolver.current
     return remember(text, isLight, textSize, fontLoader) {
         LetterPainter(text, isLight, textSize, fontLoader)
     }
@@ -43,10 +43,9 @@ class LetterPainter(
     private val text: String,
     private val isLight: Boolean,
     textSize: TextUnit,
-    private val fontLoader: Font.ResourceLoader
+    private val fontResolver: FontFamily.Resolver
 ) : Painter() {
 
-    @OptIn(ExperimentalGraphicsApi::class)
     private val foregroundColor: Color = with(Random(seed = text.uppercase().hashCode() * 2)) {
         Color.hsl(
             hue = nextDouble(0.0, 360.0).toFloat(),
@@ -81,7 +80,7 @@ class LetterPainter(
                     overflow = TextOverflow.Clip,
                     density = Density(density, fontScale),
                     layoutDirection = layoutDirection,
-                    resourceLoader = fontLoader,
+                    fontFamilyResolver = fontResolver,
                     constraints = Constraints.fixed(
                         width = size.width.roundToInt(),
                         height = size.height.roundToInt()
@@ -94,9 +93,9 @@ class LetterPainter(
                     placeholders = emptyList(),
                     maxLines = 1,
                     ellipsis = false,
-                    width = size.width,
+                    constraints = Constraints(maxWidth = ceil(size.width).toInt()),
                     density = Density(density, fontScale),
-                    resourceLoader = fontLoader
+                    fontFamilyResolver = fontResolver
                 )
 
                 canvas.translate(dx = 0f, dy = (size.height - paragraph.height) / 2)

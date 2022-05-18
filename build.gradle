@@ -3,27 +3,27 @@
 buildscript {
     ext.versions = [
         kotlin : [
-            stdlib : '1.6.10',
-            coroutines : '1.6.0',
-            atomicFu : '0.17.1',
+            stdlib : '1.6.21',
+            coroutines : '1.6.1',
+            atomicFu : '0.17.2',
         ],
         androidx : [
-            core : '1.8.0-alpha02',
-            annotation : '1.4.0-alpha01',
-            lifecycle : '2.4.0',
-            room: '2.4.1',
-            media: '1.5.0-beta01',
+            core : '1.9.0-alpha03',
+            annotation : '1.4.0-alpha02',
+            lifecycle : '2.5.0-rc01',
+            room: '2.5.0-alpha01',
+            media: '1.6.0',
             palette : '1.0.0',
         ],
         compose : [
-            core : '1.2.0-alpha01',
-            compiler : '1.2.0-alpha01',
-            activity : '1.4.0',
-            accompanist: '0.22.0-rc',
+            core : '1.2.0-beta01',
+            compiler : '1.2.0-beta01',
+            activity : '1.6.0-alpha03',
+            accompanist: '0.24.8-beta',
         ],
-        coil : '2.0.0-alpha06',
+        coil : '2.0.0',
         dagger : [
-            core : '2.40.5',
+            core : '2.42',
         ],
         exoplayer : [
             core : '2.16.1',
@@ -31,11 +31,11 @@ buildscript {
         difference : '1.0.0',
         test : [
             junit : '4.13.2',
-            espresso : '3.5.0-alpha03',
+            espresso : '3.5.0-alpha06',
             truth : '1.1.3',
-            mockk : '1.12.3',
-            turbine : '0.7.0',
-            jacoco : '0.8.7',
+            mockk : '1.12.4',
+            turbine : '0.8.0',
+            jacoco : '0.8.8',
         ]
     ]
 
@@ -55,7 +55,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
         classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:${versions.kotlin.atomicFu}"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.2.1"
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.3.0"
         classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}"
         classpath "org.jacoco:org.jacoco.core:${versions.test.jacoco}"
         // NOTE: Do not place your application dependencies here; they belong
@@ -94,7 +94,6 @@ ext {
             activity : "androidx.activity:activity-compose:${versions.compose.activity}",
         ],
         accompanist : [
-            insets: "com.google.accompanist:accompanist-insets:${versions.compose.accompanist}",
             systemui: "com.google.accompanist:accompanist-systemuicontroller:${versions.compose.accompanist}",
         ],
         coil : [
@@ -140,6 +139,7 @@ allprojects {
     }
 
     ktlint {
+        version = "0.45.2"
         android = true
         verbose = true
         disabledRules = [

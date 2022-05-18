@@ -7,6 +7,9 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -35,8 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
@@ -106,9 +107,7 @@ fun CollapsibleNowPlayingQueue(
                     scrollable = modalState.percentExpanded == 1f,
                     selectable = modalState.percentExpanded == 1f,
                     state = scrollState,
-                    contentPadding = rememberInsetsPaddingValues(
-                        insets = LocalWindowInsets.current.navigationBars
-                    )
+                    contentPadding = WindowInsets.navigationBars.asPaddingValues()
                 )
             } else {
                 Crossfade(targetState = queue.queue[nextPlayingIndex]) { song ->

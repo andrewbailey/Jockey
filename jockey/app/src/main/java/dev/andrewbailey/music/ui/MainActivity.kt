@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -35,16 +34,14 @@ class MainActivity : ComponentActivity() {
             navigator = rememberNavigator()
 
             JockeyTheme {
-                ProvideWindowInsets {
-                    CompositionLocalProvider(
-                        LocalAppNavigator provides navigator,
-                        LocalMediaLibrary provides mediaLibrary,
-                        LocalPlaybackController provides playbackController
-                    ) {
-                        JockeyRoot(
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                CompositionLocalProvider(
+                    LocalAppNavigator provides navigator,
+                    LocalMediaLibrary provides mediaLibrary,
+                    LocalPlaybackController provides playbackController
+                ) {
+                    JockeyRoot(
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

@@ -9,7 +9,6 @@ import androidx.annotation.Px
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
@@ -26,13 +25,10 @@ import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.core.content.ContextCompat
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.WindowInsets
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.collect
 
 /**
  * [androidx.compose.runtime.collectAsState] uses a structural equality snapshot policy, meaning
@@ -179,60 +175,3 @@ operator fun PaddingValues.plus(other: PaddingValues) = PaddingValues(
     bottom = this.calculateBottomPadding() +
         other.calculateBottomPadding(),
 )
-
-@Composable
-fun ConsumeWindowInsets(
-    leftPx: Int = 0,
-    topPx: Int = 0,
-    rightPx: Int = 0,
-    bottomPx: Int = 0,
-    content: @Composable () -> Unit
-) {
-    val currentWindowInsets = LocalWindowInsets.current
-
-    CompositionLocalProvider(
-        LocalWindowInsets provides RelativeInsets(
-            originalInsets = currentWindowInsets,
-            left = -leftPx,
-            top = -topPx,
-            right = -rightPx,
-            bottom = -bottomPx
-        )
-    ) {
-        content()
-    }
-}
-
-private class RelativeInsets(
-    originalInsets: WindowInsets,
-    left: Int,
-    top: Int,
-    right: Int,
-    bottom: Int
-) : WindowInsets {
-    override val displayCutout: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.displayCutout, left, top, right, bottom)
-    override val ime: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.ime, left, top, right, bottom)
-    override val navigationBars: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.navigationBars, left, top, right, bottom)
-    override val statusBars: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.statusBars, left, top, right, bottom)
-    override val systemBars: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.systemBars, left, top, right, bottom)
-    override val systemGestures: WindowInsets.Type =
-        RelativeInsetsType(originalInsets.systemGestures, left, top, right, bottom)
-}
-
-private class RelativeInsetsType(
-    private val originalInsets: WindowInsets.Type,
-    private val dLeft: Int,
-    private val dTop: Int,
-    private val dRight: Int,
-    private val dBottom: Int
-) : WindowInsets.Type by originalInsets {
-    override val left: Int get() = (originalInsets.left + dLeft).coerceAtLeast(0)
-    override val top: Int get() = (originalInsets.top + dTop).coerceAtLeast(0)
-    override val right: Int get() = (originalInsets.right + dRight).coerceAtLeast(0)
-    override val bottom: Int get() = (originalInsets.bottom + dBottom).coerceAtLeast(0)
-}

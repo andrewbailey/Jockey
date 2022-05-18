@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
@@ -22,7 +21,6 @@ import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.library.LibraryAppBar
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
-@OptIn(ExperimentalAnimatedInsets::class)
 @Composable
 fun AlbumPage(
     album: Album,

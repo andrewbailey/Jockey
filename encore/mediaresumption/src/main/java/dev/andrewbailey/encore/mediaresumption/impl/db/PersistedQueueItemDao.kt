@@ -2,7 +2,7 @@ package dev.andrewbailey.encore.mediaresumption.impl.db
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.andrewbailey.encore.mediaresumption.impl.model.PersistedQueueItem

@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.isSpecified
 import dev.andrewbailey.music.ui.layout.ModalState.Companion.modalSheet
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
-import dev.andrewbailey.music.util.ConsumeWindowInsets
 import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
@@ -204,9 +203,7 @@ fun ModalScaffold(
 
         layout(layoutSize.width, layoutSize.height) {
             subcomposeSingle("body") {
-                ConsumeWindowInsets(bottomPx = collapsedSheetHeightPx) {
-                    bodyContent()
-                }
+                bodyContent()
             }.measure(
                 constraints.copy(
                     minHeight = 0,

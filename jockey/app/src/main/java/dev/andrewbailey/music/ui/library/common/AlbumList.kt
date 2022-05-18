@@ -1,6 +1,5 @@
 package dev.andrewbailey.music.ui.library.common
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,10 +11,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyGridScope
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -25,15 +25,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.palette.graphics.Target
 import androidx.palette.graphics.get
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.LocalImageLoader
 import coil.compose.rememberAsyncImagePainter
+import coil.imageLoader
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.util.PaletteCache
@@ -42,7 +42,6 @@ import dev.andrewbailey.music.util.luminance
 import dev.andrewbailey.music.util.rememberPalette
 import dev.andrewbailey.music.util.rememberPaletteCache
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AlbumList(
     albums: List<Album>,
@@ -53,7 +52,7 @@ fun AlbumList(
     val paletteCache = rememberPaletteCache()
 
     LazyVerticalGrid(
-        cells = GridCells.Adaptive(minSize = 140.dp),
+        columns = GridCells.Adaptive(minSize = 140.dp),
         contentPadding = PaddingValues(all = gridPadding / 2),
         modifier = modifier
     ) {
@@ -66,7 +65,6 @@ fun AlbumList(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 fun LazyGridScope.albums(
     albums: List<Album>,
     paletteCache: PaletteCache,
@@ -113,7 +111,6 @@ fun LazyListScope.albums(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun AlbumCell(
     album: Album,
@@ -148,7 +145,7 @@ private fun AlbumCell(
             .shadow(5.dp)
     ) {
         Image(
-            painter = rememberAsyncImagePainter(album, LocalImageLoader.current),
+            painter = rememberAsyncImagePainter(album, LocalContext.current.imageLoader),
             contentDescription = stringResource(id = R.string.content_description_album_art),
             modifier = Modifier
                 .background(Color.Black)

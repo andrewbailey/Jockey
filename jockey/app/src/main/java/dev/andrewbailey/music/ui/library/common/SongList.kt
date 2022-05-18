@@ -14,9 +14,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.LocalImageLoader
 import coil.compose.rememberAsyncImagePainter
+import coil.imageLoader
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.model.Song
@@ -45,7 +46,7 @@ fun LazyListScope.songs(
             ListItem(
                 icon = {
                     Image(
-                        painter = rememberAsyncImagePainter(song, LocalImageLoader.current),
+                        painter = rememberAsyncImagePainter(song, LocalContext.current.imageLoader),
                         contentDescription = null,
                         modifier = Modifier.size(40.dp)
                             .clip(RoundedCornerShape(4.dp))

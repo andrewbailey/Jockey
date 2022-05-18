@@ -2,7 +2,9 @@ package dev.andrewbailey.music.ui.layout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,7 +22,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.andrewbailey.encore.player.state.MediaPlayerState.Prepared
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -106,7 +107,7 @@ private fun CollapsedPlayerControls(
     additionalContent: @Composable (() -> Unit)? = null,
     onClickBar: () -> Unit
 ) {
-    val bottomInsetPx = LocalWindowInsets.current.navigationBars.bottom
+    val bottomInsetPx = WindowInsets.systemBars.getBottom(LocalDensity.current)
     val bottomInsetDp = with(LocalDensity.current) { bottomInsetPx.toDp() }
 
     val surfaceColor = LocalElevationOverlay.current?.apply(
