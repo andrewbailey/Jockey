@@ -8,6 +8,7 @@ apply from: "$rootDir/jacoco.gradle"
 def config = rootProject.extensions.getByName("ext")
 
 android {
+    namespace 'dev.andrewbailey.ipc'
     compileSdkVersion config.compileSdkVersion
 
     defaultConfig {

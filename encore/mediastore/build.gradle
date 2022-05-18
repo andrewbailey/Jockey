@@ -6,6 +6,7 @@ apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 def config = rootProject.extensions.getByName("ext")
 
 android {
+    namespace 'dev.andrewbailey.library.provider.mediastore'
     compileSdkVersion config.compileSdkVersion
 
     defaultConfig {

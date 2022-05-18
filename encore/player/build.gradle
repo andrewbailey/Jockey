@@ -9,6 +9,7 @@ apply from: "$rootDir/jacoco.gradle"
 def config = rootProject.extensions.getByName("ext")
 
 android {
+    namespace 'dev.andrewbailey.encore.player'
     compileSdkVersion config.compileSdkVersion
 
     defaultConfig {

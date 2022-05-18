@@ -6,6 +6,7 @@ apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 def config = rootProject.extensions.getByName("ext")
 
 android {
+    namespace 'dev.andrewbailey.encore'
     compileSdkVersion config.compileSdkVersion
 
     defaultConfig {
