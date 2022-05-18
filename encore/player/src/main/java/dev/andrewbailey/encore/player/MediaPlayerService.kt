@@ -25,10 +25,10 @@ import dev.andrewbailey.encore.player.os.MediaSessionController
 import dev.andrewbailey.encore.player.playback.MediaPlayer
 import dev.andrewbailey.encore.player.playback.PlaybackExtension
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
-import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
+import dev.andrewbailey.encore.player.state.isPlaying
+import dev.andrewbailey.encore.player.state.pause
 import dev.andrewbailey.encore.provider.MediaProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -152,8 +152,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        val playerState = mediaPlayer.getState() as? MediaPlayerState.Prepared
-        if (playerState?.transportState?.status != PlaybackStatus.Playing) {
+        if (!mediaPlayer.getState().isPlaying()) {
             quit()
         }
     }
@@ -174,11 +173,14 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
             If nothing is binding to this service, we can kill it immediately.
          */
         if (binder.hasClients()) {
-            (mediaPlayer.getState() as? MediaPlayerState.Prepared)
-                ?.transportState
-                ?.takeIf { it.status == PlaybackStatus.Playing }
-                ?.let { playbackStateFactory.pause(it) }
-                ?.let { mediaPlayer.setState(it) }
+            val state = mediaPlayer.getState()
+            if (state.isPlaying()) {
+                mediaPlayer.setState(
+                    with(playbackStateFactory) {
+                        state.transportState.pause()
+                    }
+                )
+            }
             stopForeground(true)
         } else {
             stopSelf()

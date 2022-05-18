@@ -18,12 +18,13 @@ import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.Me
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipNext
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipPrevious
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
-import dev.andrewbailey.encore.player.state.BufferingState.Buffering
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
+import dev.andrewbailey.encore.player.state.isPausedForBuffering
+import dev.andrewbailey.encore.player.state.isPlaying
+import dev.andrewbailey.encore.player.state.seekPositionMillisOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -157,18 +158,13 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         intervalMs: Long
     ): Flow<MediaPlayerState<M>> {
         return flow {
-            val duration = (state as? MediaPlayerState.Prepared)
-                ?.takeIf { it.transportState.status == Playing }
-                ?.takeIf { (it.bufferingState as? Buffering)?.pausedForBuffering != true }
-                ?.durationMs
-
-            val seekPosition = (state as? MediaPlayerState.Prepared)
-                ?.transportState
-                ?.seekPosition
+            val duration = state.seekPositionMillisOrNull()
+                ?.takeIf { state.isPlaying() }
+                ?.takeUnless { state.isPausedForBuffering() }
 
             var seekPositionMs: Long?
             do {
-                seekPositionMs = seekPosition?.seekPositionMillis
+                seekPositionMs = state.seekPositionMillisOrNull()
                 emit(state)
                 delay(intervalMs)
             } while (duration != null && seekPositionMs != null &&

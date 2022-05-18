@@ -40,7 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
+import dev.andrewbailey.encore.player.state.artworkOrNull
+import dev.andrewbailey.encore.player.state.queueStateOrNull
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -86,7 +87,7 @@ fun NowPlayingRoot(
             )
         },
         sheetContent = {
-            (playbackState?.transportState as? TransportState.Active)?.queue?.let { queue ->
+            playbackState?.queueStateOrNull()?.let { queue ->
                 Surface(
                     elevation = 16.dp,
                     modifier = Modifier.topBorder()
@@ -139,7 +140,7 @@ fun NowPlayingContent(
                 modifier = Modifier.alpha((2 * percentVisible - 1).coerceIn(0f..1f))
             )
 
-            (playbackState as? MediaPlayerState.Prepared)?.artwork?.let { albumArt ->
+            playbackState?.artworkOrNull()?.let { albumArt ->
                 Image(
                     bitmap = albumArt.asImageBitmap(),
                     contentDescription = stringResource(R.string.content_description_album_art),

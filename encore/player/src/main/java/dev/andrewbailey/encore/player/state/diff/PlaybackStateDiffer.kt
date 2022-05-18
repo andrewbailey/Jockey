@@ -1,16 +1,17 @@
 package dev.andrewbailey.encore.player.state.diff
 
 import dev.andrewbailey.encore.model.MediaObject
-import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
-import dev.andrewbailey.encore.player.state.PlaybackStatus
-import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.QueueState.Linear
 import dev.andrewbailey.encore.player.state.QueueState.Shuffled
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.state.TransportState.Active
+import dev.andrewbailey.encore.player.state.isPlaying
+import dev.andrewbailey.encore.player.state.nowPlayingOrNull
+import dev.andrewbailey.encore.player.state.queueIndexOrNull
+import dev.andrewbailey.encore.player.state.queueStateOrNull
+import dev.andrewbailey.encore.player.state.seekPositionOrNull
 
 internal class PlaybackStateDiffer<M : MediaObject> {
 
@@ -82,8 +83,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
         oldState: TransportState<M>,
         newState: TransportState<M>
     ): PlaybackStateModification<M>? {
-        val oldQueue = oldState.queue()
-        val newQueue = newState.queue()
+        val oldQueue = oldState.queueStateOrNull()
+        val newQueue = newState.queueStateOrNull()
 
         return if (oldQueue != newQueue) {
             QueueModification(
@@ -104,10 +105,10 @@ internal class PlaybackStateDiffer<M : MediaObject> {
         oldState: TransportState<M>,
         newState: TransportState<M>
     ): PlaybackStateModification<M>? {
-        val oldStateNowPlaying = oldState.nowPlaying()
-        val newStateQueueIndex = newState.nowPlayingIndex() ?: return null
-        val newStateNowPlaying = newState.nowPlaying() ?: return null
-        val newStateSeekPosition = newState.seekPosition() ?: return null
+        val oldStateNowPlaying = oldState.nowPlayingOrNull()
+        val newStateQueueIndex = newState.queueIndexOrNull() ?: return null
+        val newStateNowPlaying = newState.nowPlayingOrNull() ?: return null
+        val newStateSeekPosition = newState.seekPositionOrNull() ?: return null
 
         return when {
             oldStateNowPlaying == newStateNowPlaying &&
@@ -123,26 +124,6 @@ internal class PlaybackStateDiffer<M : MediaObject> {
                 )
             }
         }
-    }
-
-    private fun TransportState<M>.isPlaying(): Boolean {
-        return this is Active && status == PlaybackStatus.Playing
-    }
-
-    private fun TransportState<M>.queue(): QueueState<M>? {
-        return (this as? Active)?.queue
-    }
-
-    private fun TransportState<M>.nowPlayingIndex(): Int? {
-        return (this as? Active)?.queue?.queueIndex
-    }
-
-    private fun TransportState<M>.nowPlaying(): QueueItem<M>? {
-        return (this as? Active)?.queue?.nowPlaying
-    }
-
-    private fun TransportState<M>.seekPosition(): SeekPosition? {
-        return (this as? Active)?.seekPosition
     }
 
 }

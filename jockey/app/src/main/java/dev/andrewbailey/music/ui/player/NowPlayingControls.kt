@@ -24,7 +24,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus
+import dev.andrewbailey.encore.player.state.durationMillisOrNull
+import dev.andrewbailey.encore.player.state.isPlaying
+import dev.andrewbailey.encore.player.state.nowPlayingOrNull
+import dev.andrewbailey.encore.player.state.seekPositionMillisOrNull
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -34,17 +37,16 @@ fun NowPlayingControls(
     playbackState: MediaPlayerState<Song>?,
     modifier: Modifier = Modifier
 ) {
-    if (playbackState is MediaPlayerState.Prepared) {
+    val nowPlaying = playbackState?.nowPlayingOrNull()?.mediaItem
+    if (nowPlaying != null) {
         val playbackController = LocalPlaybackController.current
-        val transportState = playbackState.transportState
-        val nowPlaying = transportState.queue.nowPlaying.mediaItem
         NowPlayingControls(
             songTitle = nowPlaying.name,
             albumName = nowPlaying.album?.name ?: stringResource(R.string.unknown_album),
             artistName = nowPlaying.artist?.name ?: stringResource(R.string.unknown_artist),
-            songDurationMs = playbackState.durationMs ?: 0,
-            seekPositionMs = transportState.seekPosition.seekPositionMillis,
-            isPlaying = transportState.status == PlaybackStatus.Playing,
+            songDurationMs = playbackState.durationMillisOrNull() ?: 0,
+            seekPositionMs = playbackState.seekPositionMillisOrNull() ?: 0,
+            isPlaying = playbackState.isPlaying(),
             onSkipNext = playbackController::skipNext,
             onSkipPrevious = playbackController::skipPrevious,
             onPlay = playbackController::play,

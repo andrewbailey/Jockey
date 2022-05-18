@@ -10,8 +10,7 @@ import dev.andrewbailey.encore.player.action.CustomActionProvider
 import dev.andrewbailey.encore.player.action.QuitActionProvider
 import dev.andrewbailey.encore.player.playback.PlaybackObserver
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus
-import dev.andrewbailey.encore.player.state.TransportState.Active
+import dev.andrewbailey.encore.player.state.isPlaying
 
 internal class PlaybackNotifier<M : MediaObject>(
     private val service: Service,
@@ -32,7 +31,7 @@ internal class PlaybackNotifier<M : MediaObject>(
 
     override fun onPlaybackStateChanged(newState: MediaPlayerState.Initialized<M>) {
         showNotification(
-            foreground = (newState.transportState as? Active)?.status == PlaybackStatus.Playing,
+            foreground = newState.isPlaying(),
             playbackState = newState
         )
     }

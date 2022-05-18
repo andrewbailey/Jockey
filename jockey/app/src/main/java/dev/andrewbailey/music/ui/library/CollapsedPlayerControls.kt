@@ -25,8 +25,8 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +41,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus
+import dev.andrewbailey.encore.player.state.hasContent
+import dev.andrewbailey.encore.player.state.isPlaying
+import dev.andrewbailey.encore.player.state.nowPlaying
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
@@ -55,6 +57,17 @@ fun CollapsedPlayerControls(
 ) {
     val playbackController = LocalPlaybackController.current
     val playbackState by playbackController.playbackState.collectAsNonUniqueState()
+    val lastActivePlaybackState by remember {
+        var activeState: MediaPlayerState.Prepared<Song>? = null
+        derivedStateOf {
+            playbackState?.let { state ->
+                if (state.hasContent()) {
+                    activeState = state
+                }
+            }
+            return@derivedStateOf activeState
+        }
+    }
 
     val visibilityTransition = updateTransition(
         playbackState is MediaPlayerState.Prepared,
@@ -99,17 +112,10 @@ fun CollapsedPlayerControls(
         if (controlsVisible) controlBarHeight else 0.dp
     }
 
-    val previousContent = remember { mutableStateOf(playbackState as? MediaPlayerState.Prepared) }
-
     Box(modifier = modifier.requiredHeight(contentHeight)) {
-        (playbackState as? MediaPlayerState.Prepared<Song>)?.let {
-            previousContent.value = it
-        }
-
-        val playbackStateToDisplay = previousContent.value
-        if (playbackStateToDisplay != null) {
+        lastActivePlaybackState?.let { state ->
             PopulatedCollapsedPlaybackControls(
-                playbackState = playbackStateToDisplay,
+                playbackState = state,
                 modifier = Modifier
                     .height(controlBarHeight)
                     .offset(y = (controlBarHeight - contentHeight) / 2)
@@ -216,7 +222,7 @@ private fun SongTitleAndArtist(
     playbackState: MediaPlayerState.Prepared<Song>,
     modifier: Modifier = Modifier
 ) {
-    val nowPlaying = playbackState.transportState.queue.nowPlaying.mediaItem
+    val nowPlaying = playbackState.nowPlaying().mediaItem
     Text(
         text = buildAnnotatedString {
             append(nowPlaying.name)
@@ -246,10 +252,9 @@ private fun PlayPauseButton(
     onPlayClicked: () -> Unit = {},
     onPauseClicked: () -> Unit = {}
 ) {
-    val isPlaying = playbackState.transportState.status == PlaybackStatus.Playing
     IconButton(
         modifier = modifier,
-        onClick = if (isPlaying) {
+        onClick = if (playbackState.isPlaying()) {
             onPauseClicked
         } else {
             onPlayClicked
@@ -257,14 +262,14 @@ private fun PlayPauseButton(
     ) {
         Icon(
             painter = painterResource(
-                id = if (isPlaying) {
+                id = if (playbackState.isPlaying()) {
                     R.drawable.ic_pause
                 } else {
                     R.drawable.ic_play
                 }
             ),
             contentDescription = stringResource(
-                if (isPlaying) {
+                if (playbackState.isPlaying()) {
                     R.string.content_description_pause
                 } else {
                     R.string.content_description_play
