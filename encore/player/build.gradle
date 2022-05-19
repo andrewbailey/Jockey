@@ -60,6 +60,8 @@ dependencies {
     implementation config.deps.difference.multiplatform
 
     // Testing
+    // Needed because the test services has to live in the `debug` source set
+    debugImplementation project(':encore:test')
     testImplementation project(':encore:test')
     androidTestImplementation project(':encore:test')
     testImplementation config.deps.test.junit

@@ -18,7 +18,7 @@ import dev.andrewbailey.encore.provider.MediaProvider
 import dev.andrewbailey.encore.test.FakeMusicProvider
 import dev.andrewbailey.encore.test.FakeSong
 
-class EncoreTestService : MediaPlayerService<FakeSong>(
+internal class EncoreTestService : MediaPlayerService<FakeSong>(
     tag = "EncoreTestService",
     notificationId = 1,
     notificationProvider = TestNotificationProvider()

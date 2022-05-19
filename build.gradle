@@ -31,7 +31,7 @@ buildscript {
         difference : '1.0.0',
         test : [
             junit : '4.13.2',
-            espresso : '3.5.0-alpha06',
+            espresso : '3.5.0-alpha03',
             truth : '1.1.3',
             mockk : '1.12.4',
             turbine : '0.8.0',

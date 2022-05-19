@@ -8,15 +8,7 @@
          this in debug, we can ensure that the service is actually registered with the test context.
          If we had instead declared this service in the `androidTest` source set, the service would
          be associated with the tests themselves, not the package under test.
-
-         Without this, we will fail to manually start the test service in all instrumented tests.
-
-         The next suppression (while dramatic), allows us to register this service without also
-         putting it in an actual release build. This technically means the debug Manifest is
-         invalid, since it declares a service with no implementation, but it won't make it into a
-         release build anyway.
         -->
-        <!--suppress AndroidDomInspection -->
         <service
             android:name=".EncoreTestService"
             android:exported="true">
