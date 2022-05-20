@@ -32,6 +32,7 @@ jobs:
     instrumented-test:
         runs-on: macos-latest
         strategy:
+            fail-fast: false
             matrix:
                 api-level: [21, 26, 31]
         steps:
