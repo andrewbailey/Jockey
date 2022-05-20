@@ -7,21 +7,21 @@ import kotlinx.parcelize.Parcelize
 
 public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
-    public abstract val transportState: TransportState<M>?
+    public abstract val mediaPlaybackState: MediaPlaybackState<M>?
 
     @Parcelize
     public object Initializing : MediaPlayerState<Nothing>() {
-        override val transportState: TransportState<Nothing>?
+        override val mediaPlaybackState: MediaPlaybackState<Nothing>?
             get() = null
     }
 
     public sealed class Initialized<out M : MediaObject> : MediaPlayerState<M>() {
-        public abstract override val transportState: TransportState<M>
+        public abstract override val mediaPlaybackState: MediaPlaybackState<M>
     }
 
     @Parcelize
     public class Prepared<M : MediaObject> internal constructor(
-        override val transportState: TransportState.Populated<M>,
+        override val mediaPlaybackState: MediaPlaybackState.Populated<M>,
         public val artwork: Bitmap?,
         public val durationMs: Long?,
         public val bufferingState: BufferingState
@@ -30,14 +30,14 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
             if (this === other) return true
 
             return other is Prepared<*> &&
-                transportState == other.transportState &&
+                mediaPlaybackState == other.mediaPlaybackState &&
                 artwork == other.artwork &&
                 durationMs == other.durationMs &&
                 bufferingState == other.bufferingState
         }
 
         override fun hashCode(): Int {
-            var result = transportState.hashCode()
+            var result = mediaPlaybackState.hashCode()
             result = 31 * result + artwork.hashCode()
             result = 31 * result + durationMs.hashCode()
             result = 31 * result + bufferingState.hashCode()
@@ -46,7 +46,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
         override fun toString(): String {
             return "MediaPlayerState.Prepared(" +
-                "transportState=$transportState, " +
+                "transportState=$mediaPlaybackState, " +
                 "artwork=$artwork, " +
                 "durationMs=$durationMs, " +
                 "bufferingState=$bufferingState)"
@@ -55,19 +55,19 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
     @Parcelize
     public class Ready internal constructor(
-        override val transportState: TransportState.Empty
+        override val mediaPlaybackState: MediaPlaybackState.Empty
     ) : MediaPlayerState.Initialized<Nothing>() {
         override fun equals(other: Any?): Boolean {
             return (this === other) ||
-                (other is Ready && transportState == other.transportState)
+                (other is Ready && mediaPlaybackState == other.mediaPlaybackState)
         }
 
         override fun hashCode(): Int {
-            return 31 * transportState.hashCode()
+            return 31 * mediaPlaybackState.hashCode()
         }
 
         override fun toString(): String {
-            return "MediaPlayerState.Ready(transportState=$transportState)"
+            return "MediaPlayerState.Ready(transportState=$mediaPlaybackState)"
         }
     }
 

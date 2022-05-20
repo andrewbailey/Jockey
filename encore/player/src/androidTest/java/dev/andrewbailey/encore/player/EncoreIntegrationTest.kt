@@ -7,13 +7,13 @@ import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.assertions.encore.mediaPlayerState
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.state.BufferingState
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
 import dev.andrewbailey.encore.player.state.factory.DefaultPlaybackStateFactory
 import dev.andrewbailey.encore.player.util.EncoreTestRule
@@ -66,7 +66,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Empty(
+                    mediaPlaybackState = MediaPlaybackState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -77,7 +77,7 @@ class EncoreIntegrationTest {
 
     @Test
     fun testSetStateFromIdleToActiveAndPlaying() = encoreTest { encoreController ->
-        val transportState = TransportState.Populated(
+        val mediaPlaybackState = MediaPlaybackState.Populated(
             status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             repeatMode = RepeatMode.RepeatNone,
@@ -93,7 +93,7 @@ class EncoreIntegrationTest {
             playbackSpeed = 0.01f
         )
 
-        encoreController.setStateAndWaitForIdle(transportState)
+        encoreController.setStateAndWaitForIdle(mediaPlaybackState)
 
         val actualState = encoreController.getState()
 
@@ -132,7 +132,7 @@ class EncoreIntegrationTest {
             .about(mediaPlayerState())
             .that(actualState)
             .transportState()
-            .hasQueueState(transportState.queue)
+            .hasQueueState(mediaPlaybackState.queue)
 
         assertWithMessage("The player was not expected to have album artwork")
             .about(mediaPlayerState())
@@ -187,7 +187,7 @@ class EncoreIntegrationTest {
             .transportState()
             .hasStatus(PlaybackStatus.Playing)
 
-        val emptyState = TransportState.Empty(
+        val emptyState = MediaPlaybackState.Empty(
             repeatMode = RepeatMode.RepeatNone,
             shuffleMode = ShuffleMode.ShuffleDisabled,
             playbackSpeed = 1f
@@ -214,7 +214,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Empty(
+                    mediaPlaybackState = MediaPlaybackState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -275,7 +275,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Empty(
+                    mediaPlaybackState = MediaPlaybackState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -336,7 +336,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Empty(
+                    mediaPlaybackState = MediaPlaybackState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -773,7 +773,7 @@ class EncoreIntegrationTest {
         repeatMode: RepeatMode = RepeatMode.RepeatNone,
         queueIndex: Int = 0,
         songs: List<FakeSong>? = null
-    ) = TransportState.Populated(
+    ) = MediaPlaybackState.Populated(
         status = status,
         seekPosition = SeekPosition.AbsoluteSeekPosition(seekPositionMs),
         repeatMode = repeatMode,
@@ -792,9 +792,9 @@ class EncoreIntegrationTest {
     )
 
     private suspend fun EncoreController<FakeSong>.setStateAndWaitForIdle(
-        transportState: TransportState<FakeSong>
+        mediaPlaybackState: MediaPlaybackState<FakeSong>
     ) {
-        setState(transportState)
+        setState(mediaPlaybackState)
         waitForStateToSettle()
     }
 
@@ -836,7 +836,7 @@ class EncoreIntegrationTest {
                 "(it was actually $state)"
         }
 
-        val status = state.transportState.status
+        val status = state.mediaPlaybackState.status
         check(status == requiredStatus) {
             "Test setup failed: The Encore service's transport status was $status"
         }

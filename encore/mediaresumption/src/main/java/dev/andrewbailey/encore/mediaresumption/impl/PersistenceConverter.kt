@@ -4,11 +4,11 @@ import dev.andrewbailey.encore.mediaresumption.impl.model.PersistedPlaybackState
 import dev.andrewbailey.encore.mediaresumption.impl.model.PersistedQueueItem
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.QueueItem
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.MediaProvider
 
 internal class PersistenceConverter<M : MediaObject>(
@@ -16,29 +16,29 @@ internal class PersistenceConverter<M : MediaObject>(
 ) {
 
     fun toPersistedPlaybackState(
-        transportState: TransportState<M>
+        mediaPlaybackState: MediaPlaybackState<M>
     ): PersistedPlaybackState? {
-        return when (transportState) {
-            is TransportState.Empty -> null
-            is TransportState.Populated -> PersistedPlaybackState(
-                seekPositionMs = transportState.seekPosition.seekPositionMillis,
-                queueIndex = transportState.queue.queueIndex,
-                shuffleMode = transportState.shuffleMode,
-                repeatMode = transportState.repeatMode,
-                playbackSpeed = transportState.playbackSpeed
+        return when (mediaPlaybackState) {
+            is MediaPlaybackState.Empty -> null
+            is MediaPlaybackState.Populated -> PersistedPlaybackState(
+                seekPositionMs = mediaPlaybackState.seekPosition.seekPositionMillis,
+                queueIndex = mediaPlaybackState.queue.queueIndex,
+                shuffleMode = mediaPlaybackState.shuffleMode,
+                repeatMode = mediaPlaybackState.repeatMode,
+                playbackSpeed = mediaPlaybackState.playbackSpeed
             )
         }
     }
 
     fun toPersistedQueueItems(
-        transportState: TransportState<M>
+        mediaPlaybackState: MediaPlaybackState<M>
     ): List<PersistedQueueItem> {
-        return when (transportState) {
-            is TransportState.Empty -> {
+        return when (mediaPlaybackState) {
+            is MediaPlaybackState.Empty -> {
                 emptyList()
             }
-            is TransportState.Populated -> {
-                when (val queue = transportState.queue) {
+            is MediaPlaybackState.Populated -> {
+                when (val queue = mediaPlaybackState.queue) {
                     is QueueState.Linear -> {
                         queue.queue.mapIndexed { index, queueItem ->
                             PersistedQueueItem(
@@ -71,17 +71,17 @@ internal class PersistenceConverter<M : MediaObject>(
     suspend fun toTransportState(
         persistedPlaybackState: PersistedPlaybackState,
         persistedQueueItems: List<PersistedQueueItem>
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return when (val queue = toQueueState(persistedPlaybackState, persistedQueueItems)) {
             null -> {
-                TransportState.Empty(
+                MediaPlaybackState.Empty(
                     repeatMode = persistedPlaybackState.repeatMode,
                     shuffleMode = persistedPlaybackState.shuffleMode,
                     playbackSpeed = persistedPlaybackState.playbackSpeed
                 )
             }
             else -> {
-                TransportState.Populated(
+                MediaPlaybackState.Populated(
                     status = PlaybackStatus.Paused(),
                     repeatMode = persistedPlaybackState.repeatMode,
                     playbackSpeed = persistedPlaybackState.playbackSpeed,

@@ -5,9 +5,9 @@ import androidx.room.Room
 import androidx.room.withTransaction
 import dev.andrewbailey.encore.mediaresumption.impl.db.MediaPersistenceDatabase
 import dev.andrewbailey.encore.model.MediaObject
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleDisabled
 import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleEnabled
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.MediaProvider
 
 internal class PersistedMediaStateRepository<M : MediaObject>(
@@ -22,7 +22,7 @@ internal class PersistedMediaStateRepository<M : MediaObject>(
         "encore-persistence"
     ).build()
 
-    suspend fun saveState(state: TransportState<M>) {
+    suspend fun saveState(state: MediaPlaybackState<M>) {
         val playbackState = converter.toPersistedPlaybackState(state)
         val queueItems = converter.toPersistedQueueItems(state)
 
@@ -37,7 +37,7 @@ internal class PersistedMediaStateRepository<M : MediaObject>(
         }
     }
 
-    suspend fun getState(): TransportState<M>? {
+    suspend fun getState(): MediaPlaybackState<M>? {
         return database.withTransaction {
             database.playbackStateDao().getPersistedPlaybackState()?.let { playbackState ->
                 converter.toTransportState(

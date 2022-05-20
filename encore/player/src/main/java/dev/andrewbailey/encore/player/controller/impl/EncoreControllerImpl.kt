@@ -18,9 +18,9 @@ import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.Me
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipNext
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.MediaControllerCommand.SkipPrevious
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerCommand.ServiceCommand
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
 import dev.andrewbailey.encore.player.state.isPausedForBuffering
 import dev.andrewbailey.encore.player.state.isPlaying
@@ -173,7 +173,7 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         }
     }
 
-    override suspend fun setState(newState: TransportState<M>) {
+    override suspend fun setState(newState: MediaPlaybackState<M>) {
         dispatcher.sendMessage(
             ServiceCommand(
                 ServiceHostMessage.SetState(

@@ -11,9 +11,9 @@ import dev.andrewbailey.diff.DiffOperation.RemoveRange
 import dev.andrewbailey.diff.differenceOf
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.state.BufferingState
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.QueueState
-import dev.andrewbailey.encore.player.state.TransportState
 
 internal class MediaPlayerStateDiffer<M : MediaObject> {
 
@@ -33,22 +33,22 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                     bufferingState = diffOperation.bufferingState
                 )
                 is TransportStateStatusDiff -> state.copy(
-                    transportState = state.transportState.copy(
+                    mediaPlaybackState = state.mediaPlaybackState.copy(
                         status = diffOperation.status
                     )
                 )
                 is TransportStateSeekPositionDiff -> state.copy(
-                    transportState = state.transportState.copy(
+                    mediaPlaybackState = state.mediaPlaybackState.copy(
                         seekPosition = diffOperation.seekPosition
                     )
                 )
                 is TransportStateQueueDiff -> state.copy(
-                    transportState = state.transportState.copy(
-                        queue = applyDiff(state.transportState.queue, diffOperation)
+                    mediaPlaybackState = state.mediaPlaybackState.copy(
+                        queue = applyDiff(state.mediaPlaybackState.queue, diffOperation)
                     )
                 )
                 is TransportStateRepeatModeDiff -> state.copy(
-                    transportState = state.transportState.copy(
+                    mediaPlaybackState = state.mediaPlaybackState.copy(
                         repeatMode = diffOperation.repeatMode
                     )
                 )
@@ -166,15 +166,15 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                 checkValues(toState, fromState, { bufferingState }) {
                     BufferingStateDiff(toState.bufferingState)
                 },
-                checkValues(toState, fromState, { transportState.status }) {
-                    TransportStateStatusDiff(toState.transportState.status)
+                checkValues(toState, fromState, { mediaPlaybackState.status }) {
+                    TransportStateStatusDiff(toState.mediaPlaybackState.status)
                 },
-                checkValues(toState, fromState, { transportState.seekPosition }) {
-                    TransportStateSeekPositionDiff(toState.transportState.seekPosition)
+                checkValues(toState, fromState, { mediaPlaybackState.seekPosition }) {
+                    TransportStateSeekPositionDiff(toState.mediaPlaybackState.seekPosition)
                 },
-                checkValues(toState, fromState, { transportState.queue }) {
-                    val oldQueue = fromState.transportState.queue
-                    val newQueue = toState.transportState.queue
+                checkValues(toState, fromState, { mediaPlaybackState.queue }) {
+                    val oldQueue = fromState.mediaPlaybackState.queue
+                    val newQueue = toState.mediaPlaybackState.queue
 
                     TransportStateQueueDiff(
                         queueIndex = newQueue.queueIndex,
@@ -199,8 +199,8 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                         }
                     )
                 },
-                checkValues(toState, fromState, { transportState.repeatMode }) {
-                    TransportStateRepeatModeDiff(toState.transportState.repeatMode)
+                checkValues(toState, fromState, { mediaPlaybackState.repeatMode }) {
+                    TransportStateRepeatModeDiff(toState.mediaPlaybackState.repeatMode)
                 }
             )
         )
@@ -221,12 +221,12 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
     }
 
     private fun MediaPlayerState.Prepared<M>.copy(
-        transportState: TransportState.Populated<M> = this.transportState,
+        mediaPlaybackState: MediaPlaybackState.Populated<M> = this.mediaPlaybackState,
         artwork: Bitmap? = this.artwork,
         durationMs: Long? = this.durationMs,
         bufferingState: BufferingState = this.bufferingState
     ) = MediaPlayerState.Prepared(
-        transportState = transportState,
+        mediaPlaybackState = mediaPlaybackState,
         artwork = artwork,
         durationMs = durationMs,
         bufferingState = bufferingState

@@ -3,6 +3,9 @@ package dev.andrewbailey.encore.player.state.factory
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.MediaSearchArguments
 import dev.andrewbailey.encore.model.QueueItem
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
+import dev.andrewbailey.encore.player.state.MediaPlaybackState.Empty
+import dev.andrewbailey.encore.player.state.MediaPlaybackState.Populated
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.PlaybackStatus.Paused
 import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
@@ -10,9 +13,6 @@ import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.state.TransportState.Empty
-import dev.andrewbailey.encore.player.state.TransportState.Populated
 import dev.andrewbailey.encore.provider.MediaSearchResults
 import java.util.Random
 import java.util.UUID
@@ -28,8 +28,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
 ) : PlaybackStateFactory<M>() {
 
     override fun play(
-        state: TransportState<M>
-    ): TransportState<M> {
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -55,8 +55,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun pause(
-        state: TransportState<M>
-    ): TransportState<M> {
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -68,9 +68,9 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun seekTo(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         seekPositionMillis: Long
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return state.modifyTransportState(
             status = {
                 when (status) {
@@ -83,8 +83,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun skipToPrevious(
-        state: TransportState<M>
-    ): TransportState<M> {
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M> {
         return state.modifyTransportState(
             status = { Playing },
             seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
@@ -99,8 +99,8 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun skipToNext(
-        state: TransportState<M>
-    ): TransportState<M> {
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M> {
         return when (state.repeatMode) {
             RepeatMode.RepeatAll -> state.modifyTransportState(
                 status = { Playing },
@@ -128,9 +128,9 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun skipToIndex(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         index: Int
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return state.modifyTransportState(
             status = { Playing },
             queueIndex = { index }
@@ -138,9 +138,9 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun setShuffleMode(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         shuffleMode: ShuffleMode
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return when (state) {
             is Empty -> state.copy(
                 shuffleMode = shuffleMode
@@ -152,9 +152,9 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun setRepeatMode(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         repeatMode: RepeatMode
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return when (state) {
             is Empty -> state.copy(
                 repeatMode = repeatMode
@@ -166,12 +166,12 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun playFromSearchResults(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         query: String,
         beginPlayback: Boolean,
         arguments: MediaSearchArguments,
         searchResults: MediaSearchResults<M>
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         if (searchResults.searchResults.isEmpty()) {
             // Do nothing if there aren't any search results.
             return state
@@ -211,11 +211,11 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     override fun playFromMediaBrowser(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         browserId: String,
         mediaItemId: String,
         mediaItems: List<M>
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         val queue = QueueState.Linear(
             queue = mediaItems.map { item ->
                 QueueItem(queueId = UUID.randomUUID(), mediaItem = item)
@@ -235,11 +235,11 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         )
     }
 
-    private inline fun TransportState<M>.modifyTransportState(
+    private inline fun MediaPlaybackState<M>.modifyTransportState(
         status: Populated<M>.() -> PlaybackStatus = { this.status },
         seekPosition: Populated<M>.() -> SeekPosition = { this.seekPosition },
         queueIndex: Populated<M>.() -> Int = { this.queue.queueIndex }
-    ): TransportState<M> {
+    ): MediaPlaybackState<M> {
         return when (this) {
             is Empty -> this
             is Populated -> copy(

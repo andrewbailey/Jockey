@@ -16,11 +16,11 @@ import dev.andrewbailey.encore.player.assertions.mediasession.model.PlaybackStat
 import dev.andrewbailey.encore.player.assertions.mediasession.playbackStateCompat
 import dev.andrewbailey.encore.player.browse.MediaResumptionProvider
 import dev.andrewbailey.encore.player.browse.impl.MediaBrowserImpl
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.util.EncoreTestRule
 import dev.andrewbailey.encore.player.util.mediaBrowserFor
 import dev.andrewbailey.encore.player.util.mediaControllerFrom
@@ -73,7 +73,7 @@ class MediaResumptionTest {
                     lastPlayed
                 }
             },
-            getPersistedTransportState = { null }
+            getPersistedMediaPlaybackState = { null }
         )
 
         val mediaBrowser = getMediaBrowser(recentRootHint = true)
@@ -122,7 +122,7 @@ class MediaResumptionTest {
      */
     @Test
     fun testPlayStartsServiceAndResumesPlayback() = runTest(dispatcher) {
-        val savedState = TransportState.Populated(
+        val savedState = MediaPlaybackState.Populated(
             status = PlaybackStatus.Paused(false),
             seekPosition = SeekPosition.AbsoluteSeekPosition(15_000),
             queue = QueueState.Linear(
@@ -143,7 +143,7 @@ class MediaResumptionTest {
             getCurrentTrack = {
                 savedState.queue.nowPlaying.mediaItem
             },
-            getPersistedTransportState = {
+            getPersistedMediaPlaybackState = {
                 getPersistedStateContinuationSignal.receive()
                 savedState
             }
@@ -214,26 +214,29 @@ class MediaResumptionTest {
     }
 
     private fun createMediaResumptionProvider(
-        persistState: suspend (transportState: TransportState<FakeSong>) -> Boolean = {
+        persistState: suspend (mediaPlaybackState: MediaPlaybackState<FakeSong>) -> Boolean = {
             true
         },
         getCurrentTrack: suspend () -> FakeSong? = {
             throw UnsupportedOperationException("getCurrentTrack() not mocked")
         },
-        getPersistedTransportState: suspend () -> TransportState<FakeSong>? = {
+        getPersistedMediaPlaybackState: suspend () -> MediaPlaybackState<FakeSong>? = {
             throw UnsupportedOperationException("getPersistedTransportState() not mocked")
         }
     ) = object : MediaResumptionProvider<FakeSong>(dispatcher) {
-        override suspend fun persistState(transportState: TransportState<FakeSong>): Boolean {
-            return persistState(transportState)
+
+        override suspend fun persistState(
+            mediaPlaybackState: MediaPlaybackState<FakeSong>
+        ): Boolean {
+            return persistState(mediaPlaybackState)
         }
 
         override suspend fun getCurrentTrack(): FakeSong? {
             return getCurrentTrack()
         }
 
-        override suspend fun getPersistedTransportState(): TransportState<FakeSong>? {
-            return getPersistedTransportState()
+        override suspend fun getPersistedTransportState(): MediaPlaybackState<FakeSong>? {
+            return getPersistedMediaPlaybackState()
         }
 
     }

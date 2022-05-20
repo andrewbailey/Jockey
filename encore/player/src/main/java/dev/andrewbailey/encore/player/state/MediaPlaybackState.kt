@@ -4,7 +4,7 @@ import android.os.Parcelable
 import dev.andrewbailey.encore.model.MediaObject
 import kotlinx.parcelize.Parcelize
 
-public sealed class TransportState<out M : MediaObject> : Parcelable {
+public sealed class MediaPlaybackState<out M : MediaObject> : Parcelable {
 
     public abstract val repeatMode: RepeatMode
     public abstract val shuffleMode: ShuffleMode
@@ -17,7 +17,7 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
         val queue: QueueState<M>,
         override val repeatMode: RepeatMode,
         override val playbackSpeed: Float
-    ) : TransportState<M>() {
+    ) : MediaPlaybackState<M>() {
 
         init {
             require(playbackSpeed > 0) {
@@ -39,7 +39,7 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
         override val repeatMode: RepeatMode,
         override val shuffleMode: ShuffleMode,
         override val playbackSpeed: Float
-    ) : TransportState<Nothing>() {
+    ) : MediaPlaybackState<Nothing>() {
 
         init {
             require(playbackSpeed > 0) {

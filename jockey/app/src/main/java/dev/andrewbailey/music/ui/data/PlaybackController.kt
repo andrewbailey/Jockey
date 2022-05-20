@@ -7,12 +7,12 @@ import dev.andrewbailey.encore.model.QueueItem
 import dev.andrewbailey.encore.player.controller.EncoreController
 import dev.andrewbailey.encore.player.controller.EncoreController.SeekUpdateFrequency.WhilePlayingEvery
 import dev.andrewbailey.encore.player.controller.EncoreToken
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.copy
 import dev.andrewbailey.music.model.Song
 import java.util.UUID
@@ -95,7 +95,7 @@ class PlaybackController @Inject constructor(
 
         coroutineScope.launch {
             mediaController.setState(
-                TransportState.Populated(
+                MediaPlaybackState.Populated(
                     status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Linear(
@@ -130,7 +130,7 @@ class PlaybackController @Inject constructor(
 
         coroutineScope.launch {
             mediaController.setState(
-                TransportState.Populated(
+                MediaPlaybackState.Populated(
                     status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Shuffled(
@@ -147,8 +147,8 @@ class PlaybackController @Inject constructor(
 
     fun playAtQueueIndex(index: Int) {
         coroutineScope.launch {
-            val currentState = mediaController.getState().transportState
-            check(currentState is TransportState.Populated) {
+            val currentState = mediaController.getState().mediaPlaybackState
+            check(currentState is MediaPlaybackState.Populated) {
                 "Cannot change the seek position because nothing is playing."
             }
 

@@ -123,7 +123,7 @@ internal class MediaSessionController<M : MediaObject>(
         mediaSession.apply {
             if (newState is Initialized) {
                 setRepeatMode(
-                    when (newState.transportState.repeatMode) {
+                    when (newState.mediaPlaybackState.repeatMode) {
                         RepeatNone -> REPEAT_MODE_NONE
                         RepeatOne -> REPEAT_MODE_ONE
                         RepeatAll -> REPEAT_MODE_ALL
@@ -131,7 +131,7 @@ internal class MediaSessionController<M : MediaObject>(
                 )
 
                 setShuffleMode(
-                    when (newState.transportState.shuffleMode) {
+                    when (newState.mediaPlaybackState.shuffleMode) {
                         ShuffleDisabled -> SHUFFLE_MODE_NONE
                         ShuffleEnabled -> SHUFFLE_MODE_ALL
                     }
@@ -141,17 +141,17 @@ internal class MediaSessionController<M : MediaObject>(
             when (newState) {
                 is Prepared -> {
                     setMetadata(metadataMapper.toMediaMetadataCompat(newState))
-                    setQueue(queueMapper.toQueue(newState.transportState.queue))
+                    setQueue(queueMapper.toQueue(newState.mediaPlaybackState.queue))
 
                     setPlaybackState(
                         PlaybackStateCompat.Builder()
                             .setState(
-                                when (newState.transportState.status) {
+                                when (newState.mediaPlaybackState.status) {
                                     PlaybackStatus.Playing -> STATE_PLAYING
                                     is PlaybackStatus.Paused -> STATE_PAUSED
                                 },
-                                newState.transportState.seekPosition.seekPositionMillis,
-                                newState.transportState.playbackSpeed
+                                newState.mediaPlaybackState.seekPosition.seekPositionMillis,
+                                newState.mediaPlaybackState.playbackSpeed
                             )
                             .setActions(
                                 ACTION_PLAY or

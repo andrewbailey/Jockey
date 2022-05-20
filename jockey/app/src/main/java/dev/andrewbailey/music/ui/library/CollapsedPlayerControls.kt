@@ -41,6 +41,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.andrewbailey.encore.player.state.MediaPlayerState
+import dev.andrewbailey.encore.player.state.durationMillisOrNull
 import dev.andrewbailey.encore.player.state.hasContent
 import dev.andrewbailey.encore.player.state.isPlaying
 import dev.andrewbailey.encore.player.state.nowPlaying
@@ -174,8 +175,8 @@ private fun SeekBar(
     modifier: Modifier = Modifier
 ) {
     LinearProgressIndicator(
-        progress = playbackState.durationMs?.let { duration ->
-            val percent = playbackState.transportState.seekPosition
+        progress = playbackState.durationMillisOrNull()?.let { duration ->
+            val percent = playbackState.mediaPlaybackState.seekPosition
                 .seekPositionMillis.toFloat() / duration
 
             percent.coerceIn(0f..1f)

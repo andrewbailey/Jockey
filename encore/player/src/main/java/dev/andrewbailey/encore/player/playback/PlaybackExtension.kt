@@ -2,10 +2,10 @@ package dev.andrewbailey.encore.player.playback
 
 import android.util.Log
 import dev.andrewbailey.encore.model.MediaObject
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.factory.PlaybackStateFactory
 
 public abstract class PlaybackExtension<M : MediaObject> {
@@ -23,11 +23,11 @@ public abstract class PlaybackExtension<M : MediaObject> {
     }
 
     internal suspend fun interceptInitialPlayerState(
-        pendingTransportState: TransportState<M>?
-    ): TransportState<M>? {
-        val modifiedState = onInterceptInitializationState(pendingTransportState)
+        pendingMediaPlaybackState: MediaPlaybackState<M>?
+    ): MediaPlaybackState<M>? {
+        val modifiedState = onInterceptInitializationState(pendingMediaPlaybackState)
 
-        if (pendingTransportState != null && modifiedState != pendingTransportState) {
+        if (pendingMediaPlaybackState != null && modifiedState != pendingMediaPlaybackState) {
             if (modifiedState == null) {
                 Log.w(
                     "Encore",
@@ -72,20 +72,20 @@ public abstract class PlaybackExtension<M : MediaObject> {
 
     protected fun getCurrentPlaybackState(): MediaPlayerState<M> = requireMediaPlayer().getState()
 
-    protected fun requireCurrentTransportState(): TransportState<M> {
+    protected fun requireCurrentTransportState(): MediaPlaybackState<M> {
         val playbackState = getCurrentPlaybackState()
         check(playbackState is MediaPlayerState.Initialized) {
             "Cannot read current transport state. The player is not initialized."
         }
-        return playbackState.transportState
+        return playbackState.mediaPlaybackState
     }
 
-    protected fun setTransportState(state: TransportState<M>) {
+    protected fun setTransportState(state: MediaPlaybackState<M>) {
         requireMediaPlayer().setState(state)
     }
 
     protected inline fun modifyTransportState(
-        modification: TransportState<M>.() -> TransportState<M>
+        modification: MediaPlaybackState<M>.() -> MediaPlaybackState<M>
     ) {
         setTransportState(requireCurrentTransportState().modification())
     }
@@ -95,9 +95,9 @@ public abstract class PlaybackExtension<M : MediaObject> {
     }
 
     protected open suspend fun onInterceptInitializationState(
-        pendingTransportState: TransportState<M>?
-    ): TransportState<M>? {
-        return pendingTransportState
+        pendingMediaPlaybackState: MediaPlaybackState<M>?
+    ): MediaPlaybackState<M>? {
+        return pendingMediaPlaybackState
     }
 
     protected open fun onPlayerFullyInitialized() {
@@ -110,28 +110,30 @@ public abstract class PlaybackExtension<M : MediaObject> {
 
     }
 
-    protected fun TransportState<M>.play(): TransportState<M> =
+    protected fun MediaPlaybackState<M>.play(): MediaPlaybackState<M> =
         requirePlaybackStateFactory().play(this)
 
-    protected fun TransportState<M>.pause(): TransportState<M> =
+    protected fun MediaPlaybackState<M>.pause(): MediaPlaybackState<M> =
         requirePlaybackStateFactory().pause(this)
 
-    protected fun TransportState<M>.seekTo(seekPositionMillis: Long): TransportState<M> =
+    protected fun MediaPlaybackState<M>.seekTo(seekPositionMillis: Long): MediaPlaybackState<M> =
         requirePlaybackStateFactory().seekTo(this, seekPositionMillis)
 
-    protected fun TransportState<M>.skipToPrevious(): TransportState<M> =
+    protected fun MediaPlaybackState<M>.skipToPrevious(): MediaPlaybackState<M> =
         requirePlaybackStateFactory().skipToPrevious(this)
 
-    protected fun TransportState<M>.skipToNext(): TransportState<M> =
+    protected fun MediaPlaybackState<M>.skipToNext(): MediaPlaybackState<M> =
         requirePlaybackStateFactory().skipToNext(this)
 
-    protected fun TransportState<M>.skipToIndex(index: Int): TransportState<M> =
+    protected fun MediaPlaybackState<M>.skipToIndex(index: Int): MediaPlaybackState<M> =
         requirePlaybackStateFactory().skipToIndex(this, index)
 
-    protected fun TransportState<M>.setShuffleMode(shuffleMode: ShuffleMode): TransportState<M> =
-        requirePlaybackStateFactory().setShuffleMode(this, shuffleMode)
+    protected fun MediaPlaybackState<M>.setShuffleMode(
+        shuffleMode: ShuffleMode
+    ): MediaPlaybackState<M> = requirePlaybackStateFactory().setShuffleMode(this, shuffleMode)
 
-    protected fun TransportState<M>.setRepeatMode(repeatMode: RepeatMode): TransportState<M> =
-        requirePlaybackStateFactory().setRepeatMode(this, repeatMode)
+    protected fun MediaPlaybackState<M>.setRepeatMode(
+        repeatMode: RepeatMode
+    ): MediaPlaybackState<M> = requirePlaybackStateFactory().setRepeatMode(this, repeatMode)
 
 }

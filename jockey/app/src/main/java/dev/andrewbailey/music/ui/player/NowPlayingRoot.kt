@@ -191,7 +191,7 @@ private fun NowPlayingToolbar(
             }
         },
         actions = {
-            playbackState?.transportState?.shuffleMode?.let { shuffleMode ->
+            playbackState?.mediaPlaybackState?.shuffleMode?.let { shuffleMode ->
                 val toggledShuffleMode = when (shuffleMode) {
                     ShuffleMode.ShuffleDisabled -> ShuffleMode.ShuffleEnabled
                     ShuffleMode.ShuffleEnabled -> ShuffleMode.ShuffleDisabled

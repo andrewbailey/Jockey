@@ -25,7 +25,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     }
 
     override fun getNotificationIcon(playbackState: MediaPlayerState<Song>): Int {
-        val state = playbackState.transportState
+        val state = playbackState.mediaPlaybackState
         return when {
             state?.isPlaying() == true -> R.drawable.ic_notification_play
             else -> R.drawable.ic_notification_pause

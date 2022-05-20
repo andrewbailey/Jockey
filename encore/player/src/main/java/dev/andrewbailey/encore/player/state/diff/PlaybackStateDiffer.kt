@@ -3,10 +3,10 @@ package dev.andrewbailey.encore.player.state.diff
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.QueueState.Linear
 import dev.andrewbailey.encore.player.state.QueueState.Shuffled
 import dev.andrewbailey.encore.player.state.SeekPosition
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.isPlaying
 import dev.andrewbailey.encore.player.state.nowPlayingOrNull
 import dev.andrewbailey.encore.player.state.queueIndexOrNull
@@ -16,8 +16,8 @@ import dev.andrewbailey.encore.player.state.seekPositionOrNull
 internal class PlaybackStateDiffer<M : MediaObject> {
 
     fun generateDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateDiff<M> {
         return PlaybackStateDiff(
             operations = listOfNotNull(
@@ -32,8 +32,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generatePauseDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         val wasPlaying = oldState.isPlaying()
         val shouldPlay = newState.isPlaying()
@@ -45,7 +45,7 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generatePlayDiff(
-        newState: TransportState<M>
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         return if (newState.isPlaying()) {
             SetPlaying(true)
@@ -55,8 +55,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generateRepeatDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         return if (oldState.repeatMode != newState.repeatMode) {
             SetRepeatMode(newState.repeatMode)
@@ -66,8 +66,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generatePlaybackSpeedDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         return if (oldState.playbackSpeed != newState.playbackSpeed) {
             SetPlaybackSpeed(
@@ -80,8 +80,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generateQueueDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         val oldQueue = oldState.queueStateOrNull()
         val newQueue = newState.queueStateOrNull()
@@ -102,8 +102,8 @@ internal class PlaybackStateDiffer<M : MediaObject> {
     }
 
     private fun generateSeekDiff(
-        oldState: TransportState<M>,
-        newState: TransportState<M>
+        oldState: MediaPlaybackState<M>,
+        newState: MediaPlaybackState<M>
     ): PlaybackStateModification<M>? {
         val oldStateNowPlaying = oldState.nowPlayingOrNull()
         val newStateQueueIndex = newState.queueIndexOrNull() ?: return null

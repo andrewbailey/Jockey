@@ -5,9 +5,9 @@ import android.content.Context
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.MediaPlayerService
 import dev.andrewbailey.encore.player.controller.impl.EncoreControllerImpl
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 
@@ -23,7 +23,7 @@ public interface EncoreController<M : MediaObject> {
 
     public suspend fun getState(): MediaPlayerState<M>
 
-    public suspend fun setState(newState: TransportState<M>)
+    public suspend fun setState(newState: MediaPlaybackState<M>)
 
     public suspend fun play()
 

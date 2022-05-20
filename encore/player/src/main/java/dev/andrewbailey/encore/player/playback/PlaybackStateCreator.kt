@@ -15,6 +15,7 @@ import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.LinearQueueItems
 import dev.andrewbailey.encore.player.playback.MediaQueueItems.ShuffledQueueItems
 import dev.andrewbailey.encore.player.state.BufferingState
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.PlaybackStatus.Paused
 import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
@@ -26,7 +27,6 @@ import dev.andrewbailey.encore.player.state.RepeatMode.RepeatOne
 import dev.andrewbailey.encore.player.state.SeekPosition.AbsoluteSeekPosition
 import dev.andrewbailey.encore.player.state.SeekPosition.ComputedSeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode.ShuffleDisabled
-import dev.andrewbailey.encore.player.state.TransportState
 import java.util.UUID
 
 internal class PlaybackStateCreator<M : MediaObject>(
@@ -36,28 +36,28 @@ internal class PlaybackStateCreator<M : MediaObject>(
 
     fun createPlaybackState(): MediaPlayerState<M> {
         return when (val transportState = createTransportState()) {
-            is TransportState.Populated<M> -> MediaPlayerState.Prepared(
-                transportState = transportState,
+            is MediaPlaybackState.Populated<M> -> MediaPlayerState.Prepared(
+                mediaPlaybackState = transportState,
                 artwork = getArtwork(),
                 durationMs = exoPlayer.duration.takeIf { it != C.TIME_UNSET },
                 bufferingState = getBufferingState()
             )
-            is TransportState.Empty -> MediaPlayerState.Ready(
-                transportState = transportState
+            is MediaPlaybackState.Empty -> MediaPlayerState.Ready(
+                mediaPlaybackState = transportState
             )
         }
     }
 
-    fun createTransportState(): TransportState<M> {
+    fun createTransportState(): MediaPlaybackState<M> {
         val queueItems = queue.queueItems
         return if (queueItems == null) {
-            TransportState.Empty(
+            MediaPlaybackState.Empty(
                 repeatMode = getRepeatMode(),
                 shuffleMode = ShuffleDisabled,
                 playbackSpeed = exoPlayer.playbackParameters.speed
             )
         } else {
-            TransportState.Populated(
+            MediaPlaybackState.Populated(
                 status = when {
                     exoPlayer.playbackState == STATE_ENDED ||
                         exoPlayer.isAtEndOfTimeline() -> Paused(reachedEndOfQueue = true)

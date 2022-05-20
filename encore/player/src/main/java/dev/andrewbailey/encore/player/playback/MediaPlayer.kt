@@ -8,9 +8,9 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.audio.AudioAttributes
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.player.BuildConfig
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.RepeatMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.player.state.diff.PlaybackStateDiffer
 import dev.andrewbailey.encore.player.state.diff.QueueModification
 import dev.andrewbailey.encore.player.state.diff.SetPlaybackSpeed
@@ -58,7 +58,7 @@ internal class MediaPlayer<M : MediaObject>(
         }
 
         coroutineScope.launch {
-            val initialState = extensions.fold(null as TransportState<M>?) { acc, extension ->
+            val initialState = extensions.fold(null as MediaPlaybackState<M>?) { acc, extension ->
                 extension.interceptInitialPlayerState(acc)
             }
 
@@ -81,13 +81,13 @@ internal class MediaPlayer<M : MediaObject>(
         }
     }
 
-    private fun getTransportState(): TransportState<M> {
+    private fun getTransportState(): MediaPlaybackState<M> {
         return synchronized(stateLock) {
             stateCreator.createTransportState()
         }
     }
 
-    fun setState(state: TransportState<M>) {
+    fun setState(state: MediaPlaybackState<M>) {
         synchronized(stateLock) {
             check(isInitializationComplete) {
                 "Cannot change the player's state because it is still initializing."

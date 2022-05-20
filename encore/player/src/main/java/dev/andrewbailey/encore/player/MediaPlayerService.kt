@@ -177,7 +177,7 @@ public abstract class MediaPlayerService<M : MediaObject> constructor(
             if (state.isPlaying()) {
                 mediaPlayer.setState(
                     with(playbackStateFactory) {
-                        state.transportState.pause()
+                        state.mediaPlaybackState.pause()
                     }
                 )
             }

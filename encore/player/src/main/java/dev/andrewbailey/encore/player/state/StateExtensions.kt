@@ -25,7 +25,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.isPlaying(): Boolean {
         returns(true) implies (this@isPlaying is MediaPlayerState.Prepared)
     }
 
-    return this is MediaPlayerState.Prepared && transportState.isPlaying()
+    return this is MediaPlayerState.Prepared && mediaPlaybackState.isPlaying()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.isPausedForBuffering(): Boolean {
@@ -42,7 +42,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.isPaused(): Boolean {
         returns(true) implies (this@isPaused is MediaPlayerState.Prepared)
     }
 
-    return this is MediaPlayerState.Prepared && transportState.isPaused()
+    return this is MediaPlayerState.Prepared && mediaPlaybackState.isPaused()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.isPausedOrHasNoContent(): Boolean {
@@ -50,7 +50,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.isPausedOrHasNoContent(): Boole
         returns(true) implies (this@isPausedOrHasNoContent is MediaPlayerState.Initialized)
     }
 
-    return this is MediaPlayerState.Initialized && transportState.isPausedOrHasNoContent()
+    return this is MediaPlayerState.Initialized && mediaPlaybackState.isPausedOrHasNoContent()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.artworkOrNull(): Bitmap? {
@@ -66,29 +66,29 @@ public fun <M : MediaObject> MediaPlayerState<M>.queueStateOrNull(): QueueState<
         returnsNotNull() implies (this@queueStateOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.queueStateOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.queueStateOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState.Prepared<M>.queueState(): QueueState<M> =
-    transportState.queue
+    mediaPlaybackState.queue
 
 public fun <M : MediaObject> MediaPlayerState<M>.nowPlayingOrNull(): QueueItem<M>? {
     contract {
         returnsNotNull() implies (this@nowPlayingOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.nowPlayingOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.nowPlayingOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState.Prepared<M>.nowPlaying(): QueueItem<M> =
-    transportState.nowPlaying()
+    mediaPlaybackState.nowPlaying()
 
 public fun <M : MediaObject> MediaPlayerState<M>.queueOrNull(): List<QueueItem<M>>? {
     contract {
         returnsNotNull() implies (this@queueOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.queueOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.queueOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.queueIndexOrNull(): Int? {
@@ -96,7 +96,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.queueIndexOrNull(): Int? {
         returnsNotNull() implies (this@queueIndexOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.queueIndexOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.queueIndexOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.seekPositionOrNull(): SeekPosition? {
@@ -104,7 +104,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.seekPositionOrNull(): SeekPosit
         returnsNotNull() implies (this@seekPositionOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.seekPositionOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.seekPositionOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.seekPositionMillisOrNull(): Long? {
@@ -112,7 +112,7 @@ public fun <M : MediaObject> MediaPlayerState<M>.seekPositionMillisOrNull(): Lon
         returnsNotNull() implies (this@seekPositionMillisOrNull is MediaPlayerState.Prepared)
     }
 
-    return (this as? MediaPlayerState.Prepared)?.transportState?.seekPositionMillisOrNull()
+    return (this as? MediaPlayerState.Prepared)?.mediaPlaybackState?.seekPositionMillisOrNull()
 }
 
 public fun <M : MediaObject> MediaPlayerState<M>.durationMillisOrNull(): Long? {
@@ -123,117 +123,118 @@ public fun <M : MediaObject> MediaPlayerState<M>.durationMillisOrNull(): Long? {
     return (this as? MediaPlayerState.Prepared)?.durationMs
 }
 
-public fun <M : MediaObject> TransportState<M>.hasContent(): Boolean {
+public fun <M : MediaObject> MediaPlaybackState<M>.hasContent(): Boolean {
     contract {
-        returns(true) implies (this@hasContent is TransportState.Populated)
+        returns(true) implies (this@hasContent is MediaPlaybackState.Populated)
     }
 
-    return this is TransportState.Populated
+    return this is MediaPlaybackState.Populated
 }
 
-public fun <M : MediaObject> TransportState<M>.isPlaying(): Boolean {
+public fun <M : MediaObject> MediaPlaybackState<M>.isPlaying(): Boolean {
     contract {
-        returns(true) implies (this@isPlaying is TransportState.Populated)
+        returns(true) implies (this@isPlaying is MediaPlaybackState.Populated)
     }
 
-    return this is TransportState.Populated && status == Playing
+    return this is MediaPlaybackState.Populated && status == Playing
 }
 
-public fun <M : MediaObject> TransportState<M>.isPaused(): Boolean {
+public fun <M : MediaObject> MediaPlaybackState<M>.isPaused(): Boolean {
     contract {
-        returns(true) implies (this@isPaused is TransportState.Populated)
+        returns(true) implies (this@isPaused is MediaPlaybackState.Populated)
     }
 
-    return this is TransportState.Populated && status is Paused
+    return this is MediaPlaybackState.Populated && status is Paused
 }
 
-public fun <M : MediaObject> TransportState<M>.isPausedOrHasNoContent(): Boolean {
-    return (this is TransportState.Populated && status is Paused) || this is TransportState.Empty
+public fun <M : MediaObject> MediaPlaybackState<M>.isPausedOrHasNoContent(): Boolean {
+    return (this is MediaPlaybackState.Populated && status is Paused) ||
+        this is MediaPlaybackState.Empty
 }
 
-public fun <M : MediaObject> TransportState<M>.seekPositionOrNull(): SeekPosition? {
+public fun <M : MediaObject> MediaPlaybackState<M>.seekPositionOrNull(): SeekPosition? {
     contract {
-        returnsNotNull() implies (this@seekPositionOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@seekPositionOrNull is MediaPlaybackState.Populated)
     }
 
-    return (this as? TransportState.Populated)?.seekPosition
+    return (this as? MediaPlaybackState.Populated)?.seekPosition
 }
 
-public fun <M : MediaObject> TransportState<M>.seekPositionMillisOrNull(): Long? {
+public fun <M : MediaObject> MediaPlaybackState<M>.seekPositionMillisOrNull(): Long? {
     contract {
-        returnsNotNull() implies (this@seekPositionMillisOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@seekPositionMillisOrNull is MediaPlaybackState.Populated)
     }
 
     return seekPositionOrNull()?.seekPositionMillis
 }
 
-public fun <M : MediaObject> TransportState<M>.nowPlayingOrNull(): QueueItem<M>? {
+public fun <M : MediaObject> MediaPlaybackState<M>.nowPlayingOrNull(): QueueItem<M>? {
     contract {
-        returnsNotNull() implies (this@nowPlayingOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@nowPlayingOrNull is MediaPlaybackState.Populated)
     }
 
     return queueStateOrNull()?.let { it.queue[it.queueIndex] }
 }
 
-public fun <M : MediaObject> TransportState.Populated<M>.nowPlaying(): QueueItem<M> =
+public fun <M : MediaObject> MediaPlaybackState.Populated<M>.nowPlaying(): QueueItem<M> =
     queue.queue[queue.queueIndex]
 
-public fun <M : MediaObject> TransportState<M>.queueStateOrNull(): QueueState<M>? {
+public fun <M : MediaObject> MediaPlaybackState<M>.queueStateOrNull(): QueueState<M>? {
     contract {
-        returnsNotNull() implies (this@queueStateOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@queueStateOrNull is MediaPlaybackState.Populated)
     }
 
-    return (this as? TransportState.Populated)?.queue
+    return (this as? MediaPlaybackState.Populated)?.queue
 }
 
-public fun <M : MediaObject> TransportState<M>.queueOrNull(): List<QueueItem<M>>? {
+public fun <M : MediaObject> MediaPlaybackState<M>.queueOrNull(): List<QueueItem<M>>? {
     contract {
-        returnsNotNull() implies (this@queueOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@queueOrNull is MediaPlaybackState.Populated)
     }
 
     return queueStateOrNull()?.queue
 }
 
-public fun <M : MediaObject> TransportState<M>.queueIndexOrNull(): Int? {
+public fun <M : MediaObject> MediaPlaybackState<M>.queueIndexOrNull(): Int? {
     contract {
-        returnsNotNull() implies (this@queueIndexOrNull is TransportState.Populated)
+        returnsNotNull() implies (this@queueIndexOrNull is MediaPlaybackState.Populated)
     }
 
     return queueStateOrNull()?.queueIndex
 }
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.play(): TransportState<M> =
+public fun <M : MediaObject> MediaPlaybackState<M>.play(): MediaPlaybackState<M> =
     play(this)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.pause(): TransportState<M> =
+public fun <M : MediaObject> MediaPlaybackState<M>.pause(): MediaPlaybackState<M> =
     pause(this)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.skipToPrevious(): TransportState<M> =
+public fun <M : MediaObject> MediaPlaybackState<M>.skipToPrevious(): MediaPlaybackState<M> =
     skipToPrevious(this)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.skipToNext(): TransportState<M> =
+public fun <M : MediaObject> MediaPlaybackState<M>.skipToNext(): MediaPlaybackState<M> =
     skipToNext(this)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.skipToIndex(
+public fun <M : MediaObject> MediaPlaybackState<M>.skipToIndex(
     index: Int
-): TransportState<M> = skipToIndex(this, index)
+): MediaPlaybackState<M> = skipToIndex(this, index)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.seekTo(
+public fun <M : MediaObject> MediaPlaybackState<M>.seekTo(
     seekPositionMillis: Long
-): TransportState<M> = seekTo(this, seekPositionMillis)
+): MediaPlaybackState<M> = seekTo(this, seekPositionMillis)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.setShuffleMode(
+public fun <M : MediaObject> MediaPlaybackState<M>.setShuffleMode(
     shuffleMode: ShuffleMode
-): TransportState<M> = setShuffleMode(this, shuffleMode)
+): MediaPlaybackState<M> = setShuffleMode(this, shuffleMode)
 
 context(PlaybackStateFactory<M>)
-public fun <M : MediaObject> TransportState<M>.setRepeatMode(
+public fun <M : MediaObject> MediaPlaybackState<M>.setRepeatMode(
     repeatMode: RepeatMode
-): TransportState<M> = setRepeatMode(this, repeatMode)
+): MediaPlaybackState<M> = setRepeatMode(this, repeatMode)

@@ -7,19 +7,19 @@ import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.PlaybackStatus
 import dev.andrewbailey.encore.player.state.QueueState
-import dev.andrewbailey.encore.player.state.TransportState
 
 fun assertThat(
-    mediaPlayerState: TransportState<*>?
+    mediaPlayerState: MediaPlaybackState<*>?
 ): TransportStateSubject = Truth.assertAbout(transportState()).that(mediaPlayerState)
 
 fun transportState() = TransportStateSubject.Factory
 
 class TransportStateSubject private constructor(
     failureMetadata: FailureMetadata,
-    private val actual: TransportState<*>?
+    private val actual: MediaPlaybackState<*>?
 ) : Subject(failureMetadata, actual) {
 
     companion object {
@@ -28,14 +28,14 @@ class TransportStateSubject private constructor(
 
     // region assertion operations
 
-    inline fun <reified T : TransportState<*>> isInstanceOf() {
+    inline fun <reified T : MediaPlaybackState<*>> isInstanceOf() {
         subclass().isAssignableTo(T::class.java)
     }
 
     fun hasStatus(expected: PlaybackStatus) {
         val actualStatus = when (actual) {
-            is TransportState.Populated -> actual.status
-            is TransportState.Empty -> {
+            is MediaPlaybackState.Populated -> actual.status
+            is MediaPlaybackState.Empty -> {
                 fail(
                     fact("expected", expected),
                     simpleFact("but state was not Active")
@@ -57,8 +57,8 @@ class TransportStateSubject private constructor(
         thresholdMs: Long
     ) {
         val seekPosition = when (actual) {
-            is TransportState.Populated -> actual.seekPosition.seekPositionMillis
-            is TransportState.Empty -> {
+            is MediaPlaybackState.Populated -> actual.seekPosition.seekPositionMillis
+            is MediaPlaybackState.Empty -> {
                 fail(
                     fact("expected", "$expectedSeekPositionMs ms"),
                     fact("with tolerance of", "$thresholdMs ms"),
@@ -92,8 +92,8 @@ class TransportStateSubject private constructor(
 
     fun hasQueueState(expected: QueueState<*>) {
         val actualQueue = when (actual) {
-            is TransportState.Populated -> actual.queue
-            is TransportState.Empty -> {
+            is MediaPlaybackState.Populated -> actual.queue
+            is MediaPlaybackState.Empty -> {
                 fail(
                     fact("expected", expected),
                     simpleFact("but state was not Active")
@@ -112,16 +112,16 @@ class TransportStateSubject private constructor(
 
     fun isEqualTo(other: Any?, seekToleranceMs: Long) {
         when (actual) {
-            null, is TransportState.Empty -> {
+            null, is MediaPlaybackState.Empty -> {
                 isEqualTo(other)
             }
-            is TransportState.Populated -> {
-                val allOtherParametersEqual = other is TransportState.Populated<*> &&
+            is MediaPlaybackState.Populated -> {
+                val allOtherParametersEqual = other is MediaPlaybackState.Populated<*> &&
                     actual.status == other.status &&
                     actual.queue == other.queue &&
                     actual.repeatMode == other.repeatMode
 
-                if (other !is TransportState.Populated<*> || !allOtherParametersEqual) {
+                if (other !is MediaPlaybackState.Populated<*> || !allOtherParametersEqual) {
                     isEqualTo(other)
                     throw AssertionError()
                 }

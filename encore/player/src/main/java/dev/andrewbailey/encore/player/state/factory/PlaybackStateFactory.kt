@@ -2,62 +2,62 @@ package dev.andrewbailey.encore.player.state.factory
 
 import dev.andrewbailey.encore.model.MediaObject
 import dev.andrewbailey.encore.model.MediaSearchArguments
+import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.ShuffleMode
-import dev.andrewbailey.encore.player.state.TransportState
 import dev.andrewbailey.encore.provider.MediaSearchResults
 
 public abstract class PlaybackStateFactory<M : MediaObject> {
 
     public abstract fun play(
-        state: TransportState<M>
-    ): TransportState<M>
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun pause(
-        state: TransportState<M>
-    ): TransportState<M>
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun seekTo(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         seekPositionMillis: Long
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun skipToPrevious(
-        state: TransportState<M>
-    ): TransportState<M>
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun skipToNext(
-        state: TransportState<M>
-    ): TransportState<M>
+        state: MediaPlaybackState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun skipToIndex(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         index: Int
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun setShuffleMode(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         shuffleMode: ShuffleMode
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun setRepeatMode(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         repeatMode: RepeatMode
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun playFromSearchResults(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         query: String,
         beginPlayback: Boolean,
         arguments: MediaSearchArguments,
         searchResults: MediaSearchResults<M>
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
     public abstract fun playFromMediaBrowser(
-        state: TransportState<M>,
+        state: MediaPlaybackState<M>,
         browserId: String,
         mediaItemId: String,
         mediaItems: List<M>
-    ): TransportState<M>
+    ): MediaPlaybackState<M>
 
 }

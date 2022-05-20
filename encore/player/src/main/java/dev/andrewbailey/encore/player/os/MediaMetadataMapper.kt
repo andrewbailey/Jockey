@@ -54,7 +54,7 @@ internal class MediaMetadataMapper {
     fun toMediaMetadataCompat(
         playbackState: MediaPlayerState.Prepared<*>
     ): MediaMetadataCompat = MediaMetadataCompat.Builder().apply {
-        val metadata = playbackState.transportState.queue.nowPlaying.mediaItem.toMediaMetadata()
+        val metadata = playbackState.mediaPlaybackState.queue.nowPlaying.mediaItem.toMediaMetadata()
         val isAdvertisement = false
 
         putString(METADATA_KEY_TITLE, metadata.title)
