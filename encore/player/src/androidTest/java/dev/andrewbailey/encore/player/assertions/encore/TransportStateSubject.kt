@@ -34,8 +34,8 @@ class TransportStateSubject private constructor(
 
     fun hasStatus(expected: PlaybackStatus) {
         val actualStatus = when (actual) {
-            is TransportState.Active -> actual.status
-            is TransportState.Idle -> {
+            is TransportState.Populated -> actual.status
+            is TransportState.Empty -> {
                 fail(
                     fact("expected", expected),
                     simpleFact("but state was not Active")
@@ -57,8 +57,8 @@ class TransportStateSubject private constructor(
         thresholdMs: Long
     ) {
         val seekPosition = when (actual) {
-            is TransportState.Active -> actual.seekPosition.seekPositionMillis
-            is TransportState.Idle -> {
+            is TransportState.Populated -> actual.seekPosition.seekPositionMillis
+            is TransportState.Empty -> {
                 fail(
                     fact("expected", "$expectedSeekPositionMs ms"),
                     fact("with tolerance of", "$thresholdMs ms"),
@@ -92,8 +92,8 @@ class TransportStateSubject private constructor(
 
     fun hasQueueState(expected: QueueState<*>) {
         val actualQueue = when (actual) {
-            is TransportState.Active -> actual.queue
-            is TransportState.Idle -> {
+            is TransportState.Populated -> actual.queue
+            is TransportState.Empty -> {
                 fail(
                     fact("expected", expected),
                     simpleFact("but state was not Active")
@@ -112,16 +112,16 @@ class TransportStateSubject private constructor(
 
     fun isEqualTo(other: Any?, seekToleranceMs: Long) {
         when (actual) {
-            null, is TransportState.Idle -> {
+            null, is TransportState.Empty -> {
                 isEqualTo(other)
             }
-            is TransportState.Active -> {
-                val allOtherParametersEqual = other is TransportState.Active<*> &&
+            is TransportState.Populated -> {
+                val allOtherParametersEqual = other is TransportState.Populated<*> &&
                     actual.status == other.status &&
                     actual.queue == other.queue &&
                     actual.repeatMode == other.repeatMode
 
-                if (other !is TransportState.Active<*> || !allOtherParametersEqual) {
+                if (other !is TransportState.Populated<*> || !allOtherParametersEqual) {
                     isEqualTo(other)
                     throw AssertionError()
                 }

@@ -21,7 +21,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
     @Parcelize
     public class Prepared<M : MediaObject> internal constructor(
-        override val transportState: TransportState.Active<M>,
+        override val transportState: TransportState.Populated<M>,
         public val artwork: Bitmap?,
         public val durationMs: Long?,
         public val bufferingState: BufferingState
@@ -55,7 +55,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
     @Parcelize
     public class Ready internal constructor(
-        override val transportState: TransportState.Idle
+        override val transportState: TransportState.Empty
     ) : MediaPlayerState.Initialized<Nothing>() {
         override fun equals(other: Any?): Boolean {
             return (this === other) ||

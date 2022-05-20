@@ -11,8 +11,8 @@ import dev.andrewbailey.encore.player.state.RepeatMode
 import dev.andrewbailey.encore.player.state.SeekPosition
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.TransportState
-import dev.andrewbailey.encore.player.state.TransportState.Active
-import dev.andrewbailey.encore.player.state.TransportState.Idle
+import dev.andrewbailey.encore.player.state.TransportState.Empty
+import dev.andrewbailey.encore.player.state.TransportState.Populated
 import dev.andrewbailey.encore.provider.MediaSearchResults
 import java.util.Random
 import java.util.UUID
@@ -142,10 +142,10 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         shuffleMode: ShuffleMode
     ): TransportState<M> {
         return when (state) {
-            is Idle -> state.copy(
+            is Empty -> state.copy(
                 shuffleMode = shuffleMode
             )
-            is Active -> state.copy(
+            is Populated -> state.copy(
                 queue = state.queue.changeShuffleMode(shuffleMode)
             )
         }
@@ -156,10 +156,10 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         repeatMode: RepeatMode
     ): TransportState<M> {
         return when (state) {
-            is Idle -> state.copy(
+            is Empty -> state.copy(
                 repeatMode = repeatMode
             )
-            is Active -> state.copy(
+            is Populated -> state.copy(
                 repeatMode = repeatMode
             )
         }
@@ -189,7 +189,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
             emptyList()
         }
 
-        return Active(
+        return Populated(
             status = if (beginPlayback) Playing else Paused(),
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = when (state.shuffleMode) {
@@ -223,7 +223,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
             queueIndex = mediaItems.indexOfFirst { it.id == mediaItemId }
         )
 
-        return Active(
+        return Populated(
             status = Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             queue = when (state.shuffleMode) {
@@ -236,13 +236,13 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     }
 
     private inline fun TransportState<M>.modifyTransportState(
-        status: Active<M>.() -> PlaybackStatus = { this.status },
-        seekPosition: Active<M>.() -> SeekPosition = { this.seekPosition },
-        queueIndex: Active<M>.() -> Int = { this.queue.queueIndex }
+        status: Populated<M>.() -> PlaybackStatus = { this.status },
+        seekPosition: Populated<M>.() -> SeekPosition = { this.seekPosition },
+        queueIndex: Populated<M>.() -> Int = { this.queue.queueIndex }
     ): TransportState<M> {
         return when (this) {
-            is Idle -> this
-            is Active -> copy(
+            is Empty -> this
+            is Populated -> copy(
                 status = status(),
                 seekPosition = seekPosition(),
                 queue = when (queue) {

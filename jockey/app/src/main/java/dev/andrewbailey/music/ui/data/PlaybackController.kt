@@ -95,7 +95,7 @@ class PlaybackController @Inject constructor(
 
         coroutineScope.launch {
             mediaController.setState(
-                TransportState.Active(
+                TransportState.Populated(
                     status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Linear(
@@ -130,7 +130,7 @@ class PlaybackController @Inject constructor(
 
         coroutineScope.launch {
             mediaController.setState(
-                TransportState.Active(
+                TransportState.Populated(
                     status = PlaybackStatus.Playing,
                     seekPosition = SeekPosition.AbsoluteSeekPosition(0),
                     queue = QueueState.Shuffled(
@@ -148,7 +148,7 @@ class PlaybackController @Inject constructor(
     fun playAtQueueIndex(index: Int) {
         coroutineScope.launch {
             val currentState = mediaController.getState().transportState
-            check(currentState is TransportState.Active) {
+            check(currentState is TransportState.Populated) {
                 "Cannot change the seek position because nothing is playing."
             }
 

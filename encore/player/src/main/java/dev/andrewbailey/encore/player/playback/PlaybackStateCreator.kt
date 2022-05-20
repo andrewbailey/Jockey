@@ -36,13 +36,13 @@ internal class PlaybackStateCreator<M : MediaObject>(
 
     fun createPlaybackState(): MediaPlayerState<M> {
         return when (val transportState = createTransportState()) {
-            is TransportState.Active<M> -> MediaPlayerState.Prepared(
+            is TransportState.Populated<M> -> MediaPlayerState.Prepared(
                 transportState = transportState,
                 artwork = getArtwork(),
                 durationMs = exoPlayer.duration.takeIf { it != C.TIME_UNSET },
                 bufferingState = getBufferingState()
             )
-            is TransportState.Idle -> MediaPlayerState.Ready(
+            is TransportState.Empty -> MediaPlayerState.Ready(
                 transportState = transportState
             )
         }
@@ -51,13 +51,13 @@ internal class PlaybackStateCreator<M : MediaObject>(
     fun createTransportState(): TransportState<M> {
         val queueItems = queue.queueItems
         return if (queueItems == null) {
-            TransportState.Idle(
+            TransportState.Empty(
                 repeatMode = getRepeatMode(),
                 shuffleMode = ShuffleDisabled,
                 playbackSpeed = exoPlayer.playbackParameters.speed
             )
         } else {
-            TransportState.Active(
+            TransportState.Populated(
                 status = when {
                     exoPlayer.playbackState == STATE_ENDED ||
                         exoPlayer.isAtEndOfTimeline() -> Paused(reachedEndOfQueue = true)

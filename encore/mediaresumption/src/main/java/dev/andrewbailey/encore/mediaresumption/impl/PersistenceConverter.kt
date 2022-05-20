@@ -19,8 +19,8 @@ internal class PersistenceConverter<M : MediaObject>(
         transportState: TransportState<M>
     ): PersistedPlaybackState? {
         return when (transportState) {
-            is TransportState.Idle -> null
-            is TransportState.Active -> PersistedPlaybackState(
+            is TransportState.Empty -> null
+            is TransportState.Populated -> PersistedPlaybackState(
                 seekPositionMs = transportState.seekPosition.seekPositionMillis,
                 queueIndex = transportState.queue.queueIndex,
                 shuffleMode = transportState.shuffleMode,
@@ -34,10 +34,10 @@ internal class PersistenceConverter<M : MediaObject>(
         transportState: TransportState<M>
     ): List<PersistedQueueItem> {
         return when (transportState) {
-            is TransportState.Idle -> {
+            is TransportState.Empty -> {
                 emptyList()
             }
-            is TransportState.Active -> {
+            is TransportState.Populated -> {
                 when (val queue = transportState.queue) {
                     is QueueState.Linear -> {
                         queue.queue.mapIndexed { index, queueItem ->
@@ -74,14 +74,14 @@ internal class PersistenceConverter<M : MediaObject>(
     ): TransportState<M> {
         return when (val queue = toQueueState(persistedPlaybackState, persistedQueueItems)) {
             null -> {
-                TransportState.Idle(
+                TransportState.Empty(
                     repeatMode = persistedPlaybackState.repeatMode,
                     shuffleMode = persistedPlaybackState.shuffleMode,
                     playbackSpeed = persistedPlaybackState.playbackSpeed
                 )
             }
             else -> {
-                TransportState.Active(
+                TransportState.Populated(
                     status = PlaybackStatus.Paused(),
                     repeatMode = persistedPlaybackState.repeatMode,
                     playbackSpeed = persistedPlaybackState.playbackSpeed,

@@ -12,9 +12,8 @@ import dev.andrewbailey.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.notification.NotificationAction
 import dev.andrewbailey.encore.player.notification.NotificationProvider
 import dev.andrewbailey.encore.player.state.MediaPlayerState
-import dev.andrewbailey.encore.player.state.PlaybackStatus.Playing
-import dev.andrewbailey.encore.player.state.TransportState.Active
-import dev.andrewbailey.encore.player.state.TransportState.Idle
+import dev.andrewbailey.encore.player.state.hasContent
+import dev.andrewbailey.encore.player.state.isPlaying
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Song
 import dev.andrewbailey.music.ui.MainActivity
@@ -28,7 +27,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     override fun getNotificationIcon(playbackState: MediaPlayerState<Song>): Int {
         val state = playbackState.transportState
         return when {
-            state is Active && state.status == Playing -> R.drawable.ic_notification_play
+            state?.isPlaying() == true -> R.drawable.ic_notification_play
             else -> R.drawable.ic_notification_pause
         }
     }
@@ -50,15 +49,14 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     override fun getActions(
         playbackState: MediaPlayerState.Initialized<Song>
     ): List<NotificationAction<Song>> {
-        return when (val transportState = playbackState.transportState) {
-            is Idle -> emptyList()
-            is Active -> listOf(
+        return when {
+            playbackState.hasContent() -> listOf(
                 NotificationAction.fromPlaybackAction(
                     icon = R.drawable.ic_skip_previous,
                     title = R.string.app_name,
                     action = PlaybackAction.SkipPrevious
                 ),
-                if (transportState.status == Playing) {
+                if (playbackState.isPlaying()) {
                     NotificationAction.fromPlaybackAction(
                         icon = R.drawable.ic_pause,
                         title = R.string.app_name,
@@ -77,6 +75,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
                     action = PlaybackAction.SkipNext
                 )
             )
+            else -> emptyList()
         }
     }
 

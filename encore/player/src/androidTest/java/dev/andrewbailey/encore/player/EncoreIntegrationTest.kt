@@ -66,7 +66,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Idle(
+                    transportState = TransportState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -77,7 +77,7 @@ class EncoreIntegrationTest {
 
     @Test
     fun testSetStateFromIdleToActiveAndPlaying() = encoreTest { encoreController ->
-        val transportState = TransportState.Active(
+        val transportState = TransportState.Populated(
             status = PlaybackStatus.Playing,
             seekPosition = SeekPosition.AbsoluteSeekPosition(0),
             repeatMode = RepeatMode.RepeatNone,
@@ -187,19 +187,19 @@ class EncoreIntegrationTest {
             .transportState()
             .hasStatus(PlaybackStatus.Playing)
 
-        val idleState = TransportState.Idle(
+        val emptyState = TransportState.Empty(
             repeatMode = RepeatMode.RepeatNone,
             shuffleMode = ShuffleMode.ShuffleDisabled,
             playbackSpeed = 1f
         )
 
-        encoreController.setStateAndWaitForIdle(idleState)
+        encoreController.setStateAndWaitForIdle(emptyState)
 
         assertWithMessage("The player did not return to the idle state")
             .about(mediaPlayerState())
             .that(encoreController.getState())
             .transportState()
-            .isEqualTo(idleState)
+            .isEqualTo(emptyState)
     }
 
     @Test
@@ -214,7 +214,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Idle(
+                    transportState = TransportState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -275,7 +275,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Idle(
+                    transportState = TransportState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -336,7 +336,7 @@ class EncoreIntegrationTest {
             .that(encoreController.getState())
             .isEqualTo(
                 MediaPlayerState.Ready(
-                    transportState = TransportState.Idle(
+                    transportState = TransportState.Empty(
                         repeatMode = RepeatMode.RepeatNone,
                         shuffleMode = ShuffleMode.ShuffleDisabled,
                         playbackSpeed = 1f
@@ -773,7 +773,7 @@ class EncoreIntegrationTest {
         repeatMode: RepeatMode = RepeatMode.RepeatNone,
         queueIndex: Int = 0,
         songs: List<FakeSong>? = null
-    ) = TransportState.Active(
+    ) = TransportState.Populated(
         status = status,
         seekPosition = SeekPosition.AbsoluteSeekPosition(seekPositionMs),
         repeatMode = repeatMode,

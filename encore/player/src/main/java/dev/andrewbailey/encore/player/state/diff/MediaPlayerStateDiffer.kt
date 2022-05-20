@@ -221,7 +221,7 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
     }
 
     private fun MediaPlayerState.Prepared<M>.copy(
-        transportState: TransportState.Active<M> = this.transportState,
+        transportState: TransportState.Populated<M> = this.transportState,
         artwork: Bitmap? = this.artwork,
         durationMs: Long? = this.durationMs,
         bufferingState: BufferingState = this.bufferingState

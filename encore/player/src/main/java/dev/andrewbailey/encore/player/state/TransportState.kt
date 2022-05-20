@@ -11,7 +11,7 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
     public abstract val playbackSpeed: Float
 
     @Parcelize
-    public data class Active<out M : MediaObject>(
+    public data class Populated<out M : MediaObject>(
         val status: PlaybackStatus,
         val seekPosition: SeekPosition,
         val queue: QueueState<M>,
@@ -35,7 +35,7 @@ public sealed class TransportState<out M : MediaObject> : Parcelable {
     }
 
     @Parcelize
-    public data class Idle(
+    public data class Empty(
         override val repeatMode: RepeatMode,
         override val shuffleMode: ShuffleMode,
         override val playbackSpeed: Float

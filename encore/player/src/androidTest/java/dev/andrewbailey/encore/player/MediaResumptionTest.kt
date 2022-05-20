@@ -122,7 +122,7 @@ class MediaResumptionTest {
      */
     @Test
     fun testPlayStartsServiceAndResumesPlayback() = runTest(dispatcher) {
-        val savedState = TransportState.Active(
+        val savedState = TransportState.Populated(
             status = PlaybackStatus.Paused(false),
             seekPosition = SeekPosition.AbsoluteSeekPosition(15_000),
             queue = QueueState.Linear(

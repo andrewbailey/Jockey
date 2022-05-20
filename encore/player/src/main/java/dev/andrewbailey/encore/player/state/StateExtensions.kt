@@ -125,43 +125,43 @@ public fun <M : MediaObject> MediaPlayerState<M>.durationMillisOrNull(): Long? {
 
 public fun <M : MediaObject> TransportState<M>.hasContent(): Boolean {
     contract {
-        returns(true) implies (this@hasContent is TransportState.Active)
+        returns(true) implies (this@hasContent is TransportState.Populated)
     }
 
-    return this is TransportState.Active
+    return this is TransportState.Populated
 }
 
 public fun <M : MediaObject> TransportState<M>.isPlaying(): Boolean {
     contract {
-        returns(true) implies (this@isPlaying is TransportState.Active)
+        returns(true) implies (this@isPlaying is TransportState.Populated)
     }
 
-    return this is TransportState.Active && status == Playing
+    return this is TransportState.Populated && status == Playing
 }
 
 public fun <M : MediaObject> TransportState<M>.isPaused(): Boolean {
     contract {
-        returns(true) implies (this@isPaused is TransportState.Active)
+        returns(true) implies (this@isPaused is TransportState.Populated)
     }
 
-    return this is TransportState.Active && status is Paused
+    return this is TransportState.Populated && status is Paused
 }
 
 public fun <M : MediaObject> TransportState<M>.isPausedOrHasNoContent(): Boolean {
-    return (this is TransportState.Active && status is Paused) || this is TransportState.Idle
+    return (this is TransportState.Populated && status is Paused) || this is TransportState.Empty
 }
 
 public fun <M : MediaObject> TransportState<M>.seekPositionOrNull(): SeekPosition? {
     contract {
-        returnsNotNull() implies (this@seekPositionOrNull is TransportState.Active)
+        returnsNotNull() implies (this@seekPositionOrNull is TransportState.Populated)
     }
 
-    return (this as? TransportState.Active)?.seekPosition
+    return (this as? TransportState.Populated)?.seekPosition
 }
 
 public fun <M : MediaObject> TransportState<M>.seekPositionMillisOrNull(): Long? {
     contract {
-        returnsNotNull() implies (this@seekPositionMillisOrNull is TransportState.Active)
+        returnsNotNull() implies (this@seekPositionMillisOrNull is TransportState.Populated)
     }
 
     return seekPositionOrNull()?.seekPositionMillis
@@ -169,26 +169,26 @@ public fun <M : MediaObject> TransportState<M>.seekPositionMillisOrNull(): Long?
 
 public fun <M : MediaObject> TransportState<M>.nowPlayingOrNull(): QueueItem<M>? {
     contract {
-        returnsNotNull() implies (this@nowPlayingOrNull is TransportState.Active)
+        returnsNotNull() implies (this@nowPlayingOrNull is TransportState.Populated)
     }
 
     return queueStateOrNull()?.let { it.queue[it.queueIndex] }
 }
 
-public fun <M : MediaObject> TransportState.Active<M>.nowPlaying(): QueueItem<M> =
+public fun <M : MediaObject> TransportState.Populated<M>.nowPlaying(): QueueItem<M> =
     queue.queue[queue.queueIndex]
 
 public fun <M : MediaObject> TransportState<M>.queueStateOrNull(): QueueState<M>? {
     contract {
-        returnsNotNull() implies (this@queueStateOrNull is TransportState.Active)
+        returnsNotNull() implies (this@queueStateOrNull is TransportState.Populated)
     }
 
-    return (this as? TransportState.Active)?.queue
+    return (this as? TransportState.Populated)?.queue
 }
 
 public fun <M : MediaObject> TransportState<M>.queueOrNull(): List<QueueItem<M>>? {
     contract {
-        returnsNotNull() implies (this@queueOrNull is TransportState.Active)
+        returnsNotNull() implies (this@queueOrNull is TransportState.Populated)
     }
 
     return queueStateOrNull()?.queue
@@ -196,7 +196,7 @@ public fun <M : MediaObject> TransportState<M>.queueOrNull(): List<QueueItem<M>>
 
 public fun <M : MediaObject> TransportState<M>.queueIndexOrNull(): Int? {
     contract {
-        returnsNotNull() implies (this@queueIndexOrNull is TransportState.Active)
+        returnsNotNull() implies (this@queueIndexOrNull is TransportState.Populated)
     }
 
     return queueStateOrNull()?.queueIndex
