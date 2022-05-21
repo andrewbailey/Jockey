@@ -162,9 +162,9 @@ class MediaPlayerStateSubject private constructor(
 
     // region subject accessors
 
-    fun transportState(): TransportStateSubject =
-        check("transportState")
-            .about(TransportStateSubject.Factory)
+    fun mediaPlaybackState(): MediaPlaybackStateSubject =
+        check("mediaPlaybackState")
+            .about(MediaPlaybackStateSubject.Factory)
             .that(actual?.mediaPlaybackState)
 
     fun subclass(): ClassSubject =

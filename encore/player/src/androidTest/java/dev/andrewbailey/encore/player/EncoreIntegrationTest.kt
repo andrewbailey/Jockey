@@ -105,33 +105,33 @@ class EncoreIntegrationTest {
         assertWithMessage("The player was not playing media")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasStatus(PlaybackStatus.Playing)
 
         assertWithMessage("The player is not at the beginning of the track")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasSeekPosition(0, thresholdMs = 100)
 
         assertWithMessage("The player did not have the expected repeat mode")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .repeatMode()
             .isEqualTo(RepeatMode.RepeatNone)
 
         assertWithMessage("The player did not have the expected shuffle mode")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .shuffleMode()
             .isEqualTo(ShuffleMode.ShuffleDisabled)
 
         assertWithMessage("The player did not have the expected queue state")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasQueueState(mediaPlaybackState.queue)
 
         assertWithMessage("The player was not expected to have album artwork")
@@ -147,13 +147,13 @@ class EncoreIntegrationTest {
 
     @Test
     fun testSetStateFromIdleToActiveAndPaused() = encoreTest { encoreController ->
-        val transportState = createActiveState(
+        val mediaPlaybackState = createActiveState(
             status = PlaybackStatus.Paused(),
             seekPositionMs = 5000,
             playbackSpeed = 2f
         )
 
-        encoreController.setStateAndWaitForIdle(transportState)
+        encoreController.setStateAndWaitForIdle(mediaPlaybackState)
 
         delay(100)
 
@@ -162,13 +162,13 @@ class EncoreIntegrationTest {
         assertWithMessage("The player was not in the paused state")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasStatus(PlaybackStatus.Paused())
 
         assertWithMessage("The seek position did not match the requested value")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasExactSeekPosition(5_000)
     }
 
@@ -184,7 +184,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player was not initialized in the active state")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .hasStatus(PlaybackStatus.Playing)
 
         val emptyState = MediaPlaybackState.Empty(
@@ -198,7 +198,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player did not return to the idle state")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(emptyState)
     }
 
@@ -240,7 +240,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player should be playing after calling play() in the paused state")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 1000)
     }
 
@@ -259,7 +259,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player should do nothing after calling play() when already playing")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(originalState, seekToleranceMs = 1000)
     }
 
@@ -299,7 +299,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player should do nothing after calling pause() when already paused")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(originalState)
     }
 
@@ -320,7 +320,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player should be paused after calling pause() in the playing state")
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 500)
     }
 
@@ -371,7 +371,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 1000)
     }
 
@@ -403,7 +403,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 
@@ -433,7 +433,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 
@@ -463,7 +463,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 1000)
     }
 
@@ -495,7 +495,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 
@@ -527,7 +527,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 
@@ -558,7 +558,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 1000)
     }
 
@@ -590,7 +590,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 1000)
     }
 
@@ -620,7 +620,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 0)
     }
 
@@ -650,7 +650,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(encoreController.getState())
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 0)
     }
 
@@ -691,7 +691,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player did not shuffle its tracks as expected")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasQueueState(desiredState.queue)
 
         assertWithMessage(
@@ -699,7 +699,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 
@@ -740,7 +740,7 @@ class EncoreIntegrationTest {
         assertWithMessage("The player did not shuffle its tracks as expected")
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .hasQueueState(desiredState.queue)
 
         assertWithMessage(
@@ -748,7 +748,7 @@ class EncoreIntegrationTest {
         )
             .about(mediaPlayerState())
             .that(actualState)
-            .transportState()
+            .mediaPlaybackState()
             .isEqualTo(desiredState, seekToleranceMs = 100)
     }
 

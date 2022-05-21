@@ -51,7 +51,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
 
         override fun toString(): String {
             return "MediaPlayerState.Prepared(" +
-                "transportState=$mediaPlaybackState, " +
+                "mediaPlaybackState=$mediaPlaybackState, " +
                 "artwork=$artwork, " +
                 "durationMs=$durationMs, " +
                 "bufferingState=$bufferingState)"
@@ -73,7 +73,7 @@ public sealed class MediaPlayerState<out M : MediaObject> : Parcelable {
         }
 
         override fun toString(): String {
-            return "MediaPlayerState.Ready(transportState=$mediaPlaybackState)"
+            return "MediaPlayerState.Ready(mediaPlaybackState=$mediaPlaybackState)"
         }
     }
 

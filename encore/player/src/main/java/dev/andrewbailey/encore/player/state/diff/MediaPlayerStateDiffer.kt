@@ -32,22 +32,22 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                 is BufferingStateDiff -> state.copy(
                     bufferingState = diffOperation.bufferingState
                 )
-                is TransportStateStatusDiff -> state.copy(
+                is MediaPlaybackStateStatusDiff -> state.copy(
                     mediaPlaybackState = state.mediaPlaybackState.copy(
                         status = diffOperation.status
                     )
                 )
-                is TransportStateSeekPositionDiff -> state.copy(
+                is MediaPlaybackStateSeekPositionDiff -> state.copy(
                     mediaPlaybackState = state.mediaPlaybackState.copy(
                         seekPosition = diffOperation.seekPosition
                     )
                 )
-                is TransportStateQueueDiff -> state.copy(
+                is MediaPlaybackStateQueueDiff -> state.copy(
                     mediaPlaybackState = state.mediaPlaybackState.copy(
                         queue = applyDiff(state.mediaPlaybackState.queue, diffOperation)
                     )
                 )
-                is TransportStateRepeatModeDiff -> state.copy(
+                is MediaPlaybackStateRepeatModeDiff -> state.copy(
                     mediaPlaybackState = state.mediaPlaybackState.copy(
                         repeatMode = diffOperation.repeatMode
                     )
@@ -58,7 +58,7 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
 
     private fun applyDiff(
         oldQueueState: QueueState<M>,
-        diff: TransportStateQueueDiff<M>
+        diff: MediaPlaybackStateQueueDiff<M>
     ): QueueState<M> {
         val oldLinearQueueItems = when (oldQueueState) {
             is QueueState.Linear -> oldQueueState.queue
@@ -167,16 +167,16 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                     BufferingStateDiff(toState.bufferingState)
                 },
                 checkValues(toState, fromState, { mediaPlaybackState.status }) {
-                    TransportStateStatusDiff(toState.mediaPlaybackState.status)
+                    MediaPlaybackStateStatusDiff(toState.mediaPlaybackState.status)
                 },
                 checkValues(toState, fromState, { mediaPlaybackState.seekPosition }) {
-                    TransportStateSeekPositionDiff(toState.mediaPlaybackState.seekPosition)
+                    MediaPlaybackStateSeekPositionDiff(toState.mediaPlaybackState.seekPosition)
                 },
                 checkValues(toState, fromState, { mediaPlaybackState.queue }) {
                     val oldQueue = fromState.mediaPlaybackState.queue
                     val newQueue = toState.mediaPlaybackState.queue
 
-                    TransportStateQueueDiff(
+                    MediaPlaybackStateQueueDiff(
                         queueIndex = newQueue.queueIndex,
                         linearQueueDiff = differenceOf(
                             original = when (oldQueue) {
@@ -200,7 +200,7 @@ internal class MediaPlayerStateDiffer<M : MediaObject> {
                     )
                 },
                 checkValues(toState, fromState, { mediaPlaybackState.repeatMode }) {
-                    TransportStateRepeatModeDiff(toState.mediaPlaybackState.repeatMode)
+                    MediaPlaybackStateRepeatModeDiff(toState.mediaPlaybackState.repeatMode)
                 }
             )
         )

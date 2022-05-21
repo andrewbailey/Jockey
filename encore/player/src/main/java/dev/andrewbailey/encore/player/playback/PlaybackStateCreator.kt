@@ -35,20 +35,20 @@ internal class PlaybackStateCreator<M : MediaObject>(
 ) {
 
     fun createPlaybackState(): MediaPlayerState<M> {
-        return when (val transportState = createTransportState()) {
+        return when (val mediaPlaybackState = createMediaPlaybackState()) {
             is MediaPlaybackState.Populated<M> -> MediaPlayerState.Prepared(
-                mediaPlaybackState = transportState,
+                mediaPlaybackState = mediaPlaybackState,
                 artwork = getArtwork(),
                 durationMs = exoPlayer.duration.takeIf { it != C.TIME_UNSET },
                 bufferingState = getBufferingState()
             )
             is MediaPlaybackState.Empty -> MediaPlayerState.Ready(
-                mediaPlaybackState = transportState
+                mediaPlaybackState = mediaPlaybackState
             )
         }
     }
 
-    fun createTransportState(): MediaPlaybackState<M> {
+    fun createMediaPlaybackState(): MediaPlaybackState<M> {
         val queueItems = queue.queueItems
         return if (queueItems == null) {
             MediaPlaybackState.Empty(

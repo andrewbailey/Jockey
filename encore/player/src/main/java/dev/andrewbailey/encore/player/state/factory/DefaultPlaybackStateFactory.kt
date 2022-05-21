@@ -30,7 +30,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     override fun play(
         state: MediaPlaybackState<M>
     ): MediaPlaybackState<M> {
-        return state.modifyTransportState(
+        return state.modifyMediaPlaybackState(
             status = {
                 when (status) {
                     is Paused -> Playing
@@ -57,7 +57,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     override fun pause(
         state: MediaPlaybackState<M>
     ): MediaPlaybackState<M> {
-        return state.modifyTransportState(
+        return state.modifyMediaPlaybackState(
             status = {
                 when (status) {
                     Playing -> Paused()
@@ -71,7 +71,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         state: MediaPlaybackState<M>,
         seekPositionMillis: Long
     ): MediaPlaybackState<M> {
-        return state.modifyTransportState(
+        return state.modifyMediaPlaybackState(
             status = {
                 when (status) {
                     Playing -> status
@@ -85,7 +85,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
     override fun skipToPrevious(
         state: MediaPlaybackState<M>
     ): MediaPlaybackState<M> {
-        return state.modifyTransportState(
+        return state.modifyMediaPlaybackState(
             status = { Playing },
             seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
             queueIndex = {
@@ -102,12 +102,12 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         state: MediaPlaybackState<M>
     ): MediaPlaybackState<M> {
         return when (state.repeatMode) {
-            RepeatMode.RepeatAll -> state.modifyTransportState(
+            RepeatMode.RepeatAll -> state.modifyMediaPlaybackState(
                 status = { Playing },
                 seekPosition = { SeekPosition.AbsoluteSeekPosition(0) },
                 queueIndex = { (queue.queueIndex + 1) % queue.queue.size }
             )
-            else -> state.modifyTransportState(
+            else -> state.modifyMediaPlaybackState(
                 status = {
                     if (queue.queueIndex == queue.queue.size - 1) {
                         Paused()
@@ -131,7 +131,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         state: MediaPlaybackState<M>,
         index: Int
     ): MediaPlaybackState<M> {
-        return state.modifyTransportState(
+        return state.modifyMediaPlaybackState(
             status = { Playing },
             queueIndex = { index }
         )
@@ -235,7 +235,7 @@ public class DefaultPlaybackStateFactory<M : MediaObject>(
         )
     }
 
-    private inline fun MediaPlaybackState<M>.modifyTransportState(
+    private inline fun MediaPlaybackState<M>.modifyMediaPlaybackState(
         status: Populated<M>.() -> PlaybackStatus = { this.status },
         seekPosition: Populated<M>.() -> SeekPosition = { this.seekPosition },
         queueIndex: Populated<M>.() -> Int = { this.queue.queueIndex }

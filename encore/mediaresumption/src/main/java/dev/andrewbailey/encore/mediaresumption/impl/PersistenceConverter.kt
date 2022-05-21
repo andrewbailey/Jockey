@@ -68,7 +68,7 @@ internal class PersistenceConverter<M : MediaObject>(
         }
     }
 
-    suspend fun toTransportState(
+    suspend fun toMediaPlaybackState(
         persistedPlaybackState: PersistedPlaybackState,
         persistedQueueItems: List<PersistedQueueItem>
     ): MediaPlaybackState<M> {

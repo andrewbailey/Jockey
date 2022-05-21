@@ -198,37 +198,37 @@ internal class MediaSessionController<M : MediaObject>(
 
         override fun onPlay() {
             dispatchAction {
-                modifyTransportState { play() }
+                modifyMediaPlaybackState { play() }
             }
         }
 
         override fun onPause() {
             dispatchAction {
-                modifyTransportState { pause() }
+                modifyMediaPlaybackState { pause() }
             }
         }
 
         override fun onStop() {
             dispatchAction {
-                modifyTransportState { seekTo(0).pause() }
+                modifyMediaPlaybackState { seekTo(0).pause() }
             }
         }
 
         override fun onSeekTo(pos: Long) {
             dispatchAction {
-                modifyTransportState { seekTo(pos) }
+                modifyMediaPlaybackState { seekTo(pos) }
             }
         }
 
         override fun onSkipToPrevious() {
             dispatchAction {
-                modifyTransportState { skipToPrevious() }
+                modifyMediaPlaybackState { skipToPrevious() }
             }
         }
 
         override fun onSkipToNext() {
             dispatchAction {
-                modifyTransportState { skipToNext() }
+                modifyMediaPlaybackState { skipToNext() }
             }
         }
 
@@ -241,7 +241,7 @@ internal class MediaSessionController<M : MediaObject>(
             }
 
             dispatchAction {
-                modifyTransportState {
+                modifyMediaPlaybackState {
                     setRepeatMode(
                         repeatMode = encoreRepeatMode
                     )
@@ -257,7 +257,7 @@ internal class MediaSessionController<M : MediaObject>(
             }
 
             dispatchAction {
-                modifyTransportState {
+                modifyMediaPlaybackState {
                     setShuffleMode(
                         shuffleMode = encoreShuffleMode
                     )
@@ -311,9 +311,9 @@ internal class MediaSessionController<M : MediaObject>(
                         .toMap()
                 )
 
-                setTransportState(
+                setMediaPlaybackState(
                     playbackStateFactory.playFromSearchResults(
-                        state = requireCurrentTransportState(),
+                        state = requireCurrentMediaPlaybackState(),
                         query = query,
                         beginPlayback = extras?.getBoolean(EXTRA_START_PLAYBACK, true) ?: true,
                         arguments = searchArguments,
@@ -326,13 +326,13 @@ internal class MediaSessionController<M : MediaObject>(
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
             dispatchAction {
                 if (mediaId == MediaBrowserImpl.MEDIA_RESUMPTION_TRACK_ID) {
-                    modifyTransportState { play() }
+                    modifyMediaPlaybackState { play() }
                 } else {
                     val browserResults = browserHierarchy.getMediaItems(mediaId)
 
-                    setTransportState(
+                    setMediaPlaybackState(
                         playbackStateFactory.playFromMediaBrowser(
-                            state = requireCurrentTransportState(),
+                            state = requireCurrentMediaPlaybackState(),
                             browserId = mediaId,
                             mediaItemId = browserResults.mediaItemId,
                             mediaItems = browserResults.mediaItems

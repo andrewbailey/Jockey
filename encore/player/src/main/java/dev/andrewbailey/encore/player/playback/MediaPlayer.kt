@@ -81,9 +81,9 @@ internal class MediaPlayer<M : MediaObject>(
         }
     }
 
-    private fun getTransportState(): MediaPlaybackState<M> {
+    private fun getMediaPlaybackState(): MediaPlaybackState<M> {
         return synchronized(stateLock) {
-            stateCreator.createTransportState()
+            stateCreator.createMediaPlaybackState()
         }
     }
 
@@ -95,7 +95,7 @@ internal class MediaPlayer<M : MediaObject>(
 
             shouldDispatchStateChanges = false
 
-            val diff = differ.generateDiff(getTransportState(), state)
+            val diff = differ.generateDiff(getMediaPlaybackState(), state)
 
             for (operation in diff.operations) {
                 when (operation) {

@@ -31,7 +31,7 @@ public abstract class MediaResumptionProvider<M : MediaObject>(
 
     public abstract suspend fun getCurrentTrack(): M?
 
-    public abstract suspend fun getPersistedTransportState(): MediaPlaybackState<M>?
+    public abstract suspend fun getPersistedMediaPlaybackState(): MediaPlaybackState<M>?
 
     internal fun asPlaybackExtension(): PlaybackExtension<M> = extension
 
@@ -41,7 +41,7 @@ public abstract class MediaResumptionProvider<M : MediaObject>(
             pendingMediaPlaybackState: MediaPlaybackState<M>?
         ): MediaPlaybackState<M>? {
             return withContext(dispatcher) {
-                getPersistedTransportState().also {
+                getPersistedMediaPlaybackState().also {
                     lastPersistedState = it
                 }
             }

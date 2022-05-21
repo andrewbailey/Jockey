@@ -221,7 +221,7 @@ class MediaResumptionTest {
             throw UnsupportedOperationException("getCurrentTrack() not mocked")
         },
         getPersistedMediaPlaybackState: suspend () -> MediaPlaybackState<FakeSong>? = {
-            throw UnsupportedOperationException("getPersistedTransportState() not mocked")
+            throw UnsupportedOperationException("getPersistedMediaPlaybackState() not mocked")
         }
     ) = object : MediaResumptionProvider<FakeSong>(dispatcher) {
 
@@ -235,7 +235,7 @@ class MediaResumptionTest {
             return getCurrentTrack()
         }
 
-        override suspend fun getPersistedTransportState(): MediaPlaybackState<FakeSong>? {
+        override suspend fun getPersistedMediaPlaybackState(): MediaPlaybackState<FakeSong>? {
             return getPersistedMediaPlaybackState()
         }
 

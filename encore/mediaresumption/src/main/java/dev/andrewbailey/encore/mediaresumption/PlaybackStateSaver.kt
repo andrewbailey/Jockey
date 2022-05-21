@@ -23,7 +23,7 @@ public class PlaybackStateSaver<M : MediaObject>(
         return stateRepository.getLastPlayingItem()
     }
 
-    override suspend fun getPersistedTransportState(): MediaPlaybackState<M>? {
+    override suspend fun getPersistedMediaPlaybackState(): MediaPlaybackState<M>? {
         return stateRepository.getState()
     }
 }

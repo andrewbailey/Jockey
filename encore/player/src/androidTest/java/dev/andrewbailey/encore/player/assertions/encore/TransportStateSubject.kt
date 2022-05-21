@@ -13,17 +13,17 @@ import dev.andrewbailey.encore.player.state.QueueState
 
 fun assertThat(
     mediaPlayerState: MediaPlaybackState<*>?
-): TransportStateSubject = Truth.assertAbout(transportState()).that(mediaPlayerState)
+): MediaPlaybackStateSubject = Truth.assertAbout(mediaPlaybackState()).that(mediaPlayerState)
 
-fun transportState() = TransportStateSubject.Factory
+fun mediaPlaybackState() = MediaPlaybackStateSubject.Factory
 
-class TransportStateSubject private constructor(
+class MediaPlaybackStateSubject private constructor(
     failureMetadata: FailureMetadata,
     private val actual: MediaPlaybackState<*>?
 ) : Subject(failureMetadata, actual) {
 
     companion object {
-        val Factory = ::TransportStateSubject
+        val Factory = ::MediaPlaybackStateSubject
     }
 
     // region assertion operations

@@ -31,22 +31,22 @@ internal class BufferingStateDiff(
 ) : MediaPlayerStateModification<Nothing>()
 
 @Parcelize
-internal class TransportStateStatusDiff(
+internal class MediaPlaybackStateStatusDiff(
     val status: PlaybackStatus
 ) : MediaPlayerStateModification<Nothing>()
 
 @Parcelize
-internal class TransportStateSeekPositionDiff(
+internal class MediaPlaybackStateSeekPositionDiff(
     val seekPosition: SeekPosition
 ) : MediaPlayerStateModification<Nothing>()
 
 @Parcelize
-internal class TransportStateRepeatModeDiff(
+internal class MediaPlaybackStateRepeatModeDiff(
     val repeatMode: RepeatMode
 ) : MediaPlayerStateModification<Nothing>()
 
 @Parcelize
-internal class TransportStateQueueDiff<M : MediaObject>(
+internal class MediaPlaybackStateQueueDiff<M : MediaObject>(
     val queueIndex: Int,
     val linearQueueDiff: QueueDiffOperations<M>,
     val shuffledQueueDiff: QueueDiffOperations<M>?

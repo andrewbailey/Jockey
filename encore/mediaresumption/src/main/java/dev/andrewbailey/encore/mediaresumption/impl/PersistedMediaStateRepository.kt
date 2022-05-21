@@ -40,7 +40,7 @@ internal class PersistedMediaStateRepository<M : MediaObject>(
     suspend fun getState(): MediaPlaybackState<M>? {
         return database.withTransaction {
             database.playbackStateDao().getPersistedPlaybackState()?.let { playbackState ->
-                converter.toTransportState(
+                converter.toMediaPlaybackState(
                     persistedPlaybackState = playbackState,
                     persistedQueueItems = database.queueDao().getPersistedQueueItems()
                 )
