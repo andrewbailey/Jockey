@@ -6,20 +6,20 @@ apply plugin: 'dagger.hilt.android.plugin'
 
 apply from: "$rootDir/jacoco.gradle"
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
     namespace 'dev.andrewbailey.music'
-    compileSdkVersion config.compileSdkVersion
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
+
     defaultConfig {
         applicationId "dev.andrewbailey.music"
-        minSdkVersion config.jockeyMinSdkVersion
-        targetSdkVersion config.targetSdkVersion
+        minSdkVersion libs.versions.sdk.min.jockey.get().toInteger()
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -37,7 +37,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion config.versions.compose.compiler
+        kotlinCompilerExtensionVersion libs.versions.compose.compiler.get()
     }
 
     compileOptions {
@@ -62,33 +62,31 @@ dependencies {
     implementation project(':encore:mediaresumption')
 
     // Kotlin
-    implementation config.deps.kotlin.stdlib
-    implementation config.deps.kotlin.coroutines
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.android
 
     // Androidx
-    implementation config.deps.androidx.core
-    implementation config.deps.androidx.annotation
-    implementation config.deps.androidx.lifecycle
-    implementation config.deps.androidx.palette
+    implementation libs.androidx.core
+    implementation libs.androidx.annotation
+    implementation libs.androidx.lifecycle.runtime
+    implementation libs.androidx.palette
 
     // Compose
-    implementation config.deps.compose.ui
-    implementation config.deps.compose.foundation
-    implementation config.deps.compose.material
-    implementation config.deps.compose.animation
-    implementation config.deps.compose.runtime
-    implementation config.deps.compose.activity
-    implementation config.deps.accompanist.systemui
-    implementation config.deps.coil.core
-    implementation config.deps.coil.compose
+    implementation libs.compose.ui
+    implementation libs.compose.foundation
+    implementation libs.compose.material
+    implementation libs.compose.animation
+    implementation libs.compose.runtime
+    implementation libs.compose.activity
+    implementation libs.accompanist.systemui
+    implementation libs.coil.core
+    implementation libs.coil.compose
 
     // Dagger
-    implementation config.deps.dagger.core
-    implementation config.deps.dagger.hilt
-    kapt config.deps.dagger.compiler
-    kapt config.deps.dagger.hiltCompiler
+    implementation libs.hilt.runtime
+    kapt libs.hilt.compiler
 
     // Testing
-    testImplementation config.deps.test.junit
-    androidTestImplementation config.deps.test.espresso
+    testImplementation libs.test.junit
+    androidTestImplementation libs.test.espresso.core
 }

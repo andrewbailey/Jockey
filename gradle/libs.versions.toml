@@ -1,0 +1,66 @@
+[versions]
+accompanist = "0.24.8-beta"
+agp = "7.2.0"
+coil = "2.0.0"
+compose-compiler = "1.2.0-beta01"
+compose-runtime = "1.2.0-beta01"
+dagger = "2.42"
+encore = "0.1"
+exoplayer = "2.16.1"
+jacoco = "0.8.8"
+kotlin = "1.6.21"
+kotlinx-atomicfu = "0.17.2"
+kotlinx-coroutines = "1.6.1"
+ktlint = "0.45.2"
+room = "2.5.0-alpha01"
+sdk-compile = "31"
+sdk-min-encore = "21"
+sdk-min-jockey = "21"
+sdk-target = "31"
+
+[libraries]
+accompanist-systemui = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+androidx-annotation = "androidx.annotation:annotation:1.4.0-alpha02"
+androidx-core = "androidx.core:core-ktx:1.9.0-alpha03"
+androidx-lifecycle-runtime = "androidx.lifecycle:lifecycle-runtime:2.5.0-rc01"
+androidx-media = "androidx.media:media:1.6.0"
+androidx-palette = "androidx.palette:palette-ktx:1.0.0"
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-ktx", version.ref = "room" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-core = { module = "io.coil-kt:coil", version.ref = "coil" }
+compose-activity = "androidx.activity:activity-compose:1.5.0-rc01"
+compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose-runtime" }
+compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-runtime" }
+compose-material = { module = "androidx.compose.material:material", version.ref = "compose-runtime" }
+compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose-runtime" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-runtime" }
+difference = "dev.andrewbailey.difference:difference:1.0.0"
+exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoplayer" }
+exoplayer-mediasession = { module = "com.google.android.exoplayer:extension-mediasession", version.ref = "exoplayer" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
+hilt-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "dagger" }
+hilt-runtime = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-atomicfu-plugin = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "kotlinx-atomicfu" }
+kotlinx-atomicfu-runtime = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinx-atomicfu" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+test-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+test-espresso-core = "androidx.test.espresso:espresso-core:3.5.0-alpha03"
+test-espresso-idling = "androidx.test.espresso.idling:idling-concurrent:3.5.0-alpha03"
+test-junit = "junit:junit:4.13.2"
+test-kotlin-core = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+test-kotlin-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+test-mockk-android = "io.mockk:mockk-android:1.12.4"
+test-truth = "com.google.truth:truth:1.1.3"
+test-turbine = "app.cash.turbine:turbine:0.8.0"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+ktlint = "org.jlleitschuh.gradle.ktlint:10.3.0"
+updates-catalog = "nl.littlerobots.version-catalog-update:0.4.0"
+updates-gradle = "com.github.ben-manes.versions:0.41.0"

@@ -3,15 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
     namespace 'dev.andrewbailey.library.provider.mediastore'
-    compileSdkVersion config.compileSdkVersion
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
 
     defaultConfig {
-        minSdkVersion config.encoreMinSdkVersion
-        targetSdkVersion config.targetSdkVersion
+        minSdkVersion libs.versions.sdk.min.encore.get().toInteger()
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -41,17 +39,17 @@ dependencies {
     implementation project(':misc:compose-annotations')
 
     // Kotlin
-    implementation config.deps.kotlin.stdlib
-    implementation config.deps.kotlin.coroutines
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
 
     // Androidx
-    implementation config.deps.androidx.core
-    implementation config.deps.androidx.annotation
+    implementation libs.androidx.core
+    implementation libs.androidx.annotation
 
     // (Optional) Coil dependency
-    compileOnly config.deps.coil.core
+    compileOnly libs.coil.core
 
     // Testing
-    testImplementation config.deps.test.junit
-    androidTestImplementation config.deps.test.espresso
+    testImplementation libs.test.junit
+    androidTestImplementation libs.test.espresso.core
 }

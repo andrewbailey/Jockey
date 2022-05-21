@@ -6,19 +6,17 @@ apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
 apply from: "$rootDir/jacoco.gradle"
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
     namespace 'dev.andrewbailey.encore.player'
-    compileSdkVersion config.compileSdkVersion
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
 
     defaultConfig {
-        minSdkVersion config.encoreMinSdkVersion
-        targetSdkVersion config.targetSdkVersion
+        minSdkVersion libs.versions.sdk.min.encore.get().toInteger()
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-        buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
+        buildConfigField "String", "VERSION_NAME", "\"${libs.versions.encore.get()}\""
     }
 
     buildTypes {
@@ -44,39 +42,39 @@ dependencies {
     implementation project(':misc:compose-annotations')
 
     // Kotlin
-    implementation config.deps.kotlin.stdlib
-    implementation config.deps.kotlin.coroutines
-    implementation config.deps.kotlin.atomicFu
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.atomicfu.runtime
 
     // Androidx
-    implementation config.deps.androidx.core
-    implementation config.deps.androidx.annotation
-    api config.deps.androidx.media
+    implementation libs.androidx.core
+    implementation libs.androidx.annotation
+    api libs.androidx.media
 
     // ExoPlayer
-    implementation config.deps.exoplayer.core
-    implementation config.deps.exoplayer.mediasession
+    implementation libs.exoplayer.core
+    implementation libs.exoplayer.mediasession
 
     // Difference
-    implementation config.deps.difference.multiplatform
+    implementation libs.difference
 
     // Testing
     // Needed because the test services has to live in the `debug` source set
     debugImplementation project(':encore:test')
     testImplementation project(':encore:test')
     androidTestImplementation project(':encore:test')
-    testImplementation config.deps.test.junit
-    testImplementation config.deps.test.truth
-    testImplementation config.deps.test.kotlinTest
-    testImplementation config.deps.test.kotlinJunit
-    testImplementation config.deps.test.coroutinesTest
-    androidTestImplementation config.deps.test.coroutinesTest
-    androidTestImplementation config.deps.kotlin.coroutinesAndroid
-    androidTestImplementation config.deps.test.espresso
-    androidTestImplementation config.deps.test.mockkAndroid
-    androidTestImplementation config.deps.test.truth
-    androidTestImplementation config.deps.test.turbine
+    testImplementation libs.test.junit
+    testImplementation libs.test.truth
+    testImplementation libs.test.kotlin.core
+    testImplementation libs.test.kotlin.junit
+    testImplementation libs.test.coroutines
+    androidTestImplementation libs.test.coroutines
+    androidTestImplementation libs.kotlinx.coroutines.android
+    androidTestImplementation libs.test.espresso.core
+    androidTestImplementation libs.test.mockk.android
+    androidTestImplementation libs.test.truth
+    androidTestImplementation libs.test.turbine
 
     // Allow IdlingResources to be defined in debuggable builds
-    debugImplementation config.deps.test.idlingResource
+    debugImplementation libs.test.espresso.idling
 }

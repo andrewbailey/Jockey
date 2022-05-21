@@ -3,19 +3,17 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
     namespace 'dev.andrewbailey.encore.mediaresumption'
-    compileSdkVersion config.compileSdkVersion
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
 
     defaultConfig {
-        minSdkVersion config.encoreMinSdkVersion
-        targetSdkVersion config.targetSdkVersion
+        minSdkVersion libs.versions.sdk.min.encore.get().toInteger()
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-        buildConfigField "String", "VERSION_NAME", "\"${config.options.versionName}\""
+        buildConfigField "String", "VERSION_NAME", "\"${libs.versions.encore.get()}\""
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -42,18 +40,18 @@ dependencies {
     api project(':encore:player')
 
     // Kotlin
-    implementation config.deps.kotlin.stdlib
-    implementation config.deps.kotlin.coroutines
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
 
     // Room
-    implementation config.deps.androidx.room
-    kapt config.deps.androidx.roomCompiler
+    implementation libs.androidx.room.runtime
+    kapt libs.androidx.room.compiler
 
     // Testing
     testImplementation project(':encore:test')
-    testImplementation config.deps.test.junit
-    testImplementation config.deps.test.kotlinTest
-    testImplementation config.deps.test.kotlinJunit
-    testImplementation config.deps.test.coroutinesTest
-    androidTestImplementation config.deps.test.espresso
+    testImplementation libs.test.junit
+    testImplementation libs.test.kotlin.core
+    testImplementation libs.test.kotlin.junit
+    testImplementation libs.test.coroutines
+    androidTestImplementation libs.test.espresso.core
 }

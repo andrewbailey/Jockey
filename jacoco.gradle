@@ -4,14 +4,14 @@ configurations.all {
     resolutionStrategy {
         eachDependency { details ->
             if ('org.jacoco' == details.requested.group) {
-                details.useVersion versions.test.jacoco
+                details.useVersion libs.versions.jacoco.get()
             }
         }
     }
 }
 
 jacoco {
-    toolVersion versions.test.jacoco
+    toolVersion libs.versions.jacoco.get()
 }
 
 def excludedFiles = [

@@ -2,14 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
-    compileSdkVersion config.compileSdkVersion
+    namespace 'dev.andrewbailey.annotations.compose'
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion config.targetSdkVersion
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -28,8 +27,8 @@ android {
 }
 
 dependencies {
-    implementation config.deps.kotlin.stdlib
-    compileOnly config.deps.compose.runtime
+    implementation libs.kotlin.stdlib
+    compileOnly libs.compose.runtime
 
-    testImplementation config.deps.test.junit
+    testImplementation libs.test.junit
 }

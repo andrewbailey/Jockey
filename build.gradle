@@ -1,153 +1,24 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.versions = [
-        kotlin : [
-            stdlib : '1.6.21',
-            coroutines : '1.6.1',
-            atomicFu : '0.17.2',
-        ],
-        androidx : [
-            core : '1.9.0-alpha03',
-            annotation : '1.4.0-alpha02',
-            lifecycle : '2.5.0-rc01',
-            room: '2.5.0-alpha01',
-            media: '1.6.0',
-            palette : '1.0.0',
-        ],
-        compose : [
-            core : '1.2.0-beta01',
-            compiler : '1.2.0-beta01',
-            activity : '1.6.0-alpha03',
-            accompanist: '0.24.8-beta',
-        ],
-        coil : '2.0.0',
-        dagger : [
-            core : '2.42',
-        ],
-        exoplayer : [
-            core : '2.16.1',
-        ],
-        difference : '1.0.0',
-        test : [
-            junit : '4.13.2',
-            espresso : '3.5.0-alpha03',
-            truth : '1.1.3',
-            mockk : '1.12.4',
-            turbine : '0.8.0',
-            jacoco : '0.8.8',
-        ]
-    ]
-
-    ext.options = [
-        encore : [
-            versionName : '0.1',
-        ],
-    ]
-
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}"
-        classpath "org.jetbrains.kotlinx:atomicfu-gradle-plugin:${versions.kotlin.atomicFu}"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.3.0"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger.core}"
-        classpath "org.jacoco:org.jacoco.core:${versions.test.jacoco}"
+        classpath libs.kotlinx.atomicfu.plugin
+        classpath libs.hilt.plugin
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
-ext {
-    targetSdkVersion = 31
-    compileSdkVersion = 31
-    encoreMinSdkVersion = 21
-    jockeyMinSdkVersion = 21
-
-    deps = [
-        kotlin : [
-            stdlib : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.stdlib}",
-            coroutines : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}",
-            coroutinesAndroid : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}",
-            atomicFu : "org.jetbrains.kotlinx:atomicfu:${versions.kotlin.atomicFu}",
-        ],
-        androidx : [
-            core : "androidx.core:core-ktx:${versions.androidx.core}",
-            annotation : "androidx.annotation:annotation:${versions.androidx.annotation}",
-            lifecycle: "androidx.lifecycle:lifecycle-runtime:${versions.androidx.lifecycle}",
-            room: "androidx.room:room-ktx:${versions.androidx.room}",
-            roomCompiler: "androidx.room:room-compiler:${versions.androidx.room}",
-            media : "androidx.media:media:${versions.androidx.media}",
-            palette : "androidx.palette:palette-ktx:${versions.androidx.palette}",
-        ],
-        compose : [
-            ui : "androidx.compose.ui:ui:${versions.compose.core}",
-            foundation : "androidx.compose.foundation:foundation:${versions.compose.core}",
-            material : "androidx.compose.material:material:${versions.compose.core}",
-            animation : "androidx.compose.animation:animation:${versions.compose.core}",
-            runtime : "androidx.compose.runtime:runtime:${versions.compose.core}",
-            activity : "androidx.activity:activity-compose:${versions.compose.activity}",
-        ],
-        accompanist : [
-            systemui: "com.google.accompanist:accompanist-systemuicontroller:${versions.compose.accompanist}",
-        ],
-        coil : [
-            core: "io.coil-kt:coil:${versions.coil}",
-            compose: "io.coil-kt:coil-compose:${versions.coil}",
-        ],
-        exoplayer : [
-            core : "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer.core}",
-            mediasession : "com.google.android.exoplayer:extension-mediasession:${versions.exoplayer.core}"
-        ],
-        dagger : [
-            core : "com.google.dagger:dagger:${versions.dagger.core}",
-            compiler : "com.google.dagger:dagger-compiler:${versions.dagger.core}",
-            hilt : "com.google.dagger:hilt-android:${versions.dagger.core}",
-            hiltCompiler : "com.google.dagger:hilt-android-compiler:${versions.dagger.core}",
-        ],
-        difference : [
-            multiplatform : "dev.andrewbailey.difference:difference:${versions.difference}"
-        ],
-        test : [
-            junit : "junit:junit:${versions.test.junit}",
-            espresso : "androidx.test.espresso:espresso-core:${versions.test.espresso}",
-            idlingResource : "androidx.test.espresso.idling:idling-concurrent:${versions.test.espresso}",
-            kotlinTest : "org.jetbrains.kotlin:kotlin-test:${versions.kotlin.stdlib}",
-            kotlinJunit : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin.stdlib}",
-            coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}",
-            mockk : "io.mockk:mockk:${versions.test.mockk}",
-            mockkAndroid : "io.mockk:mockk-android:${versions.test.mockk}",
-            turbine : "app.cash.turbine:turbine:${versions.test.turbine}",
-            truth : "com.google.truth:truth:${versions.test.truth}"
-        ]
-    ]
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.kotlin) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.updates.gradle)
+    alias(libs.plugins.updates.catalog)
 }
 
-
 allprojects {
-    apply plugin: "org.jlleitschuh.gradle.ktlint"
-
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-    }
-
-    ktlint {
-        version = "0.45.2"
-        android = true
-        verbose = true
-        disabledRules = [
-            "no-empty-class-body",
-            "no-blank-line-before-rbrace",
-        ]
-    }
-
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             freeCompilerArgs += [
@@ -155,6 +26,42 @@ allprojects {
                 "-Xcontext-receivers",
             ]
         }
+    }
+}
+
+ktlint {
+    version = libs.versions.ktlint.get()
+    android = true
+    verbose = true
+    disabledRules = [
+        "no-empty-class-body",
+        "no-blank-line-before-rbrace",
+    ]
+}
+
+tasks.named("dependencyUpdates").configure {
+    // Ensure that automatic updates do not go to less stable channels
+    rejectVersionIf { selection ->
+        def preReleaseChannels = ["RC", "BETA", "ALPHA", "SNAPSHOT"]
+        def currentPreReleaseChannel = preReleaseChannels.find { channel ->
+            selection.currentVersion.toUpperCase().contains(channel)
+        }
+        def disallowedChannels = preReleaseChannels.takeRight(
+            preReleaseChannels.size() - (preReleaseChannels.indexOf(currentPreReleaseChannel) + 1)
+        )
+
+        return disallowedChannels.any { channel ->
+            selection.candidate.version.toUpperCase().contains(channel)
+        }
+    }
+}
+
+versionCatalogUpdate {
+    sortByKey = true
+    keep {
+        keepUnusedVersions = true
+        keepUnusedLibraries = false
+        keepUnusedPlugins = false
     }
 }
 

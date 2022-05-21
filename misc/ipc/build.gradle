@@ -5,15 +5,13 @@ apply plugin: dev.andrewbailey.ExplicitApiModePlugin
 
 apply from: "$rootDir/jacoco.gradle"
 
-def config = rootProject.extensions.getByName("ext")
-
 android {
     namespace 'dev.andrewbailey.ipc'
-    compileSdkVersion config.compileSdkVersion
+    compileSdkVersion libs.versions.sdk.compile.get().toInteger()
 
     defaultConfig {
-        minSdkVersion config.encoreMinSdkVersion
-        targetSdkVersion config.targetSdkVersion
+        minSdkVersion libs.versions.sdk.min.encore.get().toInteger()
+        targetSdkVersion libs.versions.sdk.target.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -38,11 +36,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Kotlin
-    implementation config.deps.kotlin.stdlib
+    implementation libs.kotlin.stdlib
 
     // Testing
-    testImplementation config.deps.test.junit
-    androidTestImplementation config.deps.test.espresso
-    androidTestImplementation config.deps.test.kotlinTest
-    androidTestImplementation config.deps.test.kotlinJunit
+    testImplementation libs.test.junit
+    androidTestImplementation libs.test.espresso.core
+    androidTestImplementation libs.test.kotlin.core
+    androidTestImplementation libs.test.kotlin.junit
 }
