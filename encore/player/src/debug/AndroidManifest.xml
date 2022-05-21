@@ -11,10 +11,15 @@
         -->
         <service
             android:name=".EncoreTestService"
-            android:exported="true">
-            <intent-filter>
+            android:exported="false">
+            <!--
+             Media button interactions aren't tested. We don't include this intent filter since it
+             causes ambiguity in debuggable builds of Jockey that break media buttons in
+             notifications.
+            -->
+            <!--intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
+            </intent-filter-->
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
