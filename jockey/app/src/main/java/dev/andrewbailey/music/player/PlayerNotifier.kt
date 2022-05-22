@@ -7,6 +7,7 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.content.ContextCompat
 import dev.andrewbailey.encore.player.action.PlaybackAction
 import dev.andrewbailey.encore.player.notification.NotificationAction
@@ -27,6 +28,7 @@ class PlayerNotifier : NotificationProvider<Song>(CHANNEL_ID) {
     override fun getNotificationIcon(playbackState: MediaPlayerState<Song>): Int {
         val state = playbackState.mediaPlaybackState
         return when {
+            Build.VERSION.SDK_INT >= 30 -> R.drawable.ic_notification
             state?.isPlaying() == true -> R.drawable.ic_notification_play
             else -> R.drawable.ic_notification_pause
         }
