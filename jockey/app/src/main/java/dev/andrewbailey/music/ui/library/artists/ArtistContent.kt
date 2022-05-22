@@ -21,7 +21,6 @@ import dev.andrewbailey.music.ui.library.common.albums
 import dev.andrewbailey.music.ui.library.common.songs
 import dev.andrewbailey.music.ui.navigation.AlbumScreen
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
-import dev.andrewbailey.music.util.rememberPaletteCache
 
 @Composable
 fun ArtistContent(
@@ -74,14 +73,12 @@ private fun ArtistContentList(
         }
 
         item {
-            val paletteCache = rememberPaletteCache()
             LazyRow(
                 modifier = Modifier.height(180.dp),
                 contentPadding = PaddingValues(all = 8.dp)
             ) {
                 albums(
                     albums = albums,
-                    paletteCache = paletteCache,
                     gridPadding = 8.dp,
                     onClickAlbum = { _, album ->
                         navigator.push(AlbumScreen(album))

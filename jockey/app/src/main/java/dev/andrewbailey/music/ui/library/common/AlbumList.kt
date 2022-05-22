@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -36,11 +37,10 @@ import coil.compose.rememberAsyncImagePainter
 import coil.imageLoader
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
-import dev.andrewbailey.music.util.PaletteCache
+import dev.andrewbailey.music.ui.data.LocalColorRepository
+import dev.andrewbailey.music.ui.data.rememberPaletteAsStateOf
 import dev.andrewbailey.music.util.copy
 import dev.andrewbailey.music.util.luminance
-import dev.andrewbailey.music.util.rememberPalette
-import dev.andrewbailey.music.util.rememberPaletteCache
 
 @Composable
 fun AlbumList(
@@ -49,8 +49,6 @@ fun AlbumList(
     gridPadding: Dp = 4.dp,
     onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
 ) {
-    val paletteCache = rememberPaletteCache()
-
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 140.dp),
         contentPadding = PaddingValues(all = gridPadding / 2),
@@ -58,7 +56,6 @@ fun AlbumList(
     ) {
         albums(
             albums = albums,
-            paletteCache = paletteCache,
             gridPadding = gridPadding,
             onClickAlbum = onClickAlbum
         )
@@ -67,14 +64,12 @@ fun AlbumList(
 
 fun LazyGridScope.albums(
     albums: List<Album>,
-    paletteCache: PaletteCache,
     gridPadding: Dp = 4.dp,
     onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
 ) {
     itemsIndexed(albums) { index, album ->
         AlbumCell(
             album = album,
-            paletteCache = paletteCache,
             modifier = Modifier
                 .padding(all = gridPadding / 2)
                 .then(
@@ -90,14 +85,12 @@ fun LazyGridScope.albums(
 
 fun LazyListScope.albums(
     albums: List<Album>,
-    paletteCache: PaletteCache,
     gridPadding: Dp = 4.dp,
     onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
 ) {
     itemsIndexed(albums) { index, album ->
         AlbumCell(
             album = album,
-            paletteCache = paletteCache,
             modifier = Modifier
                 .padding(all = gridPadding / 2)
                 .then(
@@ -114,13 +107,10 @@ fun LazyListScope.albums(
 @Composable
 private fun AlbumCell(
     album: Album,
-    modifier: Modifier = Modifier,
-    paletteCache: PaletteCache? = null
+    modifier: Modifier = Modifier
 ) {
-    val palette = rememberPalette(
-        coilRequest = album,
-        cache = paletteCache
-    ).value?.let { palette ->
+    val albumPalette by LocalColorRepository.current.rememberPaletteAsStateOf(album)
+    val primaryColor = albumPalette?.let { palette ->
         maxOf(
             palette[Target.DARK_VIBRANT],
             palette[Target.LIGHT_VIBRANT],
@@ -130,7 +120,7 @@ private fun AlbumCell(
         }
     }
 
-    val shimColor = palette?.rgb?.let { Color(it) } ?: MaterialTheme.colors.surface
+    val shimColor = primaryColor?.rgb?.let { Color(it) } ?: MaterialTheme.colors.surface
     val onShimColor = if (shimColor.luminance > 0.5f) {
         shimColor.copy(luminance = 0.1f)
     } else {

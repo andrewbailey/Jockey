@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-atomicfu'
 apply plugin: 'dagger.hilt.android.plugin'
 
 apply from: "$rootDir/jacoco.gradle"
@@ -64,6 +65,7 @@ dependencies {
     // Kotlin
     implementation libs.kotlin.stdlib
     implementation libs.kotlinx.coroutines.android
+    implementation libs.kotlinx.atomicfu.runtime
 
     // Androidx
     implementation libs.androidx.core

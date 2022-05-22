@@ -8,6 +8,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dev.andrewbailey.music.ui.data.ColorRepository
+import dev.andrewbailey.music.ui.data.LocalColorRepository
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.data.LocalPlaybackController
 import dev.andrewbailey.music.ui.data.MediaLibrary
@@ -23,6 +25,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var mediaLibrary: MediaLibrary
     @Inject lateinit var playbackController: PlaybackController
+    @Inject lateinit var colorRepository: ColorRepository
 
     private lateinit var navigator: Navigator
 
@@ -37,7 +40,8 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalAppNavigator provides navigator,
                     LocalMediaLibrary provides mediaLibrary,
-                    LocalPlaybackController provides playbackController
+                    LocalPlaybackController provides playbackController,
+                    LocalColorRepository provides colorRepository
                 ) {
                     JockeyRoot(
                         modifier = Modifier.fillMaxSize()
