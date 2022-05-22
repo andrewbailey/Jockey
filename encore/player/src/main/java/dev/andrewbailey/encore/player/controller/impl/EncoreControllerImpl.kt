@@ -22,7 +22,10 @@ import dev.andrewbailey.encore.player.state.MediaPlaybackState
 import dev.andrewbailey.encore.player.state.MediaPlayerState
 import dev.andrewbailey.encore.player.state.ShuffleMode
 import dev.andrewbailey.encore.player.state.diff.MediaPlayerStateDiffer
+import dev.andrewbailey.encore.player.state.durationMillisOrNull
+import dev.andrewbailey.encore.player.state.isPaused
 import dev.andrewbailey.encore.player.state.isPausedForBuffering
+import dev.andrewbailey.encore.player.state.isPausedOrHasNoContent
 import dev.andrewbailey.encore.player.state.isPlaying
 import dev.andrewbailey.encore.player.state.seekPositionMillisOrNull
 import kotlinx.coroutines.CoroutineScope
@@ -157,19 +160,18 @@ internal class EncoreControllerImpl<M : MediaObject> constructor(
         state: MediaPlayerState<M>,
         intervalMs: Long
     ): Flow<MediaPlayerState<M>> {
-        return flow {
-            val duration = state.seekPositionMillisOrNull()
-                ?.takeIf { state.isPlaying() }
-                ?.takeUnless { state.isPausedForBuffering() }
-
-            var seekPositionMs: Long?
-            do {
-                seekPositionMs = state.seekPositionMillisOrNull()
-                emit(state)
-                delay(intervalMs)
-            } while (duration != null && seekPositionMs != null &&
-                seekPositionMs < duration
-            )
+        val duration = state.durationMillisOrNull()
+        return if (duration == null || !state.isPlaying() || state.isPausedForBuffering()) {
+            flowOf(state)
+        } else {
+            flow {
+                var seekPositionMs: Long?
+                do {
+                    seekPositionMs = state.seekPositionMillisOrNull()
+                    emit(state)
+                    delay(intervalMs)
+                } while (seekPositionMs != null && seekPositionMs < duration)
+            }
         }
     }
 
