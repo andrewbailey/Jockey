@@ -3,6 +3,7 @@ package dev.andrewbailey.music.ui.library.songs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -21,7 +22,8 @@ import dev.andrewbailey.music.ui.library.common.SongList
 
 @Composable
 fun AllSongsRoot(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val mediaLibrary = LocalMediaLibrary.current
     val playbackController = LocalPlaybackController.current
@@ -33,6 +35,7 @@ fun AllSongsRoot(
         else -> SongList(
             songs = songs,
             modifier = modifier,
+            contentPadding = contentPadding,
             onClickSong = { index, _ ->
                 playbackController.playFrom(songs, index)
             }

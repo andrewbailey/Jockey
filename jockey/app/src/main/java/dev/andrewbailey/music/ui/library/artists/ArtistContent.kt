@@ -2,10 +2,7 @@ package dev.andrewbailey.music.ui.library.artists
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.CircularProgressIndicator
@@ -27,7 +24,8 @@ fun ArtistContent(
     artist: Artist,
     songs: List<Song>?,
     albums: List<Album>?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     if (songs == null || albums == null) {
         ArtistLoadingState(
@@ -38,7 +36,8 @@ fun ArtistContent(
             artist = artist,
             songs = songs,
             albums = albums,
-            modifier = modifier
+            modifier = modifier,
+            contentPadding = contentPadding
         )
     }
 }
@@ -59,14 +58,15 @@ private fun ArtistContentList(
     artist: Artist,
     songs: List<Song>,
     albums: List<Album>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val playbackController = LocalPlaybackController.current
     val navigator = LocalAppNavigator.current
 
     LazyColumn(
         modifier = modifier,
-        contentPadding = WindowInsets.navigationBars.asPaddingValues()
+        contentPadding = contentPadding
     ) {
         item {
             ArtistBio(artist = artist, songs = songs, albums = albums)

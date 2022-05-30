@@ -7,8 +7,12 @@ import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.SwipeableDefaults
@@ -34,6 +38,7 @@ import androidx.compose.ui.unit.isSpecified
 import dev.andrewbailey.music.ui.layout.ModalState.Companion.modalSheet
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Collapsed
 import dev.andrewbailey.music.ui.layout.ModalStateValue.Expanded
+import dev.andrewbailey.music.util.consume
 import dev.andrewbailey.music.util.subcomposeSingle
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
@@ -141,10 +146,11 @@ fun rememberModalState(
 
 @Composable
 fun ModalScaffold(
-    bodyContent: @Composable () -> Unit,
+    bodyContent: @Composable (PaddingValues) -> Unit,
     collapsedSheetLayout: @Composable () -> Unit,
     expandedSheetLayout: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = WindowInsets.safeContent,
     state: ModalState = rememberModalState(Collapsed),
     expandable: Boolean = true,
     scrimColor: Color = Color.Black.copy(alpha = 0.6f)
@@ -168,6 +174,7 @@ fun ModalScaffold(
                             expandedContent = expandedSheetLayout
                         )
                     },
+                    windowInsets = windowInsets,
                     collapsedSheetHeightPx = collapsedSheetHeight,
                     state = state,
                     expandable = expandable,
@@ -180,10 +187,11 @@ fun ModalScaffold(
 
 @Composable
 fun ModalScaffold(
-    bodyContent: @Composable () -> Unit,
+    bodyContent: @Composable (PaddingValues) -> Unit,
     sheetContent: @Composable () -> Unit,
     collapsedSheetHeightPx: Int,
     modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = WindowInsets.safeContent,
     state: ModalState = rememberModalState(Collapsed),
     maximumExpandedHeight: Dp = Dp.Unspecified,
     expandable: Boolean = true,
@@ -203,7 +211,11 @@ fun ModalScaffold(
 
         layout(layoutSize.width, layoutSize.height) {
             subcomposeSingle("body") {
-                bodyContent()
+                bodyContent(
+                    windowInsets.asPaddingValues().consume(
+                        bottom = with(LocalDensity.current) { collapsedSheetHeightPx.toDp() }
+                    )
+                )
             }.measure(
                 constraints.copy(
                     minHeight = 0,

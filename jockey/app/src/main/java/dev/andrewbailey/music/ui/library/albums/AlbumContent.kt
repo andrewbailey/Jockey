@@ -3,11 +3,9 @@ package dev.andrewbailey.music.ui.library.albums
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,13 +37,14 @@ import dev.andrewbailey.music.util.pluralsResource
 fun AlbumContent(
     album: Album,
     songs: List<Song>?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val playbackController = LocalPlaybackController.current
 
     LazyColumn(
         modifier = modifier,
-        contentPadding = WindowInsets.navigationBars.asPaddingValues()
+        contentPadding = contentPadding
     ) {
         item {
             AlbumHeader(

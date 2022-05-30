@@ -2,6 +2,7 @@ package dev.andrewbailey.music.ui.library.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -26,10 +27,12 @@ import dev.andrewbailey.music.model.Song
 fun SongList(
     songs: List<Song>,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     onClickSong: ((index: Int, song: Song) -> Unit)? = null
 ) {
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        contentPadding = contentPadding
     ) {
         songs(songs, onClickSong)
     }

@@ -1,6 +1,7 @@
 package dev.andrewbailey.music.ui.library.albums
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -14,12 +15,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Album
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.library.LibraryAppBar
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
+import dev.andrewbailey.music.util.consume
 
 @Composable
 fun AlbumPage(
@@ -31,14 +35,21 @@ fun AlbumPage(
 
     LibraryPageLayout(
         modifier = modifier
-    ) {
+    ) { contentPadding ->
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
             Column {
-                AlbumTopAppBar(album)
+                AlbumTopAppBar(
+                    album = album,
+                    padding = contentPadding.consume(bottom = Dp.Infinity)
+                )
 
-                AlbumContent(album, songs)
+                AlbumContent(
+                    album = album,
+                    songs = songs,
+                    contentPadding = contentPadding.consume(top = Dp.Infinity)
+                )
             }
         }
     }
@@ -47,11 +58,13 @@ fun AlbumPage(
 @Composable
 private fun AlbumTopAppBar(
     album: Album,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(0.dp)
 ) {
     val navigator = LocalAppNavigator.current
     LibraryAppBar(
         modifier = modifier,
+        padding = padding,
         title = {
             Text(
                 text = album.name,

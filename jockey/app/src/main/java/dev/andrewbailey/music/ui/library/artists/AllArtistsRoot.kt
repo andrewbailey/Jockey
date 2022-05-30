@@ -3,6 +3,7 @@ package dev.andrewbailey.music.ui.library.artists
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -22,7 +23,8 @@ import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
 
 @Composable
 fun AllArtistsRoot(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val mediaLibrary = LocalMediaLibrary.current
     val navigator = LocalAppNavigator.current
@@ -34,6 +36,7 @@ fun AllArtistsRoot(
         else -> ArtistList(
             artists = artists,
             modifier = modifier,
+            contentPadding = contentPadding,
             onClickArtist = { _, artist ->
                 navigator.push(ArtistScreen(artist))
             }

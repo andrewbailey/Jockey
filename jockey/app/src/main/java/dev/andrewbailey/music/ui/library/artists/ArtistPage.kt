@@ -1,8 +1,8 @@
 package dev.andrewbailey.music.ui.library.artists
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -16,14 +16,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import dev.andrewbailey.music.R
 import dev.andrewbailey.music.model.Artist
 import dev.andrewbailey.music.ui.data.LocalMediaLibrary
 import dev.andrewbailey.music.ui.layout.LibraryPageLayout
 import dev.andrewbailey.music.ui.library.LibraryAppBar
 import dev.andrewbailey.music.ui.navigation.LocalAppNavigator
+import dev.andrewbailey.music.util.consume
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ArtistPage(
     artist: Artist,
@@ -36,17 +38,21 @@ fun ArtistPage(
 
     LibraryPageLayout(
         modifier = modifier
-    ) {
+    ) { contentPadding ->
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
             Column {
-                ArtistTopAppBar(artist)
+                ArtistTopAppBar(
+                    artist = artist,
+                    padding = contentPadding.consume(bottom = Dp.Infinity)
+                )
 
                 ArtistContent(
                     artist = artist,
                     songs = songs,
-                    albums = albums
+                    albums = albums,
+                    contentPadding = contentPadding.consume(top = Dp.Infinity)
                 )
             }
         }
@@ -57,11 +63,13 @@ fun ArtistPage(
 private fun ArtistTopAppBar(
     artist: Artist,
     modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(0.dp)
 ) {
     val navigator = LocalAppNavigator.current
 
     LibraryAppBar(
         modifier = modifier,
+        padding = padding,
         title = {
             Text(
                 text = artist.name,

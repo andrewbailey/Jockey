@@ -7,6 +7,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +25,9 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -170,8 +174,21 @@ operator fun PaddingValues.plus(other: PaddingValues) = PaddingValues(
         other.calculateStartPadding(LocalLayoutDirection.current),
     top = this.calculateTopPadding() +
         other.calculateTopPadding(),
-    end = this.calculateStartPadding(LocalLayoutDirection.current) +
-        other.calculateStartPadding(LocalLayoutDirection.current),
+    end = this.calculateEndPadding(LocalLayoutDirection.current) +
+        other.calculateEndPadding(LocalLayoutDirection.current),
     bottom = this.calculateBottomPadding() +
         other.calculateBottomPadding(),
+)
+
+@Composable
+fun PaddingValues.consume(
+    top: Dp = 0.dp,
+    bottom: Dp = 0.dp,
+    start: Dp = 0.dp,
+    end: Dp = 0.dp
+) = PaddingValues(
+    top = (calculateTopPadding() - top).coerceAtLeast(0.dp),
+    bottom = (calculateBottomPadding() - bottom).coerceAtLeast(0.dp),
+    start = (calculateStartPadding(LocalLayoutDirection.current) - start).coerceAtLeast(0.dp),
+    end = (calculateEndPadding(LocalLayoutDirection.current) - end).coerceAtLeast(0.dp),
 )

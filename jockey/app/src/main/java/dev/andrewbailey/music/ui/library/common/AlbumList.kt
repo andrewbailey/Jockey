@@ -41,17 +41,19 @@ import dev.andrewbailey.music.ui.data.LocalColorRepository
 import dev.andrewbailey.music.ui.data.rememberPaletteAsStateOf
 import dev.andrewbailey.music.util.copy
 import dev.andrewbailey.music.util.luminance
+import dev.andrewbailey.music.util.plus
 
 @Composable
 fun AlbumList(
     albums: List<Album>,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     gridPadding: Dp = 4.dp,
     onClickAlbum: ((index: Int, album: Album) -> Unit)? = null
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 140.dp),
-        contentPadding = PaddingValues(all = gridPadding / 2),
+        contentPadding = contentPadding + PaddingValues(all = gridPadding / 2),
         modifier = modifier
     ) {
         albums(
